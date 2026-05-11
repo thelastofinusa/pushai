@@ -12,6 +12,7 @@
     "bin",
     "package.json"
   ],
+  "homepage": "https://pushai.vercel.app",
   "scripts": {
     "dev": "tsx watch src/pai.ts",
     "build": "tsup",
