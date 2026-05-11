@@ -1,7 +1,7 @@
 import { defineConfig } from "tsup";
 
 export default defineConfig({
-  entry: ["src/index.ts"],
+  entry: ["src/pai.ts"],
   format: ["esm"],
   outDir: "dist",
   clean: true,
@@ -9,5 +9,5 @@ export default defineConfig({
   minify: true,
   splitting: false,
   sourcemap: true,
-  onSuccess: "chmod +x dist/index.js",
+  onSuccess: "chmod +x dist/pai.js",
 });
