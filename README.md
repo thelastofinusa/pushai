@@ -1,1 +1,1 @@
-# Push AI - AI-powered git commit messages
+## Push AI - AI-powered git commit messages
