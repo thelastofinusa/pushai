@@ -1,4 +1,12 @@
 node_modules/
 dist/
 .env
+.env.local
+.env.*.local
 .turbo
+.next/
+out/
+build/
+*.log
+.DS_Store
+.pushai
