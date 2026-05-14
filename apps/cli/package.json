@@ -1,0 +1,48 @@
+{
+  "name": "pushai",
+  "version": "0.1.1",
+  "description": "AI-powered CLI for effortless git commits and pushes",
+  "bin": {
+    "pai": "./dist/index.mjs"
+  },
+  "scripts": {
+    "dev": "tsup src/index.ts --format esm --watch --clean",
+    "build": "tsup src/index.ts --format esm --clean --minify",
+    "start": "pnpm build && clear && node dist/index.mjs",
+    "pushout": "npm publish",
+    "pushout-inc": "npm version patch --no-git-tag-version && pnpm pushout"
+  },
+  "keywords": [
+    "cli",
+    "git",
+    "push",
+    "ai",
+    "commit",
+    "message",
+    "generate",
+    "robotics"
+  ],
+  "author": {
+    "name": "Holiday",
+    "url": "https://thelastofinusa.vercel.app"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "@huggingface/inference": "^4.13.15",
+    "@inquirer/prompts": "^8.4.3",
+    "chalk": "^5.6.2",
+    "commander": "^14.0.3",
+    "conf": "^15.1.0",
+    "openai": "^6.37.0",
+    "ora": "^9.4.0",
+    "simple-git": "^3.36.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^25.1.0",
+    "@types/ora": "^3.2.0",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3"
+  }
+}

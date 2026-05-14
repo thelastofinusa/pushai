@@ -1,0 +1,8 @@
+{
+  "name": "Holiday",
+  "short_name": "thelastofinusa",
+  "background_color": "#09090b",
+  "theme_color": "#09090b",
+  "display": "standalone",
+  "start_url": "/"
+}
