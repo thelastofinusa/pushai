@@ -160,15 +160,21 @@ export async function runCommit(
         )
         process.exit(1)
       }
+
       try {
-        spinner.start(chalk.blue("Pushing changes..."))
+        // 1. Commit phase
+        spinner.start(chalk.blue("Committing changes..."))
         await git.commit(message)
+        spinner.succeed(chalk.green("Changes committed."))
+
+        // 2. Push phase
+        spinner.start(chalk.blue("Pushing to remote..."))
         await git.push()
         spinner.succeed(
-          chalk.green.bold("Repository updated and pushed successfully.")
+          chalk.green.bold("Repository updated and pushed successfully.\n")
         )
       } catch (error: any) {
-        spinner.fail(chalk.red.bold("Push operation could not be completed."))
+        spinner.fail(chalk.red.bold("Operation failed."))
         console.log(chalk.red(`\nGit reported an error: ${error.message}\n`))
         process.exit(1)
       }
