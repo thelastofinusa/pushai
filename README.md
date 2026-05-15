@@ -1,5 +1,5 @@
-<p align="center">
-  <img src="./apps/web/public/logo.svg" alt="PushAI logo" width="64" height="64" />
+<p align="center" style="margin-top: 30px;">
+  <img src="https://pushai.vercel.app/logo.svg" alt="PushAI logo" width="64" height="64" />
 </p>
 
 <h1 align="center">PushAI</h1>
@@ -10,8 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/pushai"><img src="https://img.shields.io/npm/v/pushai.svg" alt="npm version" /></a>
-  <a href="https://github.com/thelastofinusa/pushai/blob/main/LICENSE"><img src="https://img.shields.io/github/license/thelastofinusa/pushai" alt="GitHub license" /></a>
+  <a href="https://www.npmjs.com/package/pushai"><img src="https://img.shields.io/npm/v/pushai.svg" alt="npm version" />
   <a href="https://www.npmjs.com/package/pushai"><img src="https://img.shields.io/npm/dt/pushai.svg" alt="npm downloads" /></a>
 </p>
 
@@ -130,9 +129,3 @@ Example `config.json`:
 3. **Security**
    - API keys are stored in the system keychain, not in plain text.
    - Local endpoints (`baseUrl`) keep all data on your machine.
-
----
-
-### License
-
-[MIT](./LICENSE) © Holiday

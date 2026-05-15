@@ -1,6 +1,6 @@
 {
   "name": "pushai",
-  "version": "0.1.5",
+  "version": "0.1.9",
   "description": "Stop writing manual commit messages.",
   "bin": {
     "pai": "./dist/index.mjs"
@@ -14,14 +14,24 @@
   },
   "homepage": "https://pushai.vercel.app",
   "keywords": [
-    "cli",
     "git",
-    "push",
-    "ai",
     "commit",
-    "message",
-    "generate",
-    "robotics"
+    "ai",
+    "cli",
+    "conventional-commits",
+    "git-commit",
+    "commit-message",
+    "automation",
+    "developer-tools",
+    "openai",
+    "gemini",
+    "huggingface",
+    "ollama",
+    "llm",
+    "productivity",
+    "git-push",
+    "ai-commit",
+    "semantic-commits"
   ],
   "author": {
     "name": "Holiday",
