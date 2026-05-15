@@ -12,8 +12,10 @@ export class OpenAIProvider extends BaseProvider {
 
   async generateCommitMessage(
     diff: string,
-    signal?: AbortSignal
+    signal?: AbortSignal,
+    options?: { regenerate?: boolean }
   ): Promise<string> {
+    const regenerate = options?.regenerate || false
     const openai = new OpenAI({
       apiKey: this.apiKey,
       baseURL: this.baseUrl || undefined,
@@ -22,11 +24,13 @@ export class OpenAIProvider extends BaseProvider {
     const response = await openai.chat.completions.create(
       {
         model: this.model,
-        messages: [{ role: "user", content: GENERATE_COMMIT_PROMPT(diff) }],
-        temperature: 0.7,
+        messages: [
+          { role: "user", content: GENERATE_COMMIT_PROMPT(diff, regenerate) },
+        ],
+        temperature: regenerate ? 0.8 : 0.7,
         max_tokens: 100,
       },
-      { signal } // ← passes AbortSignal to the HTTP request
+      { signal }
     )
 
     return (

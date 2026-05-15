@@ -1,33 +1,35 @@
-// apps/cli/src/commands/reset.ts
 import chalk from "chalk"
-import { confirm } from "@inquirer/prompts"
+import { confirm, intro, isCancel, outro } from "@clack/prompts"
 import { resetStoredConfig } from "../utils/config"
+import { msg } from "../utils/msg"
 
 export async function runReset() {
+  intro(chalk.yellow.bold(msg.reset.intro))
   try {
-    const shouldDelete = await confirm({
-      message: chalk.red("Delete all PushAI configurations and API keys?"),
-      default: false,
+    const shouldDeleteResult = await confirm({
+      message: chalk.red(msg.reset.confirm),
+      initialValue: false,
     })
 
-    if (!shouldDelete) {
-      console.log(chalk.dim("\nOperation cancelled.\n"))
+    if (isCancel(shouldDeleteResult)) {
+      outro(chalk.red(msg.common.operationCancelled))
+      return
+    }
+
+    if (!shouldDeleteResult) {
+      outro(chalk.red(msg.common.operationCancelled))
       return
     }
 
     const deleted = await resetStoredConfig()
     if (deleted) {
-      console.log(
-        chalk.green("\n✔ Successfully removed the PushAI directory.\n")
-      )
+      outro(chalk.green.bold(msg.reset.outro))
     } else {
-      console.log(
-        chalk.dim("\nNo configuration directory found. Nothing to delete.\n")
-      )
+      outro(chalk.dim(msg.reset.nothingToDelete))
     }
   } catch (error: any) {
-    if (error.name === "ExitPromptError") {
-      console.log(chalk.dim("\nOperation cancelled.\n"))
+    if (error.name === "ExitPromptError" || error.name === "AbortError") {
+      outro(chalk.red(msg.common.operationCancelled))
       return
     }
     throw error

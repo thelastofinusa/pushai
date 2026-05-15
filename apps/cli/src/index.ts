@@ -3,6 +3,8 @@ import { runReset } from "./commands/reset"
 import { runConfig } from "./commands/config"
 import { runCommit } from "./commands/commit"
 import { version, name, description } from "../package.json"
+import chalk from "chalk"
+import { msg } from "./utils/msg"
 
 let activeAbortController: AbortController | null = null
 
@@ -53,7 +55,7 @@ program
   .action(runReset)
 
 process.on("SIGINT", () => {
-  console.log("\nInterrupted by user. Aborting request...\n")
+  console.log(chalk.yellow(msg.common.interrupted))
   if (activeAbortController) {
     activeAbortController.abort()
   } else {

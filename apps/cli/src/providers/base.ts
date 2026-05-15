@@ -11,6 +11,7 @@ export abstract class BaseProvider implements AIProvider {
 
   abstract generateCommitMessage(
     diff: string,
-    signal?: AbortSignal
+    signal?: AbortSignal,
+    options?: { regenerate?: boolean }
   ): Promise<string>
 }

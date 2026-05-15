@@ -1,4 +1,5 @@
 import chalk from "chalk"
+import { msg } from "./msg"
 
 /**
  * Clean error handler to avoid repeating logic
@@ -14,9 +15,9 @@ export function handleError(error: any) {
     [400, 401, 403].includes(error.status)
 
   if (isAuthError) {
-    console.log(chalk.red("\nIt looks like your API key/Token is invalid."))
-    console.log(chalk.yellow("👉 Run `pai reset` to update your credentials."))
+    console.log(chalk.red(msg.errors.authInvalid))
+    console.log(chalk.yellow(msg.errors.authFix))
   } else {
-    console.log(chalk.red(`\n${error.message || "An unknown error occurred."}`))
+    console.log(chalk.red(msg.errors.unknown(error.message)))
   }
 }

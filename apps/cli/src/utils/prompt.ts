@@ -1,5 +1,5 @@
-export const GENERATE_COMMIT_PROMPT = (diff: string) => {
-  return `You are a Senior Software Engineer. Your task is to write a concise, technical, and impactful commit message based on a git diff.
+export const GENERATE_COMMIT_PROMPT = (diff: string, regenerate = false) => {
+  let basePrompt = `You are a Senior Software Engineer. Your task is to write a concise, technical, and impactful commit message based on a git diff.
 
 ### CONSTRAINTS
 - Format: <type>(<scope>): <description>
@@ -16,4 +16,11 @@ export const GENERATE_COMMIT_PROMPT = (diff: string) => {
 
 ### GIT DIFF TO ANALYZE:
 ${diff}`
+
+  if (regenerate) {
+    basePrompt += `\n\n### ADDITIONAL INSTRUCTION FOR REGENERATION:
+You already generated a commit message for this diff. Now please provide a **different, alternative** commit message. It should still follow the same constraints but approach the change from a slightly different perspective or emphasize a different aspect of the changes.`
+  }
+
+  return basePrompt
 }

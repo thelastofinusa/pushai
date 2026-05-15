@@ -1,14 +1,14 @@
 import ora from "ora"
 import chalk from "chalk"
 import simpleGit from "simple-git"
-import { confirm, input, select } from "@inquirer/prompts"
-
+import { confirm, select, text, isCancel, note, outro } from "@clack/prompts"
 import { runConfig } from "./config"
 import { getAIProvider } from "../providers"
 import { handleError } from "../utils/error"
 import { hasRemote, initRepo, prepareGitStage } from "../utils/git"
 import { getStoredConfig } from "../utils/config"
 import { Config } from "../types"
+import { msg } from "../utils/msg"
 
 const git = simpleGit()
 
@@ -28,41 +28,37 @@ export async function runCommit(
       return
     } else {
       const providerName = config.provider.toUpperCase()
-      const statusLine = `${chalk.bgCyan.black.bold(` ${providerName} `)} ${chalk.dim("•")} ${chalk.white(config.model)}`
-      console.log(`\n${chalk.cyan("●")} ${statusLine}\n`)
+      console.log(msg.commit.intro(providerName, config.model))
     }
 
     let stageResult = await prepareGitStage()
 
     if (!stageResult.isRepo) {
-      console.log(
-        chalk.yellow("Git repository not found in the current directory.")
-      )
+      console.log(chalk.yellow(msg.commit.gitRepoMissing))
 
-      const shouldInit = await confirm({
-        message: "Initialize a new Git repository here?",
-        default: true,
+      const shouldInitResult = await confirm({
+        message: msg.commit.initConfirm,
+        initialValue: true,
       })
 
-      if (shouldInit) {
+      if (isCancel(shouldInitResult)) {
+        outro(chalk.red(msg.common.operationCancelled))
+        process.exit(0)
+      }
+
+      if (shouldInitResult) {
         await initRepo()
-        console.log(chalk.green("Git repository initialized successfully."))
+        console.log(chalk.green(msg.commit.initSuccess))
         stageResult = await prepareGitStage()
       } else {
-        console.log(
-          chalk.dim(
-            "\nCommand aborted. A Git repository is required to continue.\n"
-          )
-        )
+        outro(chalk.dim(msg.commit.abortNoRepo))
         process.exit(0)
       }
     }
 
     const diff = stageResult.diff
     if (!diff) {
-      console.log(
-        chalk.red("There are no staged or unstaged changes to commit.")
-      )
+      outro(chalk.red(msg.commit.noChanges))
       process.exit(0)
     }
 
@@ -71,17 +67,17 @@ export async function runCommit(
     let provider
 
     try {
-      spinner.start(chalk.blue("Generating commit message..."))
+      spinner.start(chalk.blue(msg.commit.generating))
       provider = await getAIProvider(config as Config)
       message = await provider.generateCommitMessage(
         diff,
         abortController.signal
       )
-      spinner.succeed(chalk.green("Commit message generated."))
+      spinner.succeed(chalk.green(msg.commit.generated))
     } catch (error: any) {
-      spinner.fail(chalk.red.bold("Commit message generation failed."))
+      spinner.fail(chalk.red.bold(msg.commit.generationFailed))
       if (error.name === "AbortError") {
-        console.log(chalk.yellow("\nGeneration was cancelled by the user.\n"))
+        outro(chalk.yellow(msg.commit.generationCancelled))
         process.exit(0)
       }
       handleError(error)
@@ -91,97 +87,99 @@ export async function runCommit(
     let confirmed = false
 
     while (!confirmed) {
-      const line = "─".repeat(Math.max(message.length + 2, 20))
+      // Display the commit message in a styled note
+      note(chalk.bold(message), msg.commit.noteTitle)
 
-      console.log(`\n${chalk.cyan("┌" + line + "┐")}`)
-      console.log(
-        `${chalk.cyan("│")} ${chalk.bold(message)} ${chalk.cyan("│")}`
-      )
-      console.log(`${chalk.cyan("└" + line + "┘")}\n`)
-
-      const action = await select({
-        message: "Select how you want to continue:",
-        choices: [
-          { name: "Continue with Commit & Push", value: "accept" },
-          { name: "Modify Commit Message", value: "edit" },
-          { name: "Generate a Different Message", value: "regenerate" },
-          { name: "Exit Without Pushing", value: "cancel" },
+      const actionResult = await select({
+        message: msg.commit.actionPrompt,
+        options: [
+          { label: msg.commit.actions.accept, value: "accept" },
+          { label: msg.commit.actions.edit, value: "edit" },
+          { label: msg.commit.actions.regenerate, value: "regenerate" },
+          { label: msg.commit.actions.cancel, value: "cancel" },
         ],
       })
+
+      if (isCancel(actionResult)) {
+        outro(chalk.dim(msg.commit.processStopped))
+        process.exit(0)
+      }
+
+      const action = actionResult as string
 
       if (action === "accept") {
         confirmed = true
       } else if (action === "edit") {
-        message = await input({
-          message: "Refine commit message:",
-          default: message,
+        const editedResult = await text({
+          message: msg.commit.editPrompt,
+          initialValue: message,
         })
+
+        if (isCancel(editedResult)) {
+          outro(chalk.dim(msg.commit.processStopped))
+          process.exit(0)
+        }
+
+        message = editedResult as string
         confirmed = true
       } else if (action === "regenerate") {
-        spinner.start(chalk.blue("Generating new message..."))
+        spinner.start(chalk.blue(msg.commit.regenerating))
         try {
           message = await provider.generateCommitMessage(
             diff,
-            abortController.signal
+            abortController.signal,
+            { regenerate: true }
           )
-          spinner.succeed(chalk.green("New commit message generated."))
+          spinner.succeed(chalk.green(msg.commit.regenerated))
         } catch (err: any) {
-          spinner.fail(
-            chalk.red(`Could not generate a new message: ${err.message}`)
-          )
+          spinner.fail(chalk.red(msg.commit.regenerationFailed(err.message)))
           if (err.name === "AbortError") {
-            console.log(
-              chalk.yellow("\nGeneration was cancelled by the user.\n")
-            )
+            outro(chalk.yellow(msg.commit.generationCancelled))
             process.exit(0)
           }
         }
       } else {
-        console.log(
-          chalk.dim("\nProcess stopped. No commits or pushes were made.\n")
-        )
+        outro(chalk.dim(msg.commit.processStopped))
         process.exit(0)
       }
     }
 
     if (dryRun) {
-      console.log(chalk.yellow("\n[DRY RUN] No commits or pushes were made.\n"))
-      console.log(chalk.dim(`Proposed commit message:\n${message}\n`))
+      note(
+        chalk.dim(msg.common.dryRun.proposed(message)),
+        chalk.yellow(msg.common.dryRun.header)
+      )
       process.exit(0)
     }
 
     if (!dryRun) {
       if (!(await hasRemote())) {
-        spinner.fail(chalk.red.bold("No Git remote found."))
-        console.log(
-          chalk.yellow(
-            "Please add a remote (e.g., `git remote add origin <url>`) and try again.\n"
-          )
-        )
+        spinner.fail(chalk.red.bold(msg.common.noRemote.header))
+        outro(chalk.yellow(msg.common.noRemote.instruction))
         process.exit(1)
       }
 
       try {
-        // 1. Commit phase
-        spinner.start(chalk.blue("Committing changes..."))
+        spinner.start(chalk.blue(msg.commit.committing))
         await git.commit(message)
-        spinner.succeed(chalk.green("Changes committed."))
+        await new Promise((resolve) => setTimeout(resolve, 2000))
+        spinner.succeed(chalk.green(msg.common.success.committed))
 
-        // 2. Push phase
-        spinner.start(chalk.blue("Pushing to remote..."))
-        await git.push()
-        spinner.succeed(
-          chalk.green.bold("Repository updated and pushed successfully.\n")
-        )
+        spinner.start(chalk.blue(msg.commit.pushing))
+        TODO: await git.push()
+        spinner.succeed(chalk.green.bold(msg.common.success.pushed))
+
+        // Successful completion
+        outro(chalk.green(msg.commit.outro))
       } catch (error: any) {
-        spinner.fail(chalk.red.bold("Operation failed."))
-        console.log(chalk.red(`\nGit reported an error: ${error.message}\n`))
+        spinner.fail(chalk.red.bold(msg.commit.operationFailed))
+        outro(chalk.red(msg.commit.gitError(error.message)))
         process.exit(1)
       }
     }
   } catch (error: any) {
     if (error.name === "ExitPromptError" || error.name === "AbortError") {
-      console.log(chalk.dim("\nOperation cancelled.\n"))
+      outro(chalk.red(msg.common.operationCancelled))
       process.exit(0)
     }
     handleError(error)

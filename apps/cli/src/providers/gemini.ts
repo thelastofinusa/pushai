@@ -4,18 +4,20 @@ import { GENERATE_COMMIT_PROMPT } from "../utils/prompt"
 export class GeminiProvider extends BaseProvider {
   async generateCommitMessage(
     diff: string,
-    signal?: AbortSignal
+    signal?: AbortSignal,
+    options?: { regenerate?: boolean }
   ): Promise<string> {
+    const regenerate = options?.regenerate || false
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${this.model}:generateContent?key=${this.apiKey}`
 
     const payload = {
       contents: [
         {
-          parts: [{ text: GENERATE_COMMIT_PROMPT(diff) }],
+          parts: [{ text: GENERATE_COMMIT_PROMPT(diff, regenerate) }],
         },
       ],
       generationConfig: {
-        temperature: 0.2,
+        temperature: regenerate ? 0.8 : 0.2,
         maxOutputTokens: 100,
       },
     }
