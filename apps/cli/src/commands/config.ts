@@ -47,7 +47,7 @@ export async function runConfig() {
       default: "",
     })
 
-    setStoredConfig({
+    await setStoredConfig({
       provider,
       apiKey,
       model,

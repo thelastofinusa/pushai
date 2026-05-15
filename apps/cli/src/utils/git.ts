@@ -1,5 +1,4 @@
 import { simpleGit } from "simple-git"
-import chalk from "chalk"
 
 const git = simpleGit()
 
@@ -25,4 +24,13 @@ export async function prepareGitStage() {
 
 export async function initRepo() {
   await git.init()
+}
+
+export async function hasRemote(): Promise<boolean> {
+  try {
+    const remotes = await git.getRemotes()
+    return remotes.length > 0
+  } catch {
+    return false
+  }
 }

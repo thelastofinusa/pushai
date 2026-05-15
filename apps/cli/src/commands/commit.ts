@@ -6,18 +6,19 @@ import { confirm, input, select } from "@inquirer/prompts"
 import { runConfig } from "./config"
 import { getAIProvider } from "../providers"
 import { handleError } from "../utils/error"
-import { initRepo, prepareGitStage } from "../utils/git"
+import { hasRemote, initRepo, prepareGitStage } from "../utils/git"
 import { getStoredConfig } from "../utils/config"
+import { Config } from "../types"
 
 const git = simpleGit()
 
-export async function runCommit() {
+export async function runCommit(dryRun = false) {
   try {
-    const config = getStoredConfig()
+    const config = await getStoredConfig()
 
-    if (!config.apiKey) {
+    if (!config.apiKey || !config.provider || !config.model) {
       await runConfig()
-      Object.assign(config, getStoredConfig())
+      Object.assign(config, await getStoredConfig())
       return
     } else {
       // Define the badge and model info
@@ -78,7 +79,7 @@ export async function runCommit() {
     try {
       spinner.start(chalk.blue("Generating commit message..."))
 
-      provider = getAIProvider(config)
+      provider = await getAIProvider(config as Config)
 
       message = await provider.generateCommitMessage(diff)
 
@@ -154,22 +155,39 @@ export async function runCommit() {
       }
     }
 
-    // Commit and push
-    try {
-      spinner.start(chalk.blue("Pushing changes..."))
+    // After user confirms the message:
+    if (dryRun) {
+      console.log(chalk.yellow("\n[DRY RUN] No commits or pushes were made.\n"))
+      console.log(chalk.dim(`Proposed commit message:\n${message}\n`))
+      process.exit(0)
+    }
 
-      await git.commit(message)
-      await git.push()
+    if (!dryRun) {
+      if (!(await hasRemote())) {
+        spinner.fail(chalk.red.bold("No Git remote found."))
+        console.log(
+          chalk.yellow(
+            "Please add a remote (e.g., `git remote add origin <url>`) and try again.\n"
+          )
+        )
+        process.exit(1)
+      }
+      // then commit and push
+      try {
+        spinner.start(chalk.blue("Pushing changes..."))
+        await git.commit(message)
+        await git.push()
 
-      spinner.succeed(
-        chalk.green.bold("Repository updated and pushed successfully.")
-      )
-    } catch (error: any) {
-      spinner.fail(chalk.red.bold("Push operation could not be completed."))
+        spinner.succeed(
+          chalk.green.bold("Repository updated and pushed successfully.")
+        )
+      } catch (error: any) {
+        spinner.fail(chalk.red.bold("Push operation could not be completed."))
 
-      console.log(chalk.red(`\nGit reported an error: ${error.message}\n`))
+        console.log(chalk.red(`\nGit reported an error: ${error.message}\n`))
 
-      process.exit(1)
+        process.exit(1)
+      }
     }
   } catch (error: any) {
     if (error.name === "ExitPromptError") {

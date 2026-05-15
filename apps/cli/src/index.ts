@@ -7,17 +7,24 @@ import { version, name, description } from "../package.json"
 
 const program = new Command()
 
-program.name(name).description(description).action(runCommit)
+program
+  .name(name)
+  .description(description)
+  .option("--dry-run", "Generate commit message but do not commit or push")
+  .action((options) => runCommit(options.dryRun))
 
 program
   .name(name)
   .description(description)
   .version(version, "-v, --version", "output the version number")
 
+program.action(() => runCommit(false))
+
 program
   .command("commit")
   .description("Stage changes, generate a message, and push")
-  .action(runCommit)
+  .option("--dry-run", "Generate commit message but do not commit or push")
+  .action((options) => runCommit(options.dryRun))
 
 program
   .command("config")

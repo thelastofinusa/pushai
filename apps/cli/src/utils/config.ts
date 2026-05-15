@@ -1,42 +1,65 @@
+// apps/cli/src/utils/config.ts
 import os from "os"
 import path from "path"
 import fs from "fs"
+import keytar from "keytar"
 import { Config } from "../types"
 
-export const getStoredConfig = () => {
-  const filePath = getConfigPath()
-  if (!fs.existsSync(filePath)) return {}
+const SERVICE_NAME = "pushai"
+const ACCOUNT_NAME = "api-key"
 
-  try {
-    const data = fs.readFileSync(filePath, "utf-8")
-    return JSON.parse(data)
-  } catch {
-    return {}
+export async function getStoredConfig(): Promise<Partial<Config>> {
+  const filePath = getConfigPath()
+  let fileConfig: Partial<Config> = {}
+  if (fs.existsSync(filePath)) {
+    try {
+      fileConfig = JSON.parse(fs.readFileSync(filePath, "utf-8"))
+    } catch {}
   }
+
+  // Retrieve API key from keychain
+  const apiKey = await keytar.getPassword(SERVICE_NAME, ACCOUNT_NAME)
+  if (apiKey) {
+    fileConfig.apiKey = apiKey
+  }
+  return fileConfig
 }
 
-export const resetStoredConfig = () => {
+export async function setStoredConfig(data: Partial<Config>) {
+  const filePath = getConfigPath()
+  const { apiKey, ...rest } = data
+
+  // Store API key in keychain
+  if (apiKey) {
+    await keytar.setPassword(SERVICE_NAME, ACCOUNT_NAME, apiKey)
+  }
+
+  // Write non‑secret data to file
+  let existing = {}
+  if (fs.existsSync(filePath)) {
+    try {
+      existing = JSON.parse(fs.readFileSync(filePath, "utf-8"))
+    } catch {}
+  }
+  const merged = { ...existing, ...rest }
+  fs.writeFileSync(filePath, JSON.stringify(merged, null, 2), "utf-8")
+}
+
+export async function resetStoredConfig() {
   try {
     const home = os.homedir()
     const configDir = path.join(home, ".config", "pushai")
-
+    let deleted = false
     if (fs.existsSync(configDir)) {
       fs.rmSync(configDir, { recursive: true, force: true })
-      return true
+      deleted = true
     }
-    return false
+    // Also delete from keychain
+    await keytar.deletePassword(SERVICE_NAME, ACCOUNT_NAME)
+    return deleted
   } catch (error) {
     console.error("Failed to reset config:", error)
     return false
-  }
-}
-
-export const setStoredConfig = (data: Partial<Config>) => {
-  try {
-    const filePath = getConfigPath()
-    fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf-8")
-  } catch (error) {
-    console.error("Failed to write config file:", error)
   }
 }
 

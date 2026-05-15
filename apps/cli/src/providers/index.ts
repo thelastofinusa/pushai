@@ -44,15 +44,19 @@ export const aiProviders = [
   },
 ]
 
-export function getAIProvider(config: Config): AIProvider {
+export function getAIProvider(config: Config): Promise<AIProvider> {
   switch (config.provider) {
     case "gemini":
-      return new GeminiProvider(config.apiKey, config.model)
+      return Promise.resolve(new GeminiProvider(config.apiKey, config.model))
     case "huggingface":
-      return new HuggingFaceProvider(config.apiKey, config.model)
+      return Promise.resolve(
+        new HuggingFaceProvider(config.apiKey, config.model)
+      )
     case "openai":
     case "custom":
-      return new OpenAIProvider(config.apiKey, config.model, config.baseUrl)
+      return Promise.resolve(
+        new OpenAIProvider(config.apiKey, config.model, config.baseUrl)
+      )
     default:
       throw new Error(`Provider ${config.provider} is not supported.`)
   }
