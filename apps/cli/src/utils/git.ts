@@ -14,7 +14,7 @@ export async function prepareGitStage() {
     status.modified.length > 0 ||
     status.deleted.length > 0
   ) {
-    await git.add(".")
+    await git.add("--all")
   }
 
   const staged = await git.diff(["--cached"])

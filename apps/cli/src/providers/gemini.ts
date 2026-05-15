@@ -31,7 +31,20 @@ export class GeminiProvider extends BaseProvider {
 
     if (!response.ok) {
       const errorText = await response.text()
-      throw new Error(`Gemini API error (${response.status}): ${errorText}`)
+      let errorMessage = `Gemini API error (${response.status})`
+
+      try {
+        const errorJson = JSON.parse(errorText)
+        // Extract the meaningful error message
+        if (errorJson.error?.message) {
+          errorMessage = errorJson.error.message
+        }
+      } catch {
+        // Fallback to raw text if parsing fails
+        errorMessage = errorText
+      }
+
+      throw new Error(errorMessage)
     }
 
     const data = await response.json()
