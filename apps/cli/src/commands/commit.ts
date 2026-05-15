@@ -12,7 +12,13 @@ import { Config } from "../types"
 
 const git = simpleGit()
 
-export async function runCommit(dryRun = false) {
+export async function runCommit(
+  dryRun = false,
+  onControllerCreate?: (controller: AbortController) => void
+) {
+  const abortController = new AbortController()
+  onControllerCreate?.(abortController)
+
   try {
     const config = await getStoredConfig()
 
@@ -21,15 +27,11 @@ export async function runCommit(dryRun = false) {
       Object.assign(config, await getStoredConfig())
       return
     } else {
-      // Define the badge and model info
       const providerName = config.provider.toUpperCase()
       const statusLine = `${chalk.bgCyan.black.bold(` ${providerName} `)} ${chalk.dim("•")} ${chalk.white(config.model)}`
-
-      // Render the header with a subtle top margin
       console.log(`\n${chalk.cyan("●")} ${statusLine}\n`)
     }
 
-    // Check repository state
     let stageResult = await prepareGitStage()
 
     if (!stageResult.isRepo) {
@@ -44,54 +46,48 @@ export async function runCommit(dryRun = false) {
 
       if (shouldInit) {
         await initRepo()
-
         console.log(chalk.green("Git repository initialized successfully."))
-
-        // Re-run after initialization
         stageResult = await prepareGitStage()
       } else {
         console.log(
           chalk.dim(
-            "\nCommand aborted. A Git repository is required to continue."
+            "\nCommand aborted. A Git repository is required to continue.\n"
           )
         )
-
         process.exit(0)
       }
     }
 
     const diff = stageResult.diff
-
     if (!diff) {
       console.log(
         chalk.red("There are no staged or unstaged changes to commit.")
       )
-
       process.exit(0)
     }
 
     const spinner = ora({ color: "cyan" })
-
     let message = ""
     let provider
 
-    // Generate initial commit message
     try {
       spinner.start(chalk.blue("Generating commit message..."))
-
       provider = await getAIProvider(config as Config)
-
-      message = await provider.generateCommitMessage(diff)
-
+      message = await provider.generateCommitMessage(
+        diff,
+        abortController.signal
+      )
       spinner.succeed(chalk.green("Commit message generated."))
     } catch (error: any) {
       spinner.fail(chalk.red.bold("Commit message generation failed."))
-
+      if (error.name === "AbortError") {
+        console.log(chalk.yellow("\nGeneration was cancelled by the user.\n"))
+        process.exit(0)
+      }
       handleError(error)
       process.exit(1)
     }
 
-    // Interactive confirmation loop
     let confirmed = false
 
     while (!confirmed) {
@@ -106,22 +102,10 @@ export async function runCommit(dryRun = false) {
       const action = await select({
         message: "Select how you want to continue:",
         choices: [
-          {
-            name: "Continue with Commit & Push",
-            value: "accept",
-          },
-          {
-            name: "Modify Commit Message",
-            value: "edit",
-          },
-          {
-            name: "Generate a Different Message",
-            value: "regenerate",
-          },
-          {
-            name: "Exit Without Pushing",
-            value: "cancel",
-          },
+          { name: "Continue with Commit & Push", value: "accept" },
+          { name: "Modify Commit Message", value: "edit" },
+          { name: "Generate a Different Message", value: "regenerate" },
+          { name: "Exit Without Pushing", value: "cancel" },
         ],
       })
 
@@ -132,30 +116,34 @@ export async function runCommit(dryRun = false) {
           message: "Refine commit message:",
           default: message,
         })
-
         confirmed = true
       } else if (action === "regenerate") {
         spinner.start(chalk.blue("Generating new message..."))
-
         try {
-          message = await provider.generateCommitMessage(diff)
-
+          message = await provider.generateCommitMessage(
+            diff,
+            abortController.signal
+          )
           spinner.succeed(chalk.green("New commit message generated."))
         } catch (err: any) {
           spinner.fail(
             chalk.red(`Could not generate a new message: ${err.message}`)
           )
+          if (err.name === "AbortError") {
+            console.log(
+              chalk.yellow("\nGeneration was cancelled by the user.\n")
+            )
+            process.exit(0)
+          }
         }
       } else {
         console.log(
           chalk.dim("\nProcess stopped. No commits or pushes were made.\n")
         )
-
         process.exit(0)
       }
     }
 
-    // After user confirms the message:
     if (dryRun) {
       console.log(chalk.yellow("\n[DRY RUN] No commits or pushes were made.\n"))
       console.log(chalk.dim(`Proposed commit message:\n${message}\n`))
@@ -172,31 +160,27 @@ export async function runCommit(dryRun = false) {
         )
         process.exit(1)
       }
-      // then commit and push
       try {
         spinner.start(chalk.blue("Pushing changes..."))
         await git.commit(message)
         await git.push()
-
         spinner.succeed(
           chalk.green.bold("Repository updated and pushed successfully.")
         )
       } catch (error: any) {
         spinner.fail(chalk.red.bold("Push operation could not be completed."))
-
         console.log(chalk.red(`\nGit reported an error: ${error.message}\n`))
-
         process.exit(1)
       }
     }
   } catch (error: any) {
-    if (error.name === "ExitPromptError") {
-      console.log(chalk.dim("\nExited by user request.\n"))
-
+    if (error.name === "ExitPromptError" || error.name === "AbortError") {
+      console.log(chalk.dim("\nOperation cancelled.\n"))
       process.exit(0)
     }
-
     handleError(error)
     process.exit(1)
+  } finally {
+    onControllerCreate?.(null as any)
   }
 }

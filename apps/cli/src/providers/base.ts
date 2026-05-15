@@ -9,5 +9,8 @@ export abstract class BaseProvider implements AIProvider {
     this.model = model
   }
 
-  abstract generateCommitMessage(diff: string): Promise<string>
+  abstract generateCommitMessage(
+    diff: string,
+    signal?: AbortSignal
+  ): Promise<string>
 }

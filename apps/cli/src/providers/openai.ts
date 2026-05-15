@@ -10,30 +10,27 @@ export class OpenAIProvider extends BaseProvider {
     this.baseUrl = baseUrl
   }
 
-  async generateCommitMessage(diff: string): Promise<string> {
+  async generateCommitMessage(
+    diff: string,
+    signal?: AbortSignal
+  ): Promise<string> {
     const openai = new OpenAI({
       apiKey: this.apiKey,
-      baseURL: this.baseUrl || undefined, // Supports local LLMs/Ollama too
+      baseURL: this.baseUrl || undefined,
     })
 
-    try {
-      const response = await openai.chat.completions.create({
+    const response = await openai.chat.completions.create(
+      {
         model: this.model,
-        messages: [
-          {
-            role: "user",
-            content: GENERATE_COMMIT_PROMPT(diff),
-          },
-        ],
+        messages: [{ role: "user", content: GENERATE_COMMIT_PROMPT(diff) }],
         temperature: 0.7,
         max_tokens: 100,
-      })
+      },
+      { signal } // ← passes AbortSignal to the HTTP request
+    )
 
-      return (
-        response.choices[0]?.message.content?.trim().replace(/['"]/g, "") || ""
-      )
-    } catch (error: any) {
-      throw new Error(`OpenAI Error: ${error.message}`)
-    }
+    return (
+      response.choices[0]?.message.content?.trim().replace(/['"]/g, "") || ""
+    )
   }
 }

@@ -8,5 +8,5 @@ export interface Config {
 }
 
 export interface AIProvider {
-  generateCommitMessage(diff: string): Promise<string>
+  generateCommitMessage(diff: string, signal?: AbortSignal): Promise<string>
 }

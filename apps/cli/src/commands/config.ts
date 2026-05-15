@@ -59,7 +59,9 @@ export async function runConfig() {
     console.log(chalk.green("\nConfiguration saved successfully!"))
     console.log(chalk.dim("----------------------------------------"))
     // Use the variables 'provider', 'model', and 'apiKey' directly
-    console.log(`${chalk.bold("Provider:")} ${provider}`)
+    console.log(
+      `${chalk.bold("Provider:")} ${aiProviders.find((ai) => provider === ai.value)?.name || provider}`
+    )
     console.log(`${chalk.bold("Model:   ")} ${model}`)
     console.log(`${chalk.bold("API Key: ")} ****${apiKey.slice(-4)}`)
     console.log(chalk.dim("----------------------------------------"))

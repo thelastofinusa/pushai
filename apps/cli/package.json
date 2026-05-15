@@ -1,6 +1,6 @@
 {
   "name": "pushai",
-  "version": "0.1.9",
+  "version": "1.0.0",
   "description": "Stop writing manual commit messages.",
   "bin": {
     "pai": "./dist/index.mjs"

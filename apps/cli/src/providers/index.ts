@@ -26,20 +26,11 @@ export const aiProviders = [
     value: "huggingface",
     models: [
       {
-        name: "Llama 3 8B Instruct (Recommended)",
+        name: "Meta Llama 3 8B Instruct (Recommended)",
         value: "meta-llama/Meta-Llama-3-8B-Instruct",
       },
       { name: "Mistral 7B v0.3", value: "mistralai/Mistral-7B-Instruct-v0.3" },
       { name: "Qwen 2 7B", value: "Qwen/Qwen2-7B-Instruct" },
-    ],
-  },
-  {
-    name: "Custom (Ollama/Local)",
-    value: "custom",
-    models: [
-      { name: "Llama 3 (Ollama Default)", value: "llama3" },
-      { name: "Mistral", value: "mistral" },
-      { name: "Phi-3", value: "phi3" },
     ],
   },
 ]
