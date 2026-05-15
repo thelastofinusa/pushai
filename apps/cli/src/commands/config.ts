@@ -5,7 +5,7 @@ import { aiProviders } from "../providers"
 import { ProviderType } from "../types"
 
 export async function runConfig() {
-  console.log(chalk.blue.bold("\n🚀 PushAI Configuration\n"))
+  console.log(chalk.blue.bold("\nPushAI Configuration\n"))
 
   try {
     const provider = (await select({
@@ -56,7 +56,7 @@ export async function runConfig() {
 
     const configPath = getConfigPath()
 
-    console.log(chalk.green("\n✅ Configuration saved successfully!"))
+    console.log(chalk.green("\nConfiguration saved successfully!"))
     console.log(chalk.dim("----------------------------------------"))
     // Use the variables 'provider', 'model', and 'apiKey' directly
     console.log(`${chalk.bold("Provider:")} ${provider}`)
@@ -64,6 +64,18 @@ export async function runConfig() {
     console.log(`${chalk.bold("API Key: ")} ****${apiKey.slice(-4)}`)
     console.log(chalk.dim("----------------------------------------"))
     console.log(chalk.dim(`File: ${configPath}\n`))
+
+    // --- Added Commands Guide ---
+    console.log(chalk.cyan("Try running these commands:"))
+    console.log(
+      `  ${chalk.white.bold("pai commit")} ${chalk.white("→ Just the AI generation")}`
+    )
+    console.log(
+      `  ${chalk.white.bold("pai config")} ${chalk.white("→ Change model or keys")}`
+    )
+    console.log(
+      `  ${chalk.white.bold("pai reset")}  ${chalk.white("→ Wipe all local settings")}\n`
+    )
   } catch (error: any) {
     if (error.name === "ExitPromptError") {
       console.log(chalk.dim("\nSetup cancelled.\n"))

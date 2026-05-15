@@ -1,6 +1,6 @@
 {
   "name": "pushai",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "AI-powered CLI for effortless git commits and pushes",
   "bin": {
     "pai": "./dist/index.mjs"

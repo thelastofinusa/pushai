@@ -18,12 +18,14 @@ export async function runCommit() {
     if (!config.apiKey) {
       await runConfig()
       Object.assign(config, getStoredConfig())
+      return
     } else {
-      console.log(
-        chalk.dim(
-          `Active provider: ${config.provider} • Model: ${config.model}`
-        )
-      )
+      // Define the badge and model info
+      const providerName = config.provider.toUpperCase()
+      const statusLine = `${chalk.bgCyan.black.bold(` ${providerName} `)} ${chalk.dim("•")} ${chalk.white(config.model)}`
+
+      // Render the header with a subtle top margin
+      console.log(`\n${chalk.cyan("●")} ${statusLine}\n`)
     }
 
     // Check repository state
