@@ -1,7 +1,7 @@
 {
   "name": "pushai",
-  "version": "0.1.2",
-  "description": "AI-powered CLI for effortless git commits and pushes",
+  "version": "0.1.5",
+  "description": "Stop writing manual commit messages.",
   "bin": {
     "pai": "./dist/index.mjs"
   },
@@ -12,6 +12,7 @@
     "pushout": "npm publish",
     "pushout-inc": "npm version patch --no-git-tag-version && pnpm pushout"
   },
+  "homepage": "https://pushai.vercel.app",
   "keywords": [
     "cli",
     "git",

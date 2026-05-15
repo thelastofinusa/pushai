@@ -8,7 +8,8 @@
     "lint": "turbo lint",
     "format": "turbo format",
     "typecheck": "turbo typecheck",
-    "run:cli": "pnpm --filter pushai start"
+    "run:cli": "pnpm --filter pushai start",
+    "run:web": "pnpm --filter @pushai/web dev"
   },
   "devDependencies": {
     "@workspace/eslint-config": "workspace:*",

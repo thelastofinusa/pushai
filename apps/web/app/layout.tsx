@@ -48,6 +48,7 @@ export const metadata: Metadata = {
     images: [`${siteConfig.url}/opengraph.png`],
     creator: `@${siteConfig.username}`,
   },
+  icons: "/logo.svg",
   manifest: `${siteConfig.url}/site.webmanifest`,
 }
 
