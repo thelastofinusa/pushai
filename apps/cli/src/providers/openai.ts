@@ -3,11 +3,8 @@ import { BaseProvider } from "./base"
 import { GENERATE_COMMIT_PROMPT } from "../utils/prompt"
 
 export class OpenAIProvider extends BaseProvider {
-  private baseUrl?: string
-
-  constructor(apiKey: string, model: string, baseUrl?: string) {
+  constructor(apiKey: string, model: string) {
     super(apiKey, model)
-    this.baseUrl = baseUrl
   }
 
   async generateCommitMessage(
@@ -18,7 +15,6 @@ export class OpenAIProvider extends BaseProvider {
     const regenerate = options?.regenerate || false
     const openai = new OpenAI({
       apiKey: this.apiKey,
-      baseURL: this.baseUrl || undefined,
     })
 
     const response = await openai.chat.completions.create(

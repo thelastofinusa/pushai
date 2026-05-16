@@ -1,23 +1,18 @@
 import chalk from "chalk"
-import { msg } from "./msg"
+import { msg } from "./msg.js"
 
-/**
- * Clean error handler to avoid repeating logic
- */
-export function handleError(error: any) {
-  if (error.name === "ExitPromptError") {
-    return // Do nothing, let the main block handle it
-  }
+export function handleError(err: any): void {
+  if (err.name === "ExitPromptError") return
 
   const isAuthError =
-    error.message?.includes("API key not valid") ||
-    error.message?.includes("Authorization header") ||
-    [400, 401, 403].includes(error.status)
+    err.message?.includes("API key not valid") ||
+    err.message?.includes("Authorization header") ||
+    [400, 401, 403].includes(err.status)
 
   if (isAuthError) {
     console.log(chalk.red(msg.errors.authInvalid))
     console.log(chalk.yellow(msg.errors.authFix))
   } else {
-    console.log(chalk.red(msg.errors.unknown(error.message)))
+    console.log(chalk.red(msg.errors.unknown(err.message)))
   }
 }

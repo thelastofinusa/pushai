@@ -145,10 +145,7 @@ export function getAIProvider(config: Config): Promise<AIProvider> {
         new HuggingFaceProvider(config.apiKey, config.model)
       )
     case "openai":
-    case "custom":
-      return Promise.resolve(
-        new OpenAIProvider(config.apiKey, config.model, config.baseUrl)
-      )
+      return Promise.resolve(new OpenAIProvider(config.apiKey, config.model))
     default:
       throw new Error(`Provider ${config.provider} is not supported.`)
   }

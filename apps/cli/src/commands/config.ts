@@ -89,23 +89,10 @@ export async function runConfig() {
       model = customModelResult as string
     }
 
-    const baseUrlResult = await text({
-      message: msg.config.baseUrlPrompt,
-      defaultValue: "...",
-      placeholder: msg.config.baseUrlPromptPlaceholder,
-    })
-
-    if (isCancel(baseUrlResult)) {
-      outro(chalk.red(msg.common.operationCancelled))
-      return
-    }
-    const baseUrl = baseUrlResult as string
-
     await setStoredConfig({
       provider,
       apiKey,
       model,
-      baseUrl: baseUrl === "..." ? undefined : baseUrl,
     })
 
     const configPath = getConfigPath()
