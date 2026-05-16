@@ -1,38 +1,34 @@
+import chalk from "chalk"
+import { basename } from "path"
+import { msg } from "./utils/msg"
 import { Command } from "commander"
 import { runReset } from "./commands/reset"
 import { runConfig } from "./commands/config"
 import { runCommit } from "./commands/commit"
-import { version, name, description } from "../package.json"
-import chalk from "chalk"
-import { msg } from "./utils/msg"
+import { version, description } from "../package.json"
 
 let activeAbortController: AbortController | null = null
 
 const program = new Command()
 
-program
-  .name(name)
-  .description(description)
-  .option("--dry-run", "Generate commit message but do not commit or push")
-  .action(async (options) => {
-    await runCommit(options.dryRun, (controller) => {
-      activeAbortController = controller
-    })
-    activeAbortController = null
-  })
+// Set dynamic name based on how it's invoked (pai or pushai)
+const programName = basename(process.argv[1])
+program.name(programName)
+program.description(description)
+program.version(version, "-v, --version", "output the version number")
 
-program
-  .name(name)
-  .description(description)
-  .version(version, "-v, --version", "output the version number")
+// Global options
+program.option("--dry-run", "Generate commit message but do not commit or push")
 
-program.action(async () => {
-  await runCommit(false, (controller) => {
+// Default action (when no subcommand)
+program.action(async (options) => {
+  await runCommit(options.dryRun, (controller) => {
     activeAbortController = controller
   })
   activeAbortController = null
 })
 
+// Subcommands
 program
   .command("commit")
   .description("Stage changes, generate a message, and push")
@@ -47,12 +43,12 @@ program
 program
   .command("config")
   .description("Configure AI providers and API keys")
-  .action(() => runConfig())
+  .action(runConfig)
 
 program
   .command("reset")
   .description("Delete the local config.json file")
-  .action(() => runReset())
+  .action(runReset)
 
 process.on("SIGINT", () => {
   console.log(chalk.yellow(msg.common.interrupted))

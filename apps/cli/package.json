@@ -3,7 +3,8 @@
   "version": "1.0.8",
   "description": "Stop writing manual commit messages.",
   "bin": {
-    "pai": "./dist/index.mjs"
+    "pai": "./dist/index.mjs",
+    "pushai": "./dist/index.mjs"
   },
   "scripts": {
     "dev": "tsup src/index.ts --format esm --watch --clean",
