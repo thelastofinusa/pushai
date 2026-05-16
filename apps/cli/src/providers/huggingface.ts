@@ -51,13 +51,10 @@ export class HuggingFaceProvider extends BaseProvider {
           .trim()
           .replace(/['"]/g, "")
           .replace(/^commit:\s*/i, "")
-      } catch (textError: any) {
-        // Provide a helpful error message
-        throw new Error(
-          `Model "${this.model}" does not support chat or text generation. ` +
-            `For Hugging Face, please use a model that supports "text-generation" or "conversational", ` +
-            `e.g., "mistralai/Mistral-7B-Instruct-v0.3" or "microsoft/Phi-3-mini-4k-instruct".`
-        )
+      } catch (error: any) {
+        throw error instanceof Error
+          ? error
+          : new Error("Hugging Face API error")
       }
     }
   }

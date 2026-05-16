@@ -1,26 +1,42 @@
 export const GENERATE_COMMIT_PROMPT = (diff: string, regenerate = false) => {
-  let basePrompt = `You are a Senior Software Engineer. Your task is to write a concise, technical, and impactful commit message based on a git diff.
+  let prompt = `
+Generate a single conventional commit message from the git diff.
 
-### CONSTRAINTS
+Rules:
+- Output exactly ONE line
+- Maximum 200 characters
+- Lowercase only
+- No markdown
+- No quotes
+- No explanations
+- Must be a complete commit message
+- Never output placeholders or incomplete text
 - Format: <type>(<scope>): <description>
-- Style: Conventional Commits (feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert).
-- Length: Maximum 100 characters.
-- Casing: Lowercase only.
-- Content: Focus on the "why" or the "what", not the "how". Avoid generic words like "updates" or "changes".
-- Output: Return ONLY the raw string. No quotes, no markdown, no explanations.
 
-### TECHNICAL GUIDELINES
-- If the diff involves UI/CSS, use the "style" or "feat" type.
-- If the diff involves Web3/Contract logic or API integration, use a specific scope (e.g., "wallet", "chain").
-- If multiple changes are present, focus on the most significant one.
+Use one of the Conventional Commits type (feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert).
 
-### GIT DIFF TO ANALYZE:
-${diff}`
+Examples:
+feat(auth): add wallet connection modal
+fix(cli): prevent empty commit generation
+refactor(api): simplify gemini provider setup
+
+Guidelines:
+- Focus on the most important change
+- Describe the outcome, not implementation details
+- Avoid vague words like "update" or "change"
+- Use specific scopes when relevant
+
+Git diff:
+${diff}
+`
 
   if (regenerate) {
-    basePrompt += `\n\n### ADDITIONAL INSTRUCTION FOR REGENERATION:
-You already generated a commit message for this diff. Now please provide a **different, alternative** commit message. It should still follow the same constraints but approach the change from a slightly different perspective or emphasize a different aspect of the changes.`
+    prompt += `
+
+Generate a DIFFERENT commit message for the same diff.
+Use a different perspective or emphasis while following all rules.
+`
   }
 
-  return basePrompt
+  return prompt.trim()
 }

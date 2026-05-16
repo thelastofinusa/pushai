@@ -1,6 +1,6 @@
 {
   "name": "pushai",
-  "version": "1.0.8",
+  "version": "1.0.10",
   "description": "Stop writing manual commit messages.",
   "bin": {
     "pai": "./dist/index.mjs",
@@ -41,6 +41,7 @@
   "license": "ISC",
   "dependencies": {
     "@clack/prompts": "^1.4.0",
+    "@google/genai": "^2.3.0",
     "@google/generative-ai": "^0.24.1",
     "@huggingface/inference": "^4.13.15",
     "chalk": "^5.6.2",

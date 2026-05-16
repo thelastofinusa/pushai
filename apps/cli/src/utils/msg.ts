@@ -22,7 +22,7 @@ export const msg = {
 
   commit: {
     intro: (provider: string, model: string) =>
-      `${chalk.cyan("●")} ${chalk.bgCyan.black.bold(` ${provider.toUpperCase()} `)} ${chalk.dim("•")} ${chalk.white(model)}\n`,
+      `\n${chalk.cyan("●")} ${chalk.bgCyan.black.bold(` ${provider.toUpperCase()} `)} ${chalk.dim("•")} ${chalk.white(model)}\n`,
     outro: "Successfully synced with the remote repository.",
     noteTitle: "Commit message preview",
     gitRepoMissing: "There's no Git repository in this directory.",
@@ -103,10 +103,6 @@ export const msg = {
   },
 
   errors: {
-    authInvalid:
-      "Authentication failed. The API key or token appears to be invalid.",
-    authFix: "Try running `pai reset` to update your credentials.",
-    unknown: (detail?: string) =>
-      `\n${detail || "Something unexpected went wrong."}`,
+    authFix: "Run `pai reset` to update your credentials.",
   },
 }

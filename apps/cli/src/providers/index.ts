@@ -14,11 +14,6 @@ export const aiProviders = [
         hint: "free • recommended",
       },
       {
-        name: "Gemini Flash Lite Latest",
-        value: "gemini-flash-lite-latest",
-        hint: "free",
-      },
-      {
         name: "Gemini 2.0 Flash Lite",
         value: "gemini-2.0-flash-lite",
         hint: "free",

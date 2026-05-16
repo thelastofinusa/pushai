@@ -1,55 +1,46 @@
+import { GoogleGenAI } from "@google/genai"
+
 import { BaseProvider } from "./base"
 import { GENERATE_COMMIT_PROMPT } from "../utils/prompt"
 
 export class GeminiProvider extends BaseProvider {
+  private ai: GoogleGenAI
+
+  constructor(apiKey: string, model: string) {
+    super(apiKey, model)
+
+    this.ai = new GoogleGenAI({ apiKey })
+  }
+
   async generateCommitMessage(
     diff: string,
-    signal?: AbortSignal,
+    _signal?: AbortSignal,
     options?: { regenerate?: boolean }
   ): Promise<string> {
     const regenerate = options?.regenerate || false
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${this.model}:generateContent?key=${this.apiKey}`
 
-    const payload = {
-      contents: [
-        {
-          parts: [{ text: GENERATE_COMMIT_PROMPT(diff, regenerate) }],
+    try {
+      const response = await this.ai.models.generateContent({
+        model: this.model,
+        contents: GENERATE_COMMIT_PROMPT(diff, regenerate),
+        config: {
+          temperature: regenerate ? 0.8 : 0.2,
+          maxOutputTokens: 100,
         },
-      ],
-      generationConfig: {
-        temperature: regenerate ? 0.8 : 0.2,
-        maxOutputTokens: 100,
-      },
-    }
+      })
 
-    const response = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-      signal,
-    })
+      const text = response.text?.trim() || ""
 
-    if (!response.ok) {
-      const errorText = await response.text()
-      let errorMessage = `Gemini API error (${response.status})`
+      const isValid =
+        /^[a-z]+(\([a-z0-9-]+\))?: .+/.test(text) && text.length <= 200
 
-      try {
-        const errorJson = JSON.parse(errorText)
-        // Extract the meaningful error message
-        if (errorJson.error?.message) {
-          errorMessage = errorJson.error.message
-        }
-      } catch {
-        // Fallback to raw text if parsing fails
-        errorMessage = errorText
+      if (!isValid) {
+        throw new Error("Invalid commit message generated")
       }
 
-      throw new Error(errorMessage)
+      return text
+    } catch (error: any) {
+      throw error instanceof Error ? error : new Error("Gemini API error")
     }
-
-    const data = await response.json()
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || ""
-
-    return text.trim().replace(/['"]/g, "")
   }
 }
