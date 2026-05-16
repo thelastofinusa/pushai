@@ -36,6 +36,16 @@ export const msg = {
     generated: "Commit message generated.",
     generationFailed: "Couldn't generate a commit message.",
     generationCancelled: "Commit message generation cancelled.",
+    emptyMessageTitle: "Empty commit message",
+    emptyMessagePrompt:
+      "AI returned an empty commit message. What would you like to do?",
+    emptyRegenerate: "Regenerate",
+    emptyManual: "Enter manually",
+    emptyCancel: "Cancel",
+    stillEmptyWarning: "Still empty, try manual entry.",
+    manualMessagePrompt: "Enter commit message manually:",
+    manualMessageRequired: "Message cannot be empty",
+    manualAccepted: "Manual message accepted.",
     actionPrompt: "What would you like to do next?",
     actions: {
       accept: "Commit and push changes",
@@ -90,14 +100,6 @@ export const msg = {
     confirm: "Remove all PushAI configurations and API keys?",
     outro: "PushAI configuration removed successfully.",
     nothingToDelete: "There's no configuration data to remove.",
-  },
-
-  test: {
-    intro: "Testing API connection...",
-    success: "API connection successful! Your configuration is working.",
-    failure: "API connection failed. Please check your API key and network.",
-    generating: "Sending test request...",
-    generated: "Test request completed successfully.",
   },
 
   errors: {

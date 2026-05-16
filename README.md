@@ -16,15 +16,13 @@
 
 ### Features
 
-- **Multi‑Provider** – Google Gemini, OpenAI, HuggingFace, and any OpenAI‑compatible local endpoint (Ollama, LM Studio).
-- **Privacy First** – Run completely locally by connecting to your own LLM instance.
+- **Multi‑Provider** – Google Gemini, OpenAI, and HuggingFace.
 - **Conventional Commits** – Generates standardised, readable messages (`feat:`, `fix:`, `docs:`, etc.).
 - **Auto‑Push** – Stages all changes, commits with the generated message, and pushes to remote in one seamless flow.
 - **Smart Init** – Automatically detects missing Git repositories and offers to initialise them.
 - **Interactive Approval** – Review, edit, or regenerate the commit message before anything is pushed.
 - **Dry‑Run Mode** – Preview the generated message without committing or pushing.
-
----
+- **Progressive Timeouts** – Clear feedback when operations take longer than expected (10s, 60s).
 
 ### Installation
 
@@ -54,8 +52,6 @@ bun install -g pushai
 
 After global installation, you can use the shorthand `pai` (recommended).
 
----
-
 ### Quick Start
 
 1. **Configure your AI provider**
@@ -78,20 +74,16 @@ After global installation, you can use the shorthand `pai` (recommended).
    - Show you the message and ask for confirmation.
    - Commit and push (if you approve).
 
----
-
 ### Commands
 
-| Command                | Description                                                            |
-| ---------------------- | ---------------------------------------------------------------------- |
-| `pai commit`           | Stage, generate, approve, commit, and push.                            |
-| `pai commit --dry-run` | Generate a commit message and show it, but do not commit or push.      |
-| `pai config`           | Interactive setup: choose provider, model, and set API key / base URL. |
-| `pai reset`            | Deletes all local configuration and API keys from your system.         |
-| `pai --version` / `-v` | Display the installed version.                                         |
-| `pai --help` / `-h`    | Show help for all commands.                                            |
-
----
+| Command                | Description                                                       |
+| ---------------------- | ----------------------------------------------------------------- |
+| `pai commit`           | Stage, generate, approve, commit, and push.                       |
+| `pai commit --dry-run` | Generate a commit message and show it, but do not commit or push. |
+| `pai config`           | Interactive setup: choose provider, model, and set API key.       |
+| `pai reset`            | Deletes all local configuration and API keys from your system.    |
+| `pai --version` / `-v` | Display the installed version.                                    |
+| `pai --help` / `-h`    | Show help for all commands.                                       |
 
 ### Configuration
 
@@ -104,28 +96,25 @@ Example `config.json`:
 ```json
 {
   "provider": "openai",
-  "model": "gpt-4o",
-  "baseUrl": "http://localhost:11434/v1" // optional, for local Ollama
+  "model": "gpt-4o"
 }
 ```
 
 > **Note:** The API key is stored securely via `keytar` and never appears in the config file.
 
----
-
 ### How It Works
 
 1. **`pai` / `pai commit`**
    - Checks if you are inside a Git repository.
-   - Stages all changes (`git add .`).
+   - Stages all changes (`git add -A`).
    - Sends the diff to your chosen AI provider with a specialised prompt.
    - Returns a conventional commit message (`feat(scope): description`).
+   - If the operation takes longer than 10 seconds, you’ll see a friendly warning; after 60 seconds, a further alert appears.
 
 2. **Interactive approval**
-   - You see the generated message inside a box.
+   - You see the generated message inside a clean note box.
    - Options: accept, edit, regenerate, or cancel.
-   - If you accept, the tool commits and pushes to the current remote branch.
+   - The “regenerate” action asks for a **different** message (increased temperature + extra prompt instruction).
 
 3. **Security**
    - API keys are stored in the system keychain, not in plain text.
-   - Local endpoints (`baseUrl`) keep all data on your machine.
