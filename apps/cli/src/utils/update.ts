@@ -43,7 +43,34 @@ async function fetchLatestVersion(): Promise<string | null> {
   }
 }
 
+/**
+ * Detect whether the CLI is running from a global installation.
+ * Returns true if the executable path does not contain node_modules/.bin,
+ * _npx, or other local installation markers.
+ */
+export function isGloballyInstalled(): boolean {
+  const execPath = process.argv[1] || ""
+  // Running via npx or local node_modules/.bin
+  if (execPath.includes("_npx") || execPath.includes("node_modules/.bin")) {
+    return false
+  }
+  // Common global paths on Unix
+  if (execPath.includes("/usr/local/bin") || execPath.includes("/usr/bin")) {
+    return true
+  }
+  // On Windows, global binaries are usually in %AppData%\npm
+  if (process.platform === "win32") {
+    // If the path contains "npm" and not "node_modules", assume global
+    return execPath.includes("npm") && !execPath.includes("node_modules")
+  }
+  // Default: if not in node_modules, assume global
+  return !execPath.includes("node_modules")
+}
+
 export async function checkForUpdates(): Promise<void> {
+  // Only check for updates if globally installed
+  if (!isGloballyInstalled()) return
+
   const cache = getCache()
   const now = Date.now()
 
@@ -59,7 +86,7 @@ export async function checkForUpdates(): Promise<void> {
     return
   }
 
-  // Otherwise fetch latest asynchronously (don't await)
+  // Otherwise fetch latest asynchronously
   fetchLatestVersion()
     .then((latest) => {
       if (latest && latest !== currentVersion) {
