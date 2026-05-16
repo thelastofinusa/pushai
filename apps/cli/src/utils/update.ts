@@ -2,7 +2,7 @@ import fs from "fs"
 import path from "path"
 import os from "os"
 import chalk from "chalk"
-import { version as currentVersion } from "../../package.json"
+import { version as currentVersion, name } from "../../package.json"
 
 const UPDATE_CACHE_DIR = path.join(os.homedir(), ".config", "pushai")
 const UPDATE_CACHE_FILE = path.join(UPDATE_CACHE_DIR, "update-check.json")
@@ -34,7 +34,7 @@ function setCache(latestVersion: string | null) {
 
 async function fetchLatestVersion(): Promise<string | null> {
   try {
-    const response = await fetch("https://registry.npmjs.org/pushai/latest")
+    const response = await fetch(`https://registry.npmjs.org/${name}/latest`)
     if (!response.ok) return null
     const data = await response.json()
     return data.version || null
@@ -81,7 +81,7 @@ function showUpdateMessage(latestVersion: string) {
     chalk.yellow(`
 ╭─────────────────────────────────────────────────────────────╮
 │  Update available! ${chalk.dim(currentVersion)} → ${chalk.green.bold(latestVersion)}
-│  Run ${chalk.cyan("npm install -g pushai")} to upgrade.
+│  Run ${chalk.cyan(`npm install -g ${name}`)} to upgrade.
 ╰─────────────────────────────────────────────────────────────╯
 `)
   )
