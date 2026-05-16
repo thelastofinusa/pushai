@@ -1,6 +1,6 @@
 {
   "name": "pushai",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Stop writing manual commit messages.",
   "bin": {
     "pai": "./dist/index.mjs"
@@ -46,6 +46,7 @@
     "commander": "^14.0.3",
     "conf": "^15.1.0",
     "keytar": "^7.9.0",
+    "latest-version": "^9.0.0",
     "openai": "^6.37.0",
     "ora": "^9.4.0",
     "simple-git": "^3.36.0",

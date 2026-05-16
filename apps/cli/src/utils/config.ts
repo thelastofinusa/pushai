@@ -1,4 +1,3 @@
-// apps/cli/src/utils/config.ts
 import os from "os"
 import path from "path"
 import fs from "fs"
