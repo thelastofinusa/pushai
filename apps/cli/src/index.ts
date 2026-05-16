@@ -5,7 +5,6 @@ import { runCommit } from "./commands/commit"
 import { version, name, description } from "../package.json"
 import chalk from "chalk"
 import { msg } from "./utils/msg"
-import { runCommandAndCheckUpdates } from "./utils/lib"
 
 let activeAbortController: AbortController | null = null
 
@@ -16,12 +15,10 @@ program
   .description(description)
   .option("--dry-run", "Generate commit message but do not commit or push")
   .action(async (options) => {
-    await runCommandAndCheckUpdates(async () => {
-      await runCommit(options.dryRun, (controller) => {
-        activeAbortController = controller
-      })
-      activeAbortController = null
+    await runCommit(options.dryRun, (controller) => {
+      activeAbortController = controller
     })
+    activeAbortController = null
   })
 
 program
@@ -30,12 +27,10 @@ program
   .version(version, "-v, --version", "output the version number")
 
 program.action(async () => {
-  await runCommandAndCheckUpdates(async () => {
-    await runCommit(false, (controller) => {
-      activeAbortController = controller
-    })
-    activeAbortController = null
+  await runCommit(false, (controller) => {
+    activeAbortController = controller
   })
+  activeAbortController = null
 })
 
 program
@@ -43,23 +38,21 @@ program
   .description("Stage changes, generate a message, and push")
   .option("--dry-run", "Generate commit message but do not commit or push")
   .action(async (options) => {
-    await runCommandAndCheckUpdates(async () => {
-      await runCommit(options.dryRun, (controller) => {
-        activeAbortController = controller
-      })
-      activeAbortController = null
+    await runCommit(options.dryRun, (controller) => {
+      activeAbortController = controller
     })
+    activeAbortController = null
   })
 
 program
   .command("config")
   .description("Configure AI providers and API keys")
-  .action(() => runCommandAndCheckUpdates(runConfig))
+  .action(() => runConfig())
 
 program
   .command("reset")
   .description("Delete the local config.json file")
-  .action(() => runCommandAndCheckUpdates(runReset))
+  .action(() => runReset())
 
 process.on("SIGINT", () => {
   console.log(chalk.yellow(msg.common.interrupted))

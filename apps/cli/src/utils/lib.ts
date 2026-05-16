@@ -1,6 +1,5 @@
 import { Ora } from "ora"
 import chalk from "chalk"
-import { checkForUpdates } from "./update"
 
 export function createSlowSpinner(
   spinner: Ora,
@@ -26,15 +25,5 @@ export function createSlowSpinner(
     clearTimeout(timeout60)
 
     spinner.color = "cyan"
-  }
-}
-
-// Helper to run a command and then check for updates asynchronously
-export async function runCommandAndCheckUpdates(fn: () => Promise<void>) {
-  try {
-    await fn()
-  } finally {
-    // Fire-and-forget update check (non-blocking)
-    checkForUpdates().catch(() => {})
   }
 }
