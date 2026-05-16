@@ -4,11 +4,7 @@ export const msg = {
   common: {
     operationCancelled: "Operation cancelled.",
     interrupted: "Request interrupted.",
-    dryRun: {
-      header: "[DRY RUN] No changes were committed or pushed.",
-      proposed: (message: string) =>
-        `Here's the generated commit message:\n${message}`,
-    },
+    dryRun: "[DRY RUN] No changes were committed or pushed.",
     noRemote: {
       header: "There's no Git remote repository configured.",
       instruction:
@@ -24,7 +20,7 @@ export const msg = {
     intro: (provider: string, model: string) =>
       `\n${chalk.cyan("●")} ${chalk.bgCyan.black.bold(` ${provider.toUpperCase()} `)} ${chalk.dim("•")} ${chalk.white(model)}\n`,
     outro: "Successfully synced with the remote repository.",
-    noteTitle: "Commit message preview",
+    noteTitle: "Ready to commit",
     gitRepoMissing: "There's no Git repository in this directory.",
     initConfirm: "Would you like to initialize a new Git repository?",
     initSuccess: "Git repository initialized successfully.",
@@ -34,7 +30,7 @@ export const msg = {
     generatingSlow10: "Please wait.. This might take a moment.",
     generatingSlow60: "This is taking longer than usual..",
     generated: "Commit message generated.",
-    generationFailed: "Couldn't generate a commit message.",
+    generationFailed: "AI failed to generate commit message.",
     generationCancelled: "Commit message generation cancelled.",
     emptyMessageTitle: "Empty commit message",
     emptyMessagePrompt:

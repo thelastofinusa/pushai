@@ -1,4 +1,5 @@
 // apps/cli/src/commands/commit.ts
+
 import ora, { Ora } from "ora"
 import chalk from "chalk"
 import simpleGit from "simple-git"
@@ -16,8 +17,7 @@ import { createSlowSpinner } from "../utils/lib"
 const git = simpleGit()
 
 /**
- * Ensures the commit message is not empty. If empty, asks the user to regenerate,
- * enter manually, or cancel. Loops until a non‑empty message is obtained.
+ * Ensures the commit message is not empty.
  */
 async function ensureNonEmptyMessage(
   message: string,
@@ -27,8 +27,10 @@ async function ensureNonEmptyMessage(
   spinner: Ora
 ): Promise<string> {
   let current = message
+
   while (!current || current.trim() === "") {
     spinner.fail(chalk.red(msg.commit.emptyMessageTitle))
+
     const action = await select({
       message: msg.commit.emptyMessagePrompt,
       options: [
@@ -45,24 +47,31 @@ async function ensureNonEmptyMessage(
 
     if (action === "regenerate") {
       spinner.start(chalk.blue(msg.commit.regenerating))
+
       const stopSlow = createSlowSpinner(
         spinner,
         msg.commit.generatingSlow10,
         msg.commit.generatingSlow60
       )
+
       try {
         current = await provider.generateCommitMessage(diff, abortSignal, {
           regenerate: true,
         })
+
         stopSlow()
+
         if (!current || current.trim() === "") {
           spinner.warn(chalk.yellow(msg.commit.stillEmptyWarning))
           continue
         }
+
         spinner.succeed(chalk.green(msg.commit.regenerated))
       } catch (err: any) {
         stopSlow()
+
         spinner.fail(chalk.red(msg.commit.regenerationFailed(err.message)))
+
         if (err.name === "AbortError") {
           outro(chalk.yellow(msg.commit.generationCancelled))
           process.exit(0)
@@ -76,19 +85,23 @@ async function ensureNonEmptyMessage(
             ? msg.commit.manualMessageRequired
             : undefined,
       })
+
       if (isCancel(manualMsg)) {
         outro(chalk.dim(msg.commit.processStopped))
         process.exit(0)
       }
+
       current = manualMsg as string
+
       spinner.succeed(chalk.green(msg.commit.manualAccepted))
     }
   }
+
   return current
 }
 
 export async function runCommit(
-  dryRun = false,
+  dryRun?: boolean,
   onControllerCreate?: (controller: AbortController) => void
 ) {
   const abortController = new AbortController()
@@ -99,7 +112,9 @@ export async function runCommit(
 
   const handleCancel = () => {
     abortController.abort()
+
     outro(chalk.red(msg.common.operationCancelled))
+
     process.exit(0)
   }
 
@@ -110,13 +125,17 @@ export async function runCommit(
   }
 
   process.stdin.on("data", handleKeyPress)
+
   onControllerCreate?.(abortController)
 
   const handleSigint = () => {
     abortController.abort()
+
     outro(chalk.red(msg.common.operationCancelled))
+
     process.exit(0)
   }
+
   process.once("SIGINT", handleSigint)
 
   try {
@@ -124,7 +143,9 @@ export async function runCommit(
 
     if (!config.apiKey || !config.provider || !config.model) {
       await runConfig()
+
       Object.assign(config, await getStoredConfig())
+
       return
     }
 
@@ -147,7 +168,9 @@ export async function runCommit(
 
       if (shouldInit) {
         await initRepo()
+
         console.log(chalk.green(msg.commit.initSuccess))
+
         stageResult = await prepareGitStage()
       } else {
         outro(chalk.dim(msg.commit.abortNoRepo))
@@ -156,12 +179,16 @@ export async function runCommit(
     }
 
     const diff = stageResult.diff
+
     if (!diff) {
       outro(chalk.red(msg.commit.noChanges))
       process.exit(0)
     }
 
-    const spinner = ora({ color: "cyan" })
+    const spinner = ora({
+      color: "cyan",
+    })
+
     let message = ""
     let provider
 
@@ -175,6 +202,7 @@ export async function runCommit(
       )
 
       provider = await getAIProvider(config as Config)
+
       message = await provider.generateCommitMessage(
         diff,
         abortController.signal
@@ -182,7 +210,6 @@ export async function runCommit(
 
       stopSlow()
 
-      // Validate non‑empty message
       message = await ensureNonEmptyMessage(
         message,
         provider,
@@ -194,13 +221,30 @@ export async function runCommit(
       spinner.succeed(chalk.green(msg.commit.generated))
     } catch (error: any) {
       spinner.fail(chalk.red.bold(msg.commit.generationFailed))
+
       if (error.name === "AbortError") {
         outro(chalk.yellow(msg.commit.generationCancelled))
         process.exit(0)
       }
+
       handleError(error)
+
       process.exit(1)
     }
+
+    // =========================================================
+    // DRY RUN
+    // =========================================================
+
+    if (dryRun) {
+      note(chalk.bold(message), msg.commit.noteTitle)
+      outro(chalk.yellow(msg.common.dryRun))
+      process.exit(0)
+    }
+
+    // =========================================================
+    // CONFIRMATION LOOP
+    // =========================================================
 
     let confirmed = false
 
@@ -210,10 +254,22 @@ export async function runCommit(
       const actionResult = await select({
         message: msg.commit.actionPrompt,
         options: [
-          { label: msg.commit.actions.accept, value: "accept" },
-          { label: msg.commit.actions.edit, value: "edit" },
-          { label: msg.commit.actions.regenerate, value: "regenerate" },
-          { label: msg.commit.actions.cancel, value: "cancel" },
+          {
+            label: msg.commit.actions.accept,
+            value: "accept",
+          },
+          {
+            label: msg.commit.actions.edit,
+            value: "edit",
+          },
+          {
+            label: msg.commit.actions.regenerate,
+            value: "regenerate",
+          },
+          {
+            label: msg.commit.actions.cancel,
+            value: "cancel",
+          },
         ],
       })
 
@@ -231,19 +287,24 @@ export async function runCommit(
           message: msg.commit.editPrompt,
           initialValue: message,
         })
+
         if (isCancel(editedResult)) {
           outro(chalk.dim(msg.commit.processStopped))
           process.exit(0)
         }
+
         message = editedResult as string
+
         confirmed = true
       } else if (action === "regenerate") {
         spinner.start(chalk.blue(msg.commit.regenerating))
+
         const stopRegen = createSlowSpinner(
           spinner,
           msg.commit.generatingSlow10,
           msg.commit.generatingSlow60
         )
+
         try {
           message = await provider.generateCommitMessage(
             diff,
@@ -252,7 +313,9 @@ export async function runCommit(
               regenerate: true,
             }
           )
+
           stopRegen()
+
           message = await ensureNonEmptyMessage(
             message,
             provider,
@@ -260,10 +323,13 @@ export async function runCommit(
             abortController.signal,
             spinner
           )
+
           spinner.succeed(chalk.green(msg.commit.regenerated))
         } catch (err: any) {
           stopRegen()
+
           spinner.fail(chalk.red(msg.commit.regenerationFailed(err.message)))
+
           if (err.name === "AbortError") {
             outro(chalk.yellow(msg.commit.generationCancelled))
             process.exit(0)
@@ -275,45 +341,57 @@ export async function runCommit(
       }
     }
 
-    if (dryRun) {
-      note(
-        chalk.dim(msg.common.dryRun.proposed(message)),
-        chalk.yellow(msg.common.dryRun.header)
-      )
-      process.exit(0)
-    }
+    // =========================================================
+    // REMOTE CHECK
+    // =========================================================
 
     if (!(await hasRemote())) {
       spinner.fail(chalk.red.bold(msg.common.noRemote.header))
+
       outro(chalk.yellow(msg.common.noRemote.instruction))
+
       process.exit(1)
     }
 
+    // =========================================================
+    // COMMIT + PUSH
+    // =========================================================
+
     try {
       spinner.start(chalk.blue(msg.commit.committing))
+
       const stopCommit = createSlowSpinner(
         spinner,
         msg.commit.committingSlow10,
         msg.commit.committingSlow60
       )
+
       await git.commit(message)
+
       stopCommit()
+
       spinner.succeed(chalk.green(msg.common.success.committed))
 
       spinner.start(chalk.blue(msg.commit.pushing))
+
       const stopPush = createSlowSpinner(
         spinner,
         msg.commit.pushingSlow10,
         msg.commit.pushingSlow60
       )
+
       await git.push()
+
       stopPush()
+
       spinner.succeed(chalk.green.bold(msg.common.success.pushed))
 
       outro(chalk.green(msg.commit.outro))
     } catch (error: any) {
       spinner.fail(chalk.red.bold(msg.commit.operationFailed))
+
       outro(chalk.red(msg.commit.gitError(error.message)))
+
       process.exit(1)
     }
   } catch (error: any) {
@@ -321,11 +399,15 @@ export async function runCommit(
       outro(chalk.red(msg.common.operationCancelled))
       process.exit(0)
     }
+
     handleError(error)
+
     process.exit(1)
   } finally {
     process.stdin.removeListener("data", handleKeyPress)
+
     process.stdin.setRawMode?.(false)
+
     onControllerCreate?.(null as any)
   }
 }

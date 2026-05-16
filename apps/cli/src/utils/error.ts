@@ -82,7 +82,7 @@ export function handleError(err: any): void {
 
   const readableMessage = getReadableErrorMessage(err)
 
-  outro(chalk.red(`✖ ${readableMessage}`))
+  outro(chalk.red(readableMessage))
 
   if (readableMessage.includes("Authentication failed")) {
     outro(chalk.yellow(msg.errors.authFix))

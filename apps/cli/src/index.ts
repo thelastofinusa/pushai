@@ -17,14 +17,15 @@ program.name(programName)
 program.description(description)
 program.version(version, "-v, --version", "output the version number")
 
-// Global options
-program.option("--dry-run", "Generate commit message but do not commit or push")
-
 // Default action (when no subcommand)
-program.action(async (options) => {
-  await runCommit(options.dryRun, (controller) => {
+program.action(async () => {
+  const args = process.argv.slice(2)
+  const dryRun = args.includes("--dry-run")
+
+  await runCommit(dryRun, (controller) => {
     activeAbortController = controller
   })
+
   activeAbortController = null
 })
 
@@ -34,9 +35,12 @@ program
   .description("Stage changes, generate a message, and push")
   .option("--dry-run", "Generate commit message but do not commit or push")
   .action(async (options) => {
-    await runCommit(options.dryRun, (controller) => {
+    const dryRun = process.argv.includes("--dry-run")
+
+    await runCommit(dryRun, (controller) => {
       activeAbortController = controller
     })
+
     activeAbortController = null
   })
 
