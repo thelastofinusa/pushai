@@ -4,6 +4,7 @@ import { HowItWorks } from "./components/howItWorks"
 import { FloatingIcons } from "@/components/floating-icons"
 import { FinalCTA } from "./components/finalCTA"
 import { Features } from "./components/features"
+import { CommandsSection } from "./components/commands"
 
 export default function Page() {
   return (
@@ -12,6 +13,7 @@ export default function Page() {
       <Hero />
       <Features />
       <HowItWorks />
+      <CommandsSection />
       <FinalCTA />
     </div>
   )

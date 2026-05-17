@@ -52,7 +52,7 @@ export const Features = () => {
         <h2 className="mb-4 text-4xl font-bold sm:text-5xl">
           Everything you need
         </h2>
-        <p className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
+        <p className="text-muted-foreground">
           Built for developers who want to ship faster without sacrificing code
           quality.
         </p>

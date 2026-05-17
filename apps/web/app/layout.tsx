@@ -7,6 +7,7 @@ import { TailwindIndicator } from "@/components/tailwind-indicator"
 import { siteConfig } from "@/config/site.config"
 import { assetPath, imagePath } from "@typest/nextjs"
 import { Header } from "@/components/header"
+import { Footer } from "@/components/footer"
 
 export const metadata: Metadata = {
   title: {
@@ -61,6 +62,7 @@ export default function RootLayout(props: LayoutProps<"/">) {
         <ThemeProvider>
           <Header />
           {props.children}
+          <Footer />
         </ThemeProvider>
         <TailwindIndicator />
       </body>

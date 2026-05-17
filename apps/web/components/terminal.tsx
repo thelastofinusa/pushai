@@ -1,5 +1,6 @@
 "use client"
-import { useEffect, useState } from "react"
+
+import { useEffect, useState, useRef } from "react"
 import { motion, AnimatePresence } from "motion/react"
 import { cn } from "@workspace/ui/lib/utils"
 
@@ -64,43 +65,75 @@ export const Terminal = ({
   className?: string
 }) => {
   const [typed, setTyped] = useState("")
-  const [visibleLines, setVisibleLines] = useState<number>(0)
+  const [visibleLines, setVisibleLines] = useState(0)
+  const [hasStarted, setHasStarted] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    if (!containerRef.current || hasStarted) return
+    if (!command) {
+      console.warn("Terminal: command prop is empty")
+      return
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !hasStarted) {
+            console.log("Terminal is visible, starting animation")
+            setHasStarted(true)
+          }
+        })
+      },
+      { threshold: 0.2, rootMargin: "0px" }
+    )
+
+    observer.observe(containerRef.current)
+
+    return () => observer.disconnect()
+  }, [hasStarted, command])
+
+  // Typing effect – runs when hasStarted becomes true
+  useEffect(() => {
+    if (!hasStarted) return
     if (!command) return
 
+    console.log("Starting typing for command:", command)
     setTyped("")
     setVisibleLines(0)
 
     let current = 0
+    let typeInterval: NodeJS.Timeout | null = null
+    let outputInterval: NodeJS.Timeout | null = null
 
-    const typeInterval = setInterval(() => {
+    typeInterval = setInterval(() => {
       current++
-
       setTyped(command.slice(0, current))
 
       if (current >= command.length) {
-        clearInterval(typeInterval)
-
+        if (typeInterval) clearInterval(typeInterval)
         let line = 0
 
-        const outputInterval = setInterval(() => {
+        outputInterval = setInterval(() => {
           line++
-
           setVisibleLines(line)
 
           if (line >= output.length) {
-            clearInterval(outputInterval)
+            if (outputInterval) clearInterval(outputInterval)
           }
         }, 160)
       }
     }, 40)
 
-    return () => clearInterval(typeInterval)
-  }, [command, output])
+    return () => {
+      if (typeInterval) clearInterval(typeInterval)
+      if (outputInterval) clearInterval(outputInterval)
+    }
+  }, [hasStarted, command, output])
 
   return (
     <div
+      ref={containerRef}
       className={cn(
         "overflow-hidden rounded-xl border bg-background text-muted-foreground shadow-2xl shadow-black/10 backdrop-blur",
         className
@@ -110,7 +143,6 @@ export const Terminal = ({
         <span className="size-2.5 rounded-full bg-[#ff5f57]" />
         <span className="size-2.5 rounded-full bg-[#febc2e]" />
         <span className="size-2.5 rounded-full bg-[#28c840]" />
-
         <span className="ml-2 font-mono text-xs text-muted-foreground">
           {title}
         </span>
