@@ -2,15 +2,20 @@
 
 import { siteConfig } from "@/config/site.config"
 import { imagePath } from "@typest/nextjs"
-import { buttonVariants } from "@workspace/ui/components/button"
+import { Button, buttonVariants } from "@workspace/ui/components/button"
+import { useTheme } from "next-themes"
 import Image from "next/image"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { BsGithub } from "react-icons/bs"
 import { CgNpm } from "react-icons/cg"
-// import { SiProducthunt } from "react-icons/si"
+import { FiMoon } from "react-icons/fi"
+import { MdOutlineWbSunny } from "react-icons/md"
+import { SiProducthunt } from "react-icons/si"
 
 export const Header = () => {
+  const { resolvedTheme, setTheme } = useTheme()
+
   const [npmDownloads, setNpmDownloads] = useState<string | null>(null)
 
   useEffect(() => {
@@ -70,7 +75,7 @@ export const Header = () => {
             <span className="sr-only md:not-sr-only">GitHub</span>
           </Link>
 
-          {/* <Link
+          <Link
             href="https://www.producthunt.com/posts/pushai"
             target="_blank"
             className={buttonVariants({
@@ -79,7 +84,22 @@ export const Header = () => {
           >
             <SiProducthunt className="size-4" />
             <span className="sr-only md:not-sr-only">Product Hunt</span>
-          </Link> */}
+          </Link>
+
+          <Button
+            type="button"
+            size="icon"
+            variant="ghost"
+            onClick={() =>
+              setTheme(resolvedTheme === "dark" ? "light" : "dark")
+            }
+          >
+            {resolvedTheme === "dark" ? (
+              <MdOutlineWbSunny className="size-4" />
+            ) : (
+              <FiMoon className="size-4" />
+            )}
+          </Button>
         </div>
       </nav>
     </header>
