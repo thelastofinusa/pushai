@@ -2,7 +2,6 @@
 import { useEffect, useState } from "react"
 import { motion, AnimatePresence } from "motion/react"
 import { cn } from "@workspace/ui/lib/utils"
-import { siteConfig } from "@/config/site.config"
 
 const TREE = new Set(["┌", "│", "└", "├", "╮", "╯", "╭", "╰", "─"])
 
@@ -93,7 +92,7 @@ export const Terminal = ({
           if (line >= output.length) {
             clearInterval(outputInterval)
           }
-        }, 200)
+        }, 160)
       }
     }, 40)
 
@@ -117,7 +116,7 @@ export const Terminal = ({
         </span>
       </div>
 
-      <div className="h-max min-h-52 p-4 font-mono text-[12.5px] leading-[1.55] sm:p-5 sm:text-[13px]">
+      <div className="min-h-36 p-4 font-mono text-[12.5px] leading-[1.55] sm:p-5 sm:text-[13px]">
         <div className="mb-3 whitespace-pre text-foreground">
           <span className="text-success">% </span>
           {typed}

@@ -10,6 +10,24 @@
 ◇  Which model would you like to use?
 │  Gemini 3.1 Flash Lite
 │
+◇  Configuration saved successfully. ───────────────╮
+│                                                   │
+│  Provider: Google Gemini                          │
+│  Model:    gemini-3.1-flash-lite                  │
+│  API Key:  ****yt-A                               │
+│                                                   │
+│  File: /Users/holiday/.config/pushai/config.json  │
+│                                                   │
+├───────────────────────────────────────────────────╯
+│
+◇  Here are a few commands to try: ─────────────────╮
+│                                                   │
+│  pai commit: Generate AI-powered commit messages  │
+│  pai config: Update provider or API settings      │
+│  pai reset:  Clear saved configuration            │
+│                                                   │
+├───────────────────────────────────────────────────╯
+│
 └  Configuration complete. You're ready to go!
 ```
 

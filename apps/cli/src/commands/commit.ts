@@ -100,6 +100,7 @@ async function ensureNonEmptyMessage(
 
 export async function runCommit(
   dryRun?: boolean,
+  autoPush?: boolean,
   onControllerCreate?: (controller: AbortController) => void
 ) {
   const abortController = new AbortController()
@@ -246,96 +247,101 @@ export async function runCommit(
 
     let confirmed = false
 
-    while (!confirmed) {
-      note(chalk.bold(message), msg.commit.noteTitle)
+    if (autoPush) {
+      // Skip the whole confirmation loop – just accept the message
+      confirmed = true
+    } else {
+      while (!confirmed) {
+        note(chalk.bold(message), msg.commit.noteTitle)
 
-      const actionResult = await select({
-        message: msg.commit.actionPrompt,
-        options: [
-          {
-            label: msg.commit.actions.accept,
-            value: "accept",
-          },
-          {
-            label: msg.commit.actions.edit,
-            value: "edit",
-          },
-          {
-            label: msg.commit.actions.regenerate,
-            value: "regenerate",
-          },
-          {
-            label: msg.commit.actions.cancel,
-            value: "cancel",
-          },
-        ],
-      })
-
-      if (isCancel(actionResult)) {
-        outro(chalk.dim(msg.commit.processStopped))
-        process.exit(0)
-      }
-
-      const action = actionResult as string
-
-      if (action === "accept") {
-        confirmed = true
-      } else if (action === "edit") {
-        const editedResult = await text({
-          message: msg.commit.editPrompt,
-          initialValue: message,
+        const actionResult = await select({
+          message: msg.commit.actionPrompt,
+          options: [
+            {
+              label: msg.commit.actions.accept,
+              value: "accept",
+            },
+            {
+              label: msg.commit.actions.edit,
+              value: "edit",
+            },
+            {
+              label: msg.commit.actions.regenerate,
+              value: "regenerate",
+            },
+            {
+              label: msg.commit.actions.cancel,
+              value: "cancel",
+            },
+          ],
         })
 
-        if (isCancel(editedResult)) {
+        if (isCancel(actionResult)) {
           outro(chalk.dim(msg.commit.processStopped))
           process.exit(0)
         }
 
-        message = editedResult as string
+        const action = actionResult as string
 
-        confirmed = true
-      } else if (action === "regenerate") {
-        spinner.start(chalk.blue(msg.commit.regenerating))
+        if (action === "accept") {
+          confirmed = true
+        } else if (action === "edit") {
+          const editedResult = await text({
+            message: msg.commit.editPrompt,
+            initialValue: message,
+          })
 
-        const stopRegen = createSlowSpinner(
-          spinner,
-          msg.commit.generatingSlow10,
-          msg.commit.generatingSlow60
-        )
-
-        try {
-          message = await provider.generateCommitMessage(
-            diff,
-            abortController.signal,
-            {
-              regenerate: true,
-            }
-          )
-
-          stopRegen()
-
-          message = await ensureNonEmptyMessage(
-            message,
-            provider,
-            diff,
-            abortController.signal,
-            spinner
-          )
-
-          spinner.succeed(chalk.green(msg.commit.regenerated))
-        } catch (err: any) {
-          stopRegen()
-
-          spinner.fail(chalk.red(msg.commit.regenerationFailed(err.message)))
-
-          if (err.name === "AbortError") {
-            outro(chalk.yellow(msg.commit.generationCancelled))
+          if (isCancel(editedResult)) {
+            outro(chalk.dim(msg.commit.processStopped))
             process.exit(0)
           }
+
+          message = editedResult as string
+
+          confirmed = true
+        } else if (action === "regenerate") {
+          spinner.start(chalk.blue(msg.commit.regenerating))
+
+          const stopRegen = createSlowSpinner(
+            spinner,
+            msg.commit.generatingSlow10,
+            msg.commit.generatingSlow60
+          )
+
+          try {
+            message = await provider.generateCommitMessage(
+              diff,
+              abortController.signal,
+              {
+                regenerate: true,
+              }
+            )
+
+            stopRegen()
+
+            message = await ensureNonEmptyMessage(
+              message,
+              provider,
+              diff,
+              abortController.signal,
+              spinner
+            )
+
+            spinner.succeed(chalk.green(msg.commit.regenerated))
+          } catch (err: any) {
+            stopRegen()
+
+            spinner.fail(chalk.red(msg.commit.regenerationFailed(err.message)))
+
+            if (err.name === "AbortError") {
+              outro(chalk.yellow(msg.commit.generationCancelled))
+              process.exit(0)
+            }
+          }
+        } else {
+          outro(chalk.dim(msg.commit.processStopped))
+          process.exit(0)
         }
-      } else {
-        outro(chalk.dim(msg.commit.processStopped))
-        process.exit(0)
       }
     }
 

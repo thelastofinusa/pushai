@@ -21,11 +21,11 @@ program.version(version, "-v, --version", "output the version number")
 program.action(async () => {
   const args = process.argv.slice(2)
   const dryRun = args.includes("--dry-run")
+  const autoPush = args.includes("-p") || args.includes("--push")
 
-  await runCommit(dryRun, (controller) => {
+  await runCommit(dryRun, autoPush, (controller) => {
     activeAbortController = controller
   })
-
   activeAbortController = null
 })
 
@@ -34,13 +34,17 @@ program
   .command("commit")
   .description("Stage changes, generate a message, and push")
   .option("--dry-run", "Generate commit message but do not commit or push")
+  .option("-p, --push", "Automatically commit and push without confirmation")
   .action(async (options) => {
-    const dryRun = process.argv.includes("--dry-run")
+    const dryRun = options.dryRun || process.argv.includes("--dry-run")
+    const autoPush =
+      options.push ||
+      process.argv.includes("-p") ||
+      process.argv.includes("--push")
 
-    await runCommit(dryRun, (controller) => {
+    await runCommit(dryRun, autoPush, (controller) => {
       activeAbortController = controller
     })
-
     activeAbortController = null
   })
 
@@ -52,7 +56,14 @@ program
 program
   .command("reset")
   .description("Delete the local config.json file")
-  .action(runReset)
+  .option("-y, --yes", "Skip confirmation prompt")
+  .action(async (options) => {
+    const skipConfirm =
+      options.yes ||
+      process.argv.includes("-y") ||
+      process.argv.includes("--yes")
+    await runReset(skipConfirm)
+  })
 
 process.on("SIGINT", () => {
   console.log(chalk.yellow(msg.common.interrupted))

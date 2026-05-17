@@ -3,20 +3,26 @@ import { confirm, intro, isCancel, outro } from "@clack/prompts"
 import { resetStoredConfig } from "../utils/config"
 import { msg } from "../constants/msg"
 
-export async function runReset() {
+export async function runReset(skipConfirm: boolean = false) {
   intro(chalk.yellow.bold(msg.reset.intro))
   try {
-    const shouldDeleteResult = await confirm({
-      message: chalk.red(msg.reset.confirm),
-      initialValue: false,
-    })
+    let shouldDelete = false
 
-    if (isCancel(shouldDeleteResult)) {
-      outro(chalk.red(msg.common.operationCancelled))
-      return
+    if (skipConfirm) {
+      shouldDelete = true
+    } else {
+      const shouldDeleteResult = await confirm({
+        message: chalk.red(msg.reset.confirm),
+        initialValue: false,
+      })
+      if (isCancel(shouldDeleteResult)) {
+        outro(chalk.red(msg.common.operationCancelled))
+        return
+      }
+      shouldDelete = shouldDeleteResult
     }
 
-    if (!shouldDeleteResult) {
+    if (!shouldDelete) {
       outro(chalk.red(msg.common.operationCancelled))
       return
     }
