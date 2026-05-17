@@ -31,7 +31,7 @@ export const Header = () => {
       <nav className="mx-auto flex w-full max-w-7xl items-center justify-between gap-6 px-4 py-6 sm:px-6 md:py-8">
         <Link href="/" className="flex items-center gap-3">
           <Image
-            src={imagePath("favicon-dark.svg")}
+            src={imagePath("favicon-dark.png")}
             alt={siteConfig.name}
             width={30}
             height={30}
@@ -40,7 +40,7 @@ export const Header = () => {
           />
 
           <Image
-            src={imagePath("favicon.svg")}
+            src={imagePath("favicon.png")}
             alt={siteConfig.name}
             width={30}
             height={30}
