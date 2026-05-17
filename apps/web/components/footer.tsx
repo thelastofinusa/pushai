@@ -1,24 +1,20 @@
+"use client"
+
 import { siteConfig } from "@/config/site.config"
 import Link from "next/link"
+import { useEffect, useState } from "react"
 
-export const revalidate = 3600
+export const Footer = () => {
+  const [version, setVersion] = useState("0.0.0")
 
-async function getVersion() {
-  try {
-    const res = await fetch(`${siteConfig.url}/api/version`, {
-      next: {
-        revalidate,
-      },
+  useEffect(() => {
+    fetch("/api/version", {
+      cache: "force-cache",
     })
-
-    return (await res.json()) || "0.0.0"
-  } catch {
-    return "0.0.0"
-  }
-}
-
-export const Footer = async () => {
-  const version = await getVersion()
+      .then((res) => res.json())
+      .then((data) => setVersion(data))
+      .catch(() => setVersion("0.0.0"))
+  }, [])
 
   return (
     <footer className="py-12">
