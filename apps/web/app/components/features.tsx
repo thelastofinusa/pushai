@@ -58,7 +58,7 @@ export const Features = () => {
         </p>
       </motion.div>
 
-      <div className="relative mx-auto grid divide-x divide-y overflow-hidden rounded-xl border bg-background/80 shadow-2xl shadow-black/10 backdrop-blur *:p-12 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="relative mx-auto grid divide-x divide-y overflow-hidden rounded-xl border bg-background/80 shadow-2xl shadow-black/10 backdrop-blur sm:grid-cols-2 lg:grid-cols-3">
         {features.map((feature, idx) => {
           const Icon = feature.icon
           return (
@@ -68,9 +68,9 @@ export const Features = () => {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: idx * 0.1 }}
               viewport={{ once: true }}
-              className="space-y-3"
+              className="p-6 md:p-8 lg:p-12"
             >
-              <div className="mb-4 flex items-center gap-2">
+              <div className="mb-2 flex items-center gap-2 md:mb-4">
                 <Icon className="size-4" />
                 <h3 className="text-sm font-medium">{feature.title}</h3>
               </div>
