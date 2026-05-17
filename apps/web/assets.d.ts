@@ -17,6 +17,8 @@ declare module "@typest/nextjs" {
      ║   Image Assets   ║
      ╚══════════════════╝ */
   const imageAssets: {
+    readonly "favicon-dark.png": "/favicon-dark.png";
+    readonly "favicon-dark.svg": "/favicon-dark.svg";
     readonly "favicon.png": "/favicon.png";
     readonly "favicon.svg": "/favicon.svg";
     readonly "logo.png": "/logo.png";

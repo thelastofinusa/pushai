@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { TailwindIndicator } from "@/components/tailwind-indicator"
 import { siteConfig } from "@/config/site.config"
 import { assetPath, imagePath } from "@typest/nextjs"
+import { Header } from "@/components/header"
 
 export const metadata: Metadata = {
   title: {
@@ -57,7 +58,10 @@ export default function RootLayout(props: LayoutProps<"/">) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={fontVariable("font-sans antialiased")}>
-        <ThemeProvider>{props.children}</ThemeProvider>
+        <ThemeProvider>
+          <Header />
+          {props.children}
+        </ThemeProvider>
         <TailwindIndicator />
       </body>
     </html>

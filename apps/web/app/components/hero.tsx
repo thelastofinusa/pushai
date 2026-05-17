@@ -22,14 +22,6 @@ const demos = [
       "◇ Which model would you like to use?",
       "│  Gemini 3.1 Flash Lite",
       "│",
-      "◇  Here are a few commands to try: ─────────────────╮",
-      "│                                                   │",
-      "│  pai commit: Generate AI-powered commit messages  │",
-      "│  pai config: Update provider or API settings      │",
-      "│  pai reset:  Clear saved configuration            │",
-      "│                                                   │",
-      "├───────────────────────────────────────────────────╯",
-      "│",
       "└ Configuration complete. You're ready to go!",
     ],
   },
@@ -99,7 +91,7 @@ export function Hero() {
 
   return (
     <section className="relative overflow-hidden">
-      <div className="relative mx-auto max-w-6xl px-4 pt-20 pb-16 sm:px-6 sm:pt-28 sm:pb-24">
+      <div className="relative mx-auto max-w-6xl px-4 pt-20 pb-16 sm:px-6 sm:pb-24">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
