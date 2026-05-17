@@ -5,6 +5,8 @@ import { ArrowRight } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 import { Terminal } from "@/components/terminal"
 import { siteConfig } from "@/config/site.config"
+import Link from "next/link"
+import { Separator } from "@workspace/ui/components/separator"
 
 const demos = [
   {
@@ -98,9 +100,26 @@ export function Hero() {
           transition={{ duration: 0.6 }}
           className="flex flex-col items-center text-center"
         >
-          <div className="inline-flex items-center gap-2 rounded-full border bg-background px-3.5 py-1.5 font-mono text-xs backdrop-blur">
-            <span className="text-success">●</span>
-            <span>AI-powered git workflow</span>
+          <div className="group mx-auto flex w-fit cursor-pointer items-center gap-3 rounded-full border bg-background p-1 pl-4 shadow-md shadow-zinc-950/5 transition-colors duration-300">
+            <div className="inline-flex items-center gap-3">
+              <span className="size-2 animate-pulse rounded-full bg-success" />
+              <span className="text-sm text-foreground">
+                AI-powered git workflow
+              </span>
+            </div>
+
+            <Separator orientation="vertical" className="my-auto h-4" />
+
+            <div className="size-6 overflow-hidden rounded-full bg-background duration-500 group-hover:bg-secondary">
+              <div className="flex w-12 -translate-x-1/2 duration-500 ease-in-out group-hover:translate-x-0">
+                <span className="flex size-6">
+                  <ArrowRight className="m-auto size-3" />
+                </span>
+                <span className="flex size-6">
+                  <ArrowRight className="m-auto size-3" />
+                </span>
+              </div>
+            </div>
           </div>
 
           <h1 className="mt-6 max-w-4xl text-5xl leading-[0.95] font-bold tracking-[-0.04em] sm:text-7xl lg:text-[5.5rem]">

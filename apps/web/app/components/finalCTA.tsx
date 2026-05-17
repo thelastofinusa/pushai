@@ -6,7 +6,7 @@ import { CheckCheck, Copy, Sparkles } from "lucide-react"
 
 export function FinalCTA() {
   const [copied, setCopied] = useState(false)
-  const cmd = "npx pushai commit"
+  const cmd = "npm install -g pushai"
 
   return (
     <section id="install" className="mx-auto max-w-5xl px-4 py-24 sm:px-6">
@@ -15,7 +15,7 @@ export function FinalCTA() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-80px" }}
         transition={{ duration: 0.6 }}
-        className="relative overflow-hidden rounded-xl border bg-linear-to-b from-transparent via-secondary/10 to-secondary/30 backdrop-blur-md"
+        className="relative overflow-hidden rounded-xl border bg-linear-to-b from-transparent via-secondary/10 to-secondary/30 shadow-2xl shadow-black/10 backdrop-blur-md"
       >
         {/* Content */}
         <div className="px-6 py-12 text-center sm:px-12 sm:py-16">
@@ -32,8 +32,8 @@ export function FinalCTA() {
           </p>
 
           {/* Install command – styled like code blocks */}
-          <div className="mx-auto mt-10 max-w-md">
-            <div className="group relative rounded-lg border bg-background p-3 font-mono text-sm">
+          <div className="mx-auto mt-10 max-w-sm">
+            <div className="group relative rounded-lg border bg-background p-3 font-mono text-xs">
               <div className="flex items-center gap-2">
                 <span className="text-success">$</span>
                 <code className="flex-1 text-left text-foreground">{cmd}</code>

@@ -1,35 +1,92 @@
 "use client"
 
+import { Separator } from "@workspace/ui/components/separator"
 import { siteConfig } from "@/config/site.config"
 import { imagePath } from "@typest/nextjs"
 import { Button, buttonVariants } from "@workspace/ui/components/button"
+import { Route } from "next"
 import { useTheme } from "next-themes"
 import Image from "next/image"
 import Link from "next/link"
-import { useEffect, useState } from "react"
-import { BsGithub } from "react-icons/bs"
+import { useEffect, useMemo, useState } from "react"
 import { CgNpm } from "react-icons/cg"
 import { FiMoon } from "react-icons/fi"
+import { IoIosGitCommit } from "react-icons/io"
 import { MdOutlineWbSunny } from "react-icons/md"
-import { SiProducthunt } from "react-icons/si"
+import { FaProductHunt } from "react-icons/fa6"
+
+type Stats = {
+  downloads: string
+  commits: number
+}
 
 export const Header = () => {
   const { resolvedTheme, setTheme } = useTheme()
 
-  const [npmDownloads, setNpmDownloads] = useState<string | null>(null)
+  const [mounted, setMounted] = useState(false)
+
+  const [stats, setStats] = useState<Stats>({
+    downloads: "0",
+    commits: 0,
+  })
 
   useEffect(() => {
-    // Fetch total npm downloads from shields.io
-    fetch(`https://img.shields.io/npm/dt/${siteConfig.name.toLowerCase()}.json`)
-      .then((res) => res.json())
-      .then((data) => setNpmDownloads(data.value))
-      .catch(() => setNpmDownloads("0"))
+    setMounted(true)
+
+    async function loadStats() {
+      try {
+        const [commitsRes, downloadsRes] = await Promise.all([
+          fetch("/api/commits", {
+            cache: "force-cache",
+          }),
+          fetch("/api/downloads", {
+            cache: "force-cache",
+          }),
+        ])
+
+        const [commitsData, downloadsData] = await Promise.all([
+          commitsRes.json(),
+          downloadsRes.json(),
+        ])
+
+        setStats({
+          downloads: downloadsData || "0",
+          commits: commitsData || 0,
+        })
+      } catch {
+        setStats({
+          downloads: "0",
+          commits: 0,
+        })
+      }
+    }
+
+    loadStats()
   }, [])
 
+  const links = useMemo(
+    () => [
+      {
+        href: `https://www.npmjs.com/package/${siteConfig.name.toLowerCase()}`,
+        icon: CgNpm,
+        label: "Downloads",
+        value: stats.downloads,
+      },
+
+      {
+        href: `https://github.com/${siteConfig.username}/${siteConfig.name.toLowerCase()}`,
+        icon: IoIosGitCommit,
+        label: "Commits",
+        value: stats.commits,
+      },
+    ],
+    [stats]
+  )
+
   return (
-    <header className="sticky top-0 left-0 z-50 w-full bg-background/80 backdrop-blur-md">
+    <header className="pointer-events-none sticky top-0 left-0 z-50 w-full">
       <nav className="mx-auto flex w-full max-w-7xl items-center justify-between gap-6 px-4 py-6 sm:px-6 md:py-8">
-        <Link href="/" className="flex items-center gap-3">
+        <Link href="/" className="pointer-events-auto flex items-center gap-3">
           <Image
             src={imagePath("favicon-dark.png")}
             alt={siteConfig.name}
@@ -49,42 +106,34 @@ export const Header = () => {
           />
         </Link>
 
-        <div className="flex items-center gap-1">
-          <Link
-            href={`https://www.npmjs.com/package/${siteConfig.name}`}
-            target="_blank"
-            className={buttonVariants({
-              variant: "ghost",
-            })}
-          >
-            <CgNpm className="size-5" />
-            <span>
-              {npmDownloads ?? "0"}{" "}
-              <span className="sr-only md:not-sr-only">downloads</span>
-            </span>
-          </Link>
+        <div className="flex items-center">
+          {links.map((link) => {
+            const Icon = link.icon
 
-          <Link
-            href={`https://github.com/${siteConfig.username}/${siteConfig.name}`}
-            target="_blank"
-            className={buttonVariants({
-              variant: "ghost",
-            })}
-          >
-            <BsGithub className="size-4" />
-            <span className="sr-only md:not-sr-only">GitHub</span>
-          </Link>
+            return (
+              <Link
+                key={link.label}
+                href={link.href as Route}
+                target="_blank"
+                className={buttonVariants({
+                  variant: "ghost",
+                  className: "pointer-events-auto",
+                })}
+              >
+                <Icon className="size-5" />
 
-          <Link
-            href="https://www.producthunt.com/posts/pushai"
-            target="_blank"
-            className={buttonVariants({
-              variant: "ghost",
-            })}
-          >
-            <SiProducthunt className="size-4" />
-            <span className="sr-only md:not-sr-only">Product Hunt</span>
-          </Link>
+                <span>
+                  {link.value !== null && <>{link.value} </>}
+                  <span className="sr-only md:not-sr-only">{link.label}</span>
+                </span>
+              </Link>
+            )
+          })}
+
+          <Separator
+            orientation="vertical"
+            className="mx-2 my-auto h-4! sm:mx-4"
+          />
 
           <Button
             type="button"
@@ -93,11 +142,16 @@ export const Header = () => {
             onClick={() =>
               setTheme(resolvedTheme === "dark" ? "light" : "dark")
             }
+            className="pointer-events-auto"
           >
-            {resolvedTheme === "dark" ? (
-              <MdOutlineWbSunny className="size-4" />
+            {mounted ? (
+              resolvedTheme === "dark" ? (
+                <MdOutlineWbSunny className="size-4" />
+              ) : (
+                <FiMoon className="size-4" />
+              )
             ) : (
-              <FiMoon className="size-4" />
+              <div className="size-4" />
             )}
           </Button>
         </div>

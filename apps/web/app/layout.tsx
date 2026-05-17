@@ -58,7 +58,7 @@ export const metadata: Metadata = {
 export default function RootLayout(props: LayoutProps<"/">) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={fontVariable("font-sans antialiased")}>
+      <body className={fontVariable("antialiased")}>
         <ThemeProvider>
           <Header />
           {props.children}

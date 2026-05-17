@@ -81,7 +81,7 @@ export const CommandsSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.5 }}
-          className="rounded-xl border bg-linear-to-b from-transparent via-secondary/10 to-secondary/30 p-6 backdrop-blur-md"
+          className="rounded-xl border bg-linear-to-b from-transparent via-secondary/10 to-secondary/30 p-6 shadow-2xl shadow-black/10 backdrop-blur-md"
         >
           <h3 className="mb-4 text-xl font-semibold tracking-tight">
             Commands
@@ -111,7 +111,7 @@ export const CommandsSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="rounded-xl border bg-linear-to-b from-transparent via-secondary/10 to-secondary/30 p-6 backdrop-blur-md"
+          className="rounded-xl border bg-linear-to-b from-transparent via-secondary/10 to-secondary/30 p-6 shadow-2xl shadow-black/10 backdrop-blur-md"
         >
           <h3 className="mb-4 text-xl font-semibold tracking-tight">Flags</h3>
           <div className="space-y-3">
@@ -145,7 +145,7 @@ export const CommandsSection = () => {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-80px" }}
         transition={{ duration: 0.5, delay: 0.2 }}
-        className="mt-10 overflow-hidden rounded-xl border bg-linear-to-b from-transparent via-secondary/10 to-secondary/30 backdrop-blur-md"
+        className="mt-10 overflow-hidden rounded-xl border bg-linear-to-b from-transparent via-secondary/10 to-secondary/30 shadow-2xl shadow-black/10 backdrop-blur-md"
       >
         <div className="flex items-center gap-1 border-b px-4 py-2">
           <span className="size-2 rounded-full bg-[#ff5f57]" />

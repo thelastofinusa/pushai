@@ -32,7 +32,7 @@ export const HowItWorks = () => {
         </h2>
       </div>
 
-      <div className="mt-14 grid divide-y divide-border rounded-xl border bg-linear-to-b from-transparent via-secondary/10 to-secondary/30 backdrop-blur-md lg:grid-cols-3 lg:divide-x lg:divide-y-0">
+      <div className="mt-14 grid divide-y divide-border rounded-xl border bg-linear-to-b from-transparent via-secondary/10 to-secondary/30 shadow-2xl shadow-black/10 backdrop-blur-md lg:grid-cols-3 lg:divide-x lg:divide-y-0">
         {steps.map((s, i) => (
           <motion.div
             key={s.cmd}

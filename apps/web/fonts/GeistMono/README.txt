@@ -7,30 +7,30 @@ Geist Mono is a variable font with this axis:
   wght
 
 This means all the styles are contained in these files:
-  Geist_Mono/GeistMono-VariableFont_wght.ttf
-  Geist_Mono/GeistMono-Italic-VariableFont_wght.ttf
+  GeistMono-VariableFont_wght.ttf
+  GeistMono-Italic-VariableFont_wght.ttf
 
 If your app fully supports variable fonts, you can now pick intermediate styles
 that aren’t available as static fonts. Not all apps support variable fonts, and
 in those cases you can use the static font files for Geist Mono:
-  Geist_Mono/static/GeistMono-Thin.ttf
-  Geist_Mono/static/GeistMono-ExtraLight.ttf
-  Geist_Mono/static/GeistMono-Light.ttf
-  Geist_Mono/static/GeistMono-Regular.ttf
-  Geist_Mono/static/GeistMono-Medium.ttf
-  Geist_Mono/static/GeistMono-SemiBold.ttf
-  Geist_Mono/static/GeistMono-Bold.ttf
-  Geist_Mono/static/GeistMono-ExtraBold.ttf
-  Geist_Mono/static/GeistMono-Black.ttf
-  Geist_Mono/static/GeistMono-ThinItalic.ttf
-  Geist_Mono/static/GeistMono-ExtraLightItalic.ttf
-  Geist_Mono/static/GeistMono-LightItalic.ttf
-  Geist_Mono/static/GeistMono-Italic.ttf
-  Geist_Mono/static/GeistMono-MediumItalic.ttf
-  Geist_Mono/static/GeistMono-SemiBoldItalic.ttf
-  Geist_Mono/static/GeistMono-BoldItalic.ttf
-  Geist_Mono/static/GeistMono-ExtraBoldItalic.ttf
-  Geist_Mono/static/GeistMono-BlackItalic.ttf
+  static/GeistMono-Thin.ttf
+  static/GeistMono-ExtraLight.ttf
+  static/GeistMono-Light.ttf
+  static/GeistMono-Regular.ttf
+  static/GeistMono-Medium.ttf
+  static/GeistMono-SemiBold.ttf
+  static/GeistMono-Bold.ttf
+  static/GeistMono-ExtraBold.ttf
+  static/GeistMono-Black.ttf
+  static/GeistMono-ThinItalic.ttf
+  static/GeistMono-ExtraLightItalic.ttf
+  static/GeistMono-LightItalic.ttf
+  static/GeistMono-Italic.ttf
+  static/GeistMono-MediumItalic.ttf
+  static/GeistMono-SemiBoldItalic.ttf
+  static/GeistMono-BoldItalic.ttf
+  static/GeistMono-ExtraBoldItalic.ttf
+  static/GeistMono-BlackItalic.ttf
 
 Get started
 -----------
