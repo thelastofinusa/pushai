@@ -50,7 +50,7 @@ export function FinalCTA() {
             <div className="group relative">
               <div className="absolute -inset-px rounded-2xl bg-[linear-gradient(to_right,var(--color-foreground)/20%,var(--color-foreground)/5%,var(--color-foreground)/20%)] opacity-60 blur-sm" />
               <div className="relative flex items-center justify-between gap-3 rounded-lg border border-border bg-background px-5 py-4 font-mono text-sm">
-                <span className="text-success">%</span>
+                <span className="text-success">$</span>
                 <span className="flex-1 text-left text-foreground">{cmd}</span>
                 <button
                   onClick={() => {

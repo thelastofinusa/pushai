@@ -118,7 +118,7 @@ export const Terminal = ({
 
       <div className="min-h-36 p-4 font-mono text-[12.5px] leading-[1.55] sm:p-5 sm:text-[13px]">
         <div className="mb-3 whitespace-pre text-foreground">
-          <span className="text-success">% </span>
+          <span className="text-success">$ </span>
           {typed}
           <motion.span
             animate={{ opacity: [0, 1, 0] }}

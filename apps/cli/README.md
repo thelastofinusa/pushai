@@ -10,82 +10,71 @@
 </p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/pushai"><img src="https://img.shields.io/npm/v/pushai.svg" alt="npm version" />
+  <a href="https://www.npmjs.com/package/pushai"><img src="https://img.shields.io/npm/v/pushai.svg" alt="npm version" /></a>
   <a href="https://www.npmjs.com/package/pushai"><img src="https://img.shields.io/npm/dt/pushai.svg" alt="npm downloads" /></a>
+  <a href="https://github.com/thelastofinusa/pushai/blob/main/LICENSE"><img src="https://img.shields.io/github/license/thelastofinusa/pushai" alt="License" /></a>
 </p>
 
-### Features
-
-- **Multi‑Provider** – Google Gemini, OpenAI, and HuggingFace.
-- **Conventional Commits** – Generates standardised, readable messages (`feat:`, `fix:`, `docs:`, etc.).
-- **Auto‑Push** – Stages all changes, commits with the generated message, and pushes to remote in one seamless flow.
-- **Smart Init** – Automatically detects missing Git repositories and offers to initialise them.
-- **Interactive Approval** – Review, edit, or regenerate the commit message before anything is pushed.
-- **Dry‑Run Mode** – Preview the generated message without committing or pushing.
-- **Progressive Timeouts** – Clear feedback when operations take longer than expected (10s, 60s).
-
-### Installation
+## Installation
 
 **Run instantly (no global install)**
 
 ```bash
 npx pushai
-# or
-pnpm dlx pushai
-# or
-yarn pushai
-# or
-bunx --bun pushai
+
+# or: pnpm dlx pushai | yarn pushai | bunx --bun pushai
 ```
 
 **Install globally**
 
 ```bash
 npm install -g pushai
-# or
-pnpm add -g pushai
-# or
-yarn global add pushai
-# or
-bun install -g pushai
+
+# or: pnpm add -g pushai | yarn global add pushai | bun install -g pushai
 ```
 
 After global installation, you can use the shorthand `pai` (recommended).
 
-### Quick Start
+## Quick Start
 
-1. **Configure your AI provider**
+1. **Configure your AI provider** – run `pai config` and follow the wizard.
+2. **Stage and commit** – run `pai` (or `pai commit`). PushAI stages all changes, generates a conventional commit message, and asks for approval before pushing.
 
-   ```bash
-   pai config
-   ```
+## Features
 
-   Follow the interactive wizard to select a provider (e.g., OpenAI, Gemini), enter your API key, and choose a model.
+| Feature                  | Description                                   |
+| ------------------------ | --------------------------------------------- |
+| **Multi‑Provider**       | Gemini, OpenAI, HuggingFace                   |
+| **Conventional Commits** | Standardized messages (`feat:`, `fix:`, etc.) |
+| **Auto‑Push**            | Stages, commits, and pushes in one flow       |
+| **Smart Init**           | Detects missing repo and offers to initialize |
+| **Interactive Approval** | Review, edit, or regenerate the message       |
+| **Dry‑Run Mode**         | Preview message without committing/pushing    |
+| **Progressive Timeouts** | Feedback at 10s and 60s (slow operations)     |
 
-2. **Stage your changes and let AI do the rest**
+## Commands
 
-   ```bash
-   pai
-   ```
+| Command         | Description                                   |
+| --------------- | --------------------------------------------- |
+| `pai commit`    | Stage, generate, approve, commit, and push.   |
+| `pai config`    | Interactive setup (provider, API key, model). |
+| `pai reset`     | Delete all configuration and API keys.        |
+| `pai --version` | Show version.                                 |
+| `pai --help`    | Show help.                                    |
 
-   PushAI will:
-   - Stage all modified/untracked files.
-   - Generate a conventional commit message based on your diff.
-   - Show you the message and ask for confirmation.
-   - Commit and push (if you approve).
+### Flags
 
-### Commands
+| Flag            | Applies to | Description                                             |
+| --------------- | ---------- | ------------------------------------------------------- |
+| `--dry-run`     | `commit`   | Preview message – no commit or push.                    |
+| `--push` / `-p` | `commit`   | Skip approval, commit and push immediately.             |
+| `--yes` / `-y`  | `reset`    | Skip confirmation, delete configuration without asking. |
 
-| Command                | Description                                                       |
-| ---------------------- | ----------------------------------------------------------------- |
-| `pai commit`           | Stage, generate, approve, commit, and push.                       |
-| `pai commit --dry-run` | Generate a commit message and show it, but do not commit or push. |
-| `pai config`           | Interactive setup: choose provider, model, and set API key.       |
-| `pai reset`            | Deletes all local configuration and API keys from your system.    |
-| `pai --version` / `-v` | Display the installed version.                                    |
-| `pai --help` / `-h`    | Show help for all commands.                                       |
+> **Examples**
+> `pai commit --push` or `pai -p` – generate and push without prompts.
+> `pai reset -y` – wipe config non‑interactively.
 
-### Configuration
+## Configuration
 
 PushAI stores your non‑secret settings in `~/.config/pushai/config.json` and your API key in the system keychain (macOS/Windows/Linux).
 
@@ -102,12 +91,12 @@ Example `config.json`:
 
 > **Note:** The API key is stored securely via `keytar` and never appears in the config file.
 
-### How It Works
+## How It Works
 
 1. **`pai` / `pai commit`**
    - Checks if you are inside a Git repository.
    - Stages all changes (`git add -A`).
-   - Sends the diff to your chosen AI provider with a specialised prompt.
+   - Sends the diff to your chosen AI provider with a specialized prompt.
    - Returns a conventional commit message (`feat(scope): description`).
    - If the operation takes longer than 10 seconds, you’ll see a friendly warning; after 60 seconds, a further alert appears.
 
@@ -115,6 +104,16 @@ Example `config.json`:
    - You see the generated message inside a clean note box.
    - Options: accept, edit, regenerate, or cancel.
    - The “regenerate” action asks for a **different** message (increased temperature + extra prompt instruction).
+   - When you use `-p` / `--push`, this approval step is skipped – the message is generated and the commit/push happen automatically.
 
 3. **Security**
    - API keys are stored in the system keychain, not in plain text.
+
+## Contributing
+
+Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on reporting issues, setting up the development environment, and submitting pull requests.
+
+## License
+
+MIT © [Holiday](https://github.com/thelastofinusa)
+See the [LICENSE](LICENSE) file for details.

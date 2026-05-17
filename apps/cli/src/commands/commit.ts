@@ -391,6 +391,7 @@ export async function runCommit(
       spinner.succeed(chalk.green.bold(msg.common.success.pushed))
 
       outro(chalk.green(msg.commit.outro))
+      process.exit(0)
     } catch (error: any) {
       spinner.fail(chalk.red.bold(msg.commit.operationFailed))
 
