@@ -1,12 +1,6 @@
 import { cn } from "@workspace/ui/lib/utils"
 import localFont from "next/font/local"
 
-const fontHead = localFont({
-  src: "./ArchivoBlack/ArchivoBlack-Regular.ttf",
-  variable: "--font-head",
-  preload: true,
-})
-
 const fontSans = localFont({
   src: "./BricolageGrotesque/BricolageGrotesque-VariableFont_opsz,wdth,wght.ttf",
   variable: "--font-sans",
@@ -20,4 +14,4 @@ const fontMono = localFont({
 })
 
 export const fontVariable = (className?: string) =>
-  cn(fontHead.variable, fontSans.variable, fontMono.variable, className)
+  cn(fontSans.variable, fontMono.variable, className)

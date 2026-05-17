@@ -5,6 +5,7 @@ import { fontVariable } from "@/fonts"
 import { ThemeProvider } from "@/components/theme-provider"
 import { TailwindIndicator } from "@/components/tailwind-indicator"
 import { siteConfig } from "@/config/site.config"
+import { assetPath, imagePath } from "@typest/nextjs"
 
 export const metadata: Metadata = {
   title: {
@@ -48,8 +49,8 @@ export const metadata: Metadata = {
     images: [`${siteConfig.url}/opengraph.png`],
     creator: `@${siteConfig.username}`,
   },
-  icons: "/logo.svg",
-  manifest: `${siteConfig.url}/site.webmanifest`,
+  icons: imagePath("logo.svg"),
+  manifest: `${siteConfig.url}/${assetPath("site.webmanifest")}`,
 }
 
 export default function RootLayout(props: LayoutProps<"/">) {
