@@ -28,11 +28,11 @@ const icons = [
 
 export const FloatingIcons = () => {
   return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden">
+    <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
       {icons.map(({ Icon, top, left, delay }, i) => (
         <motion.div
           key={i}
-          className="absolute text-foreground/10"
+          className="absolute text-foreground/12"
           style={{ top, left }}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: [10, -10, 10] }}

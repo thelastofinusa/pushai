@@ -1,141 +1,151 @@
-import React from "react"
+"use client"
+import { useEffect, useState } from "react"
+import { motion, AnimatePresence } from "motion/react"
 import { cn } from "@workspace/ui/lib/utils"
+import { siteConfig } from "@/config/site.config"
+
+const TREE = new Set(["┌", "│", "└", "├", "╮", "╯", "╭", "╰", "─"])
+
+function renderLine(line: string, i: number) {
+  const chars: React.ReactNode[] = []
+
+  let buf = ""
+  let bufClass = ""
+
+  const flush = () => {
+    if (!buf) return
+
+    chars.push(
+      <span key={`${i}-${chars.length}`} className={bufClass}>
+        {buf}
+      </span>
+    )
+
+    buf = ""
+  }
+
+  for (let j = 0; j < line.length; j++) {
+    const ch = line[j] as string
+
+    let cls = "text-muted-foreground"
+
+    if (TREE.has(ch)) cls = "text-muted-foreground"
+    else if (ch === "◇") cls = "text-[#7dd3fc]"
+    else if (ch === "✔") cls = "text-success"
+    else if (ch === "●") cls = "text-[#22d3ee]"
+    else if (ch === "○") cls = "text-muted-foreground"
+    else if (ch === "$") cls = "text-success"
+
+    if (cls !== bufClass) {
+      flush()
+      bufClass = cls
+    }
+
+    buf += ch
+  }
+
+  flush()
+
+  return (
+    <div key={i} className="whitespace-pre">
+      {chars.length ? chars : "\u00A0"}
+    </div>
+  )
+}
 
 export const Terminal = ({
   title = "pushai",
-  content,
+  command = "",
+  output = [],
   className,
 }: {
   title?: string
-  content: string
+  command?: string
+  output?: string[]
   className?: string
 }) => {
-  const formatLine = (line: string, index: number) => {
-    // Provider badge
-    if (line.includes("GEMINI")) {
-      return (
-        <div key={index} className="mt-3 text-terminal-foreground/90">
-          <span className="text-terminal-foreground/40">┌ </span>
-          <span className="text-cyan-400">●</span>{" "}
-          <span className="bg-cyan-500 px-2 text-xs font-semibold text-black">
-            GEMINI
-          </span>{" "}
-          <span>• gemini-3.1-flash-lite</span>
-        </div>
-      )
-    }
+  const [typed, setTyped] = useState("")
+  const [visibleLines, setVisibleLines] = useState<number>(0)
 
-    // Success line
-    if (line.startsWith("✔")) {
-      return (
-        <div key={index} className="text-terminal-foreground/90">
-          <span className="text-green-400">✔</span>{" "}
-          <span>{line.replace("✔ ", "")}</span>
-        </div>
-      )
-    }
+  useEffect(() => {
+    if (!command) return
 
-    // Commit preview header
-    if (line.startsWith("◇")) {
-      const match = line.match(/^(◇\s.*?)(─+╮)$/)
+    setTyped("")
+    setVisibleLines(0)
 
-      if (match) {
-        return (
-          <div key={index} className="text-terminal-foreground/90">
-            <span>{match[1]}</span>
+    let current = 0
 
-            <span className="text-terminal-foreground/40">{match[2]}</span>
-          </div>
-        )
+    const typeInterval = setInterval(() => {
+      current++
+
+      setTyped(command.slice(0, current))
+
+      if (current >= command.length) {
+        clearInterval(typeInterval)
+
+        let line = 0
+
+        const outputInterval = setInterval(() => {
+          line++
+
+          setVisibleLines(line)
+
+          if (line >= output.length) {
+            clearInterval(outputInterval)
+          }
+        }, 200)
       }
+    }, 40)
 
-      return (
-        <div key={index} className="text-cyan-400">
-          {line}
-        </div>
-      )
-    }
-
-    // Action prompt
-    if (line.startsWith("◆")) {
-      return (
-        <div key={index} className="text-cyan-500">
-          {line}
-        </div>
-      )
-    }
-
-    // Selected option
-    if (line.includes("● Commit")) {
-      return (
-        <div key={index} className="text-terminal-foreground/90">
-          <span className="text-cyan-400">●</span>{" "}
-          <span>{line.replace("● ", "")}</span>
-        </div>
-      )
-    }
-
-    // Unselected options
-    if (line.includes("○")) {
-      return (
-        <div key={index} className="text-terminal-foreground/60">
-          {line}
-        </div>
-      )
-    }
-
-    // Outro line
-    if (line.startsWith("└")) {
-      return (
-        <div key={index} className="text-terminal-foreground/90">
-          <span className="text-terminal-foreground/40">└ </span>
-
-          <span className="text-green-400">{line.replace("└ ", "")}</span>
-        </div>
-      )
-    }
-
-    // Borders / pipes
-    if (
-      line.startsWith("│") ||
-      line.startsWith("├") ||
-      line.startsWith("╰") ||
-      line.startsWith("╯")
-    ) {
-      return (
-        <div key={index} className="text-terminal-foreground/40">
-          {line}
-        </div>
-      )
-    }
-
-    // Default
-    return (
-      <div key={index} className="text-terminal-foreground/90">
-        {line}
-      </div>
-    )
-  }
+    return () => clearInterval(typeInterval)
+  }, [command, output])
 
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-2xl border border-terminal-border bg-terminal text-terminal-foreground shadow-2xl shadow-black/20 backdrop-blur",
+        "overflow-hidden rounded-xl border bg-background text-muted-foreground shadow-2xl shadow-black/10 backdrop-blur",
         className
       )}
     >
-      <div className="flex items-center gap-2 border-b border-terminal-border px-4 py-3">
-        <span className="size-3 rounded-full bg-[#ff5f57]" />
-        <span className="size-3 rounded-full bg-[#febc2e]" />
-        <span className="size-3 rounded-full bg-[#28c840]" />
+      <div className="flex items-center gap-1.5 border-b px-4 py-2.5 sm:px-5">
+        <span className="size-2.5 rounded-full bg-[#ff5f57]" />
+        <span className="size-2.5 rounded-full bg-[#febc2e]" />
+        <span className="size-2.5 rounded-full bg-[#28c840]" />
 
-        <span className="ml-3 font-mono text-xs text-terminal-foreground/60">
+        <span className="ml-2 font-mono text-xs text-muted-foreground">
           {title}
         </span>
       </div>
 
-      <div className="p-5 font-mono text-[13px] whitespace-pre-wrap sm:p-5 sm:text-sm">
-        {content.split("\n").map(formatLine)}
+      <div className="h-max min-h-52 p-4 font-mono text-[12.5px] leading-[1.55] sm:p-5 sm:text-[13px]">
+        <div className="mb-3 whitespace-pre text-foreground">
+          <span className="text-success">% </span>
+          {typed}
+          <motion.span
+            animate={{ opacity: [0, 1, 0] }}
+            transition={{
+              duration: 1,
+              repeat: Infinity,
+            }}
+            className="ml-1"
+          >
+            █
+          </motion.span>
+        </div>
+
+        <AnimatePresence>
+          {output?.slice(0, visibleLines).map((line, i) => (
+            <motion.div
+              key={`${line}-${i}`}
+              initial={{ opacity: 0, y: 3 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              {renderLine(line, i)}
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </div>
     </div>
   )

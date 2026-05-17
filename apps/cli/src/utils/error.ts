@@ -1,6 +1,6 @@
 import chalk from "chalk"
-import { msg } from "./msg.js"
 import { outro } from "@clack/prompts"
+import { msg } from "../constants/msg"
 
 export function getReadableErrorMessage(error: unknown): string {
   if (!(error instanceof Error)) {

@@ -1,6 +1,6 @@
 import { InferenceClient } from "@huggingface/inference"
 import { BaseProvider } from "./base"
-import { GENERATE_COMMIT_PROMPT } from "../utils/prompt"
+import { GENERATE_COMMIT_PROMPT } from "../constants/prompt"
 
 export class HuggingFaceProvider extends BaseProvider {
   async generateCommitMessage(

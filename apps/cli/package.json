@@ -1,14 +1,14 @@
 {
   "name": "pushai",
-  "version": "1.0.11",
-  "description": "Stop writing manual commit messages.",
+  "version": "1.0.13",
+  "description": "Ship commits at the speed of thought.",
   "bin": {
     "pai": "./dist/index.mjs",
     "pushai": "./dist/index.mjs"
   },
   "scripts": {
     "dev": "tsup src/index.ts --format esm --watch --clean",
-    "build": "tsup src/index.ts --format esm --clean --minify",
+    "build": "tsup",
     "start": "pnpm build && clear && node dist/index.mjs",
     "pushout": "npm publish",
     "pushout-inc": "npm version patch --no-git-tag-version && pnpm pushout"

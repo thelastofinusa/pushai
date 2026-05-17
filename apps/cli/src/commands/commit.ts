@@ -1,5 +1,3 @@
-// apps/cli/src/commands/commit.ts
-
 import ora, { Ora } from "ora"
 import chalk from "chalk"
 import simpleGit from "simple-git"
@@ -11,7 +9,7 @@ import { handleError } from "../utils/error"
 import { hasRemote, initRepo, prepareGitStage } from "../utils/git"
 import { getStoredConfig } from "../utils/config"
 import { Config } from "../types"
-import { msg } from "../utils/msg"
+import { msg } from "../constants/msg"
 import { createSlowSpinner } from "../utils/lib"
 
 const git = simpleGit()

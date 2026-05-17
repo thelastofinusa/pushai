@@ -1,7 +1,7 @@
 import chalk from "chalk"
 import { confirm, intro, isCancel, outro } from "@clack/prompts"
 import { resetStoredConfig } from "../utils/config"
-import { msg } from "../utils/msg"
+import { msg } from "../constants/msg"
 
 export async function runReset() {
   intro(chalk.yellow.bold(msg.reset.intro))

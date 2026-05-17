@@ -1,6 +1,6 @@
 import OpenAI from "openai"
 import { BaseProvider } from "./base"
-import { GENERATE_COMMIT_PROMPT } from "../utils/prompt"
+import { GENERATE_COMMIT_PROMPT } from "../constants/prompt"
 
 export class OpenAIProvider extends BaseProvider {
   constructor(apiKey: string, model: string) {

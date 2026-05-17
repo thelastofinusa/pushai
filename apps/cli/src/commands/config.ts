@@ -11,7 +11,7 @@ import {
 import { getConfigPath, setStoredConfig } from "../utils/config"
 import { aiProviders } from "../providers"
 import { ProviderType } from "../types"
-import { msg } from "../utils/msg"
+import { msg } from "../constants/msg"
 
 export async function runConfig() {
   intro(chalk.blue.bold(msg.config.intro))

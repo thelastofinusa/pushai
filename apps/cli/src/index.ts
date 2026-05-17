@@ -1,11 +1,11 @@
 import chalk from "chalk"
 import { basename } from "path"
-import { msg } from "./utils/msg"
 import { Command } from "commander"
 import { runReset } from "./commands/reset"
 import { runConfig } from "./commands/config"
 import { runCommit } from "./commands/commit"
 import { version, description } from "../package.json"
+import { msg } from "./constants/msg"
 
 let activeAbortController: AbortController | null = null
 
