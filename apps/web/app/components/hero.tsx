@@ -1,27 +1,28 @@
 "use client"
 import { useEffect, useMemo, useState } from "react"
 import { motion } from "motion/react"
-import { ArrowRight, ChevronRight } from "lucide-react"
+import { ArrowRight } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 import { Terminal } from "@/components/terminal"
 import { siteConfig } from "@/config/site.config"
 
 const demos = [
   {
-    title: "commit",
-    command: "pai commit  --dry-run",
+    title: "config",
+    command: "pai config",
     output: [
-      "┌ ● GEMINI • gemini-3.1-flash-lite",
+      "┌  Welcome to PushAI. Let's get things set up.",
       "│",
-      "✔ Commit message generated.",
+      "◇  Choose from the available AI providers:",
+      "│  Google Gemini",
       "│",
-      "◇  Ready to commit ───────────────────────────────────╮",
-      "│                                                     │",
-      "│  feat(providers): add streaming support for Gemini  │",
-      "│                                                     │",
-      "├─────────────────────────────────────────────────────╯",
+      "◇  Enter your gemini API key:",
+      "│  ***************************************",
       "│",
-      "└  [DRY RUN] No changes were committed or pushed.",
+      "◇  Which model would you like to use?",
+      "│  Gemini 3.1 Flash Lite",
+      "│",
+      "└  Configuration complete. You're ready to go!",
     ],
   },
   {
@@ -43,6 +44,23 @@ const demos = [
       "✔ Changes pushed successfully.",
       "│",
       "└  Successfully synced with the remote repository.",
+    ],
+  },
+  {
+    title: "commit",
+    command: "pai commit  --dry-run",
+    output: [
+      "┌ ● GEMINI • gemini-3.1-flash-lite",
+      "│",
+      "✔ Commit message generated.",
+      "│",
+      "◇  Ready to commit ───────────────────────────────────╮",
+      "│                                                     │",
+      "│  refactor(auth): swap JWT for httpOnly cookies      │",
+      "│                                                     │",
+      "├─────────────────────────────────────────────────────╯",
+      "│",
+      "└  [DRY RUN] No changes were committed or pushed.",
     ],
   },
   {

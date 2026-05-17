@@ -388,7 +388,7 @@ export async function runCommit(
     } catch (error: any) {
       spinner.fail(chalk.red.bold(msg.commit.operationFailed))
 
-      outro(chalk.red(msg.commit.gitError(error.message)))
+      outro(chalk.red(handleError(error)))
 
       process.exit(1)
     }

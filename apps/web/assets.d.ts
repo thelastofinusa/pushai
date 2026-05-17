@@ -21,6 +21,7 @@ declare module "@typest/nextjs" {
     readonly "favicon.svg": "/favicon.svg";
     readonly "logo.png": "/logo.png";
     readonly "logo.svg": "/logo.svg";
+    readonly "opengraph.png": "/opengraph.png";
   };
   type ImageKey = keyof typeof imageAssets;
   export function imagePath(key: ImageKey): string;

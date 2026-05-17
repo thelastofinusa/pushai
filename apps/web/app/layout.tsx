@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     siteName: siteConfig.name,
     images: [
       {
-        url: `${siteConfig.url}/opengraph.png`,
+        url: `${siteConfig.url}/${imagePath("opengraph.png")}`,
         width: 1200,
         height: 630,
         alt: siteConfig.name,
@@ -46,7 +46,7 @@ export const metadata: Metadata = {
       template: `%s - ${siteConfig.name}`,
     },
     description: siteConfig.description,
-    images: [`${siteConfig.url}/opengraph.png`],
+    images: [`${siteConfig.url}/${imagePath("opengraph.png")}`],
     creator: `@${siteConfig.username}`,
   },
   icons: imagePath("logo.svg"),

@@ -22,6 +22,14 @@ export function getReadableErrorMessage(error: unknown): string {
     return "Authentication failed. The API key appears to be invalid."
   }
 
+  if (
+    message.includes("HTTP 408") ||
+    message.includes("RPC failed") ||
+    message.includes("remote end hung up unexpectedly")
+  ) {
+    return "GitHub connection timed out. Commit saved locally. Run `git push` to retry."
+  }
+
   // Rate limits / quotas
   if (
     message.includes("429") ||
