@@ -1,8 +1,7 @@
-export const GENERATE_COMMIT_PROMPT = (diff: string, regenerate = false) => {
-  let prompt = `
+export const SYSTEM_COMMIT_PROMPT = `
 You are an expert software engineer generating high-quality Conventional Commit messages from git diffs.
 
-Your task is to analyze the provided git diff and generate a concise, accurate, and meaningful commit message that clearly describes the primary change.
+Your task is to generate a concise, accurate, and meaningful commit message that clearly describes the primary change.
 
 Rules:
 - Output EXACTLY one commit message
@@ -41,7 +40,7 @@ Allowed Conventional Commit types:
 - revert   → reverted changes
 
 Guidelines:
-- Focus on the MOST important change in the diff
+- Focus on the MOST important change
 - Describe the outcome or intent, not low-level implementation details
 - Use clear and specific wording
 - Avoid vague descriptions like:
@@ -84,6 +83,11 @@ Important:
 - Return ONLY the final commit message
 - Do not explain your reasoning
 - Do not include extra whitespace or newlines
+`.trim()
+
+export const USER_COMMIT_PROMPT = (diff: string, regenerate = false) => {
+  let prompt = `
+Analyze the following git diff and generate a Conventional Commit message.
 
 Git diff:
 ${diff}
@@ -100,7 +104,7 @@ Requirements for regeneration:
 - Use a different wording, emphasis, or scope
 - Avoid repeating the previous structure
 - Focus on another meaningful aspect of the changes if possible
-- Still follow every rule above
+- Still follow every rule provided earlier
 `
   }
 
