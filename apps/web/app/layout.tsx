@@ -1,14 +1,15 @@
 import type { Metadata } from "next"
-import { Analytics } from "@vercel/analytics/next"
 import { assetPath, imagePath } from "@typest/nextjs"
 
 import "@workspace/ui/globals.css"
 import { fontVariable } from "@/fonts"
-import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
 import { siteConfig } from "@/config/site.config"
-import { ThemeProvider } from "@/components/theme-provider"
-import { TailwindIndicator } from "@/components/tailwind-indicator"
+import Provider from "@/components/providers/lenis.provider"
+import { ThemeProvider } from "@/components/providers/theme.provider"
+import { Header } from "@/components/shared/header"
+import { Footer } from "@/components/shared/footer"
+import { TailwindIndicator } from "@/components/shared/tailwind-indicator"
+import { Analytics } from "@vercel/analytics/next"
 
 export const metadata: Metadata = {
   title: {
@@ -60,13 +61,15 @@ export default function RootLayout(props: LayoutProps<"/">) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={fontVariable("antialiased")}>
-        <ThemeProvider>
-          <Header />
-          {props.children}
-          <Footer />
-        </ThemeProvider>
-        <TailwindIndicator />
-        <Analytics />
+        <Provider>
+          <ThemeProvider>
+            <Header />
+            {props.children}
+            <Footer />
+            <TailwindIndicator />
+          </ThemeProvider>
+          <Analytics />
+        </Provider>
       </body>
     </html>
   )

@@ -104,49 +104,49 @@ const steps = [
 
 const flags = [
   {
-    flag: "--dry-run",
+    flag: "-d, --dry-run",
     applies: "commit",
-    desc: "Preview message – no commit or push.",
+    desc: "Preview the generated message without committing or pushing changes.",
   },
   {
-    flag: "--push / -p",
+    flag: "-p, --push",
     applies: "commit",
-    desc: "Skip approval, commit and push immediately.",
+    desc: "Skip confirmation and immediately commit and push changes.",
   },
   {
     flag: "-m, --message <msg>",
     applies: "commit",
-    desc: "Use a custom commit message (skips AI generation).",
+    desc: "Use a custom commit message instead of AI generation.",
   },
   {
-    flag: "--yes / -y",
+    flag: "-y, --yes",
     applies: "reset",
-    desc: "Skip confirmation, delete config non‑interactively.",
+    desc: "Skip confirmation and remove saved configuration instantly.",
   },
   {
     flag: "-e, --edit",
     applies: "config",
-    desc: "Open configuration file in default editor.",
+    desc: "Open the PushAI configuration file in your default editor.",
   },
   {
-    flag: "--provider <name>",
+    flag: "-p, --provider <name>",
     applies: "config",
-    desc: "Set AI provider directly (e.g., gemini, openai, huggingface).",
+    desc: "Set an AI provider directly from the terminal.",
   },
   {
-    flag: "--model <id>",
+    flag: "-m, --model <id>",
     applies: "config",
-    desc: "Set model ID directly (e.g., gemini-3.1-flash-lite).",
+    desc: "Choose a model directly without interactive prompts.",
   },
   {
-    flag: "--key <apiKey>",
+    flag: "-k, --key <apiKey>",
     applies: "config",
-    desc: "Set API key directly (non-interactive).",
+    desc: "Save an API key directly from the command line.",
   },
   {
     flag: "--peek",
     applies: "config",
-    desc: "Show current saved configuration (provider, model, masked key).",
+    desc: "Show the currently saved provider, model, and API key.",
   },
 ]
 
@@ -209,7 +209,7 @@ export const HowItWorks = () => {
           </p>
         </div>
 
-        <div className="mx-auto mt-8 grid max-w-4xl divide-y divide-border rounded-xl border bg-linear-to-b from-transparent via-secondary/10 to-secondary/30 shadow-2xl shadow-black/10 backdrop-blur-md lg:grid-cols-3 lg:divide-x">
+        <div className="mx-auto mt-8 grid max-w-5xl divide-y divide-border overflow-hidden rounded-xl border bg-linear-to-b from-transparent via-secondary/10 to-secondary/30 shadow-2xl shadow-black/10 backdrop-blur-md lg:grid-cols-3 lg:divide-x">
           {flags.map((f, i) => (
             <motion.div
               key={f.flag}

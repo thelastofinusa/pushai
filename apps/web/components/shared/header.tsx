@@ -9,11 +9,10 @@ import { useTheme } from "next-themes"
 import Image from "next/image"
 import Link from "next/link"
 import { useEffect, useMemo, useState } from "react"
-import { CgNpm } from "react-icons/cg"
 import { FiMoon } from "react-icons/fi"
 import { IoIosGitCommit } from "react-icons/io"
 import { MdOutlineWbSunny } from "react-icons/md"
-import { FaProductHunt } from "react-icons/fa6"
+import { SiNpm } from "react-icons/si"
 
 type Stats = {
   downloads: string
@@ -64,16 +63,17 @@ export const Header = () => {
     () => [
       {
         href: `https://www.npmjs.com/package/${siteConfig.name.toLowerCase()}`,
-        icon: CgNpm,
+        icon: SiNpm,
         label: "Downloads",
         value: stats.downloads,
+        iconClass: "size-4",
       },
-
       {
         href: `https://github.com/${siteConfig.username}/${siteConfig.name.toLowerCase()}`,
         icon: IoIosGitCommit,
         label: "Commits",
         value: stats.commits,
+        iconClass: "size-5",
       },
     ],
     [stats]
@@ -116,7 +116,7 @@ export const Header = () => {
                   className: "pointer-events-auto",
                 })}
               >
-                <Icon className="size-5" />
+                <Icon className={link.iconClass} />
 
                 <span>
                   {link.value !== null && <>{link.value} </>}
