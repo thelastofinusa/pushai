@@ -1,13 +1,14 @@
 import type { Metadata } from "next"
+import { Analytics } from "@vercel/analytics/next"
+import { assetPath, imagePath } from "@typest/nextjs"
 
 import "@workspace/ui/globals.css"
 import { fontVariable } from "@/fonts"
-import { ThemeProvider } from "@/components/theme-provider"
-import { TailwindIndicator } from "@/components/tailwind-indicator"
-import { siteConfig } from "@/config/site.config"
-import { assetPath, imagePath } from "@typest/nextjs"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
+import { siteConfig } from "@/config/site.config"
+import { ThemeProvider } from "@/components/theme-provider"
+import { TailwindIndicator } from "@/components/tailwind-indicator"
 
 export const metadata: Metadata = {
   title: {
@@ -65,6 +66,7 @@ export default function RootLayout(props: LayoutProps<"/">) {
           <Footer />
         </ThemeProvider>
         <TailwindIndicator />
+        <Analytics />
       </body>
     </html>
   )

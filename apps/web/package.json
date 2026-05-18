@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@typest/nextjs": "^1.0.4",
+    "@vercel/analytics": "^2.0.1",
     "@workspace/ui": "workspace:*",
     "lucide-react": "^1.14.0",
     "motion": "^12.38.0",
