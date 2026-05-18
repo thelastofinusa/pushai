@@ -8,7 +8,7 @@ const PREFIXES = [
   "pai",
   "pushai",
   "npx pushai",
-  "bunx --bun pushai",
+  "bunx pushai",
   "pnpm dlx pushai",
   "yarn pushai",
 ]
