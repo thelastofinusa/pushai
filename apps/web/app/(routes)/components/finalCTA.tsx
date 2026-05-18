@@ -10,6 +10,7 @@ import {
   TabsTrigger,
 } from "@workspace/ui/components/tabs"
 import { SiBun, SiNpm, SiPnpm, SiYarn } from "react-icons/si"
+import { Separator } from "@workspace/ui/components/separator"
 
 const TypewriterCommand = ({ text }: { text: string }) => {
   const [displayed, setDisplayed] = useState("")
@@ -102,6 +103,8 @@ export function FinalCTA() {
                 <span className="text-xs">bun</span>
               </TabsTrigger>
             </TabsList>
+
+            <Separator orientation="horizontal" className="my-2 w-20!" />
 
             {Object.entries(installCommands).map(([manager, command]) => (
               <TabsContent
