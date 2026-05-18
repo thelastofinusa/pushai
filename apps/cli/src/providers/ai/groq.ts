@@ -1,4 +1,4 @@
-import OpenAI from "openai"
+import OpenAI, { APIError, AuthenticationError, RateLimitError } from "openai"
 import { BaseProvider } from "../base"
 import {
   SYSTEM_COMMIT_PROMPT,
@@ -41,7 +41,14 @@ export class GroqProvider extends BaseProvider {
         response.choices[0]?.message.content?.trim().replace(/['"]/g, "") || ""
       )
     } catch (error: any) {
-      throw error instanceof Error ? error : new Error("Groq API error")
+      if (error instanceof AuthenticationError) {
+        throw new Error(`Groq authentication failed: ${error.message}`)
+      } else if (error instanceof RateLimitError) {
+        throw new Error(`Groq rate limit: ${error.message}`)
+      } else if (error instanceof APIError) {
+        throw new Error(`Groq error (${error.status}): ${error.message}`)
+      }
+      throw error
     }
   }
 }

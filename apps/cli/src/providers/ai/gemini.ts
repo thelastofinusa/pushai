@@ -1,4 +1,4 @@
-import { GoogleGenAI } from "@google/genai"
+import { ApiError, GoogleGenAI } from "@google/genai"
 import { BaseProvider } from "../base"
 import {
   SYSTEM_COMMIT_PROMPT,
@@ -39,7 +39,9 @@ export class GeminiProvider extends BaseProvider {
 
       return text
     } catch (error: any) {
-      throw error instanceof Error ? error : new Error("Gemini API error")
+      if (error instanceof ApiError)
+        throw new Error(`Gemini error (${error.status}): ${error.message}`)
+      throw error
     }
   }
 }

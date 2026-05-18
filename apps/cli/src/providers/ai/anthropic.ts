@@ -1,4 +1,9 @@
-import Anthropic from "@anthropic-ai/sdk"
+import Anthropic, {
+  APIConnectionError,
+  APIError,
+  AuthenticationError,
+  RateLimitError,
+} from "@anthropic-ai/sdk"
 import { BaseProvider } from "../base"
 import {
   SYSTEM_COMMIT_PROMPT,
@@ -43,7 +48,16 @@ export class AnthropicProvider extends BaseProvider {
 
       return cleaned
     } catch (error: any) {
-      throw error instanceof Error ? error : new Error("Anthropic API error")
+      if (error instanceof AuthenticationError) {
+        throw new Error(`Anthropic authentication failed: ${error.message}`)
+      } else if (error instanceof RateLimitError) {
+        throw new Error(`Anthropic rate limit: ${error.message}`)
+      } else if (error instanceof APIConnectionError) {
+        throw new Error(`Anthropic connection error: ${error.message}`)
+      } else if (error instanceof APIError) {
+        throw new Error(`Anthropic error (${error.status}): ${error.message}`)
+      }
+      throw error
     }
   }
 }

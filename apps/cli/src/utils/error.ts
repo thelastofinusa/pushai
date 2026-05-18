@@ -2,97 +2,111 @@ import chalk from "chalk"
 import { outro } from "@clack/prompts"
 import { msg } from "../constants/msg"
 
-export function getReadableErrorMessage(error: unknown): string {
+/**
+ * Converts provider-specific errors into a user-friendly message.
+ * Handles errors from OpenAI, Gemini, Anthropic, Hugging Face, and other APIs.
+ */
+export function getUserFriendlyError(error: unknown): string {
+  // Not an Error instance
   if (!(error instanceof Error)) {
-    return "Something unexpected went wrong."
+    return "An unexpected error occurred."
   }
 
-  const message = error.message.toLowerCase()
+  const err = error
+  const name = err.name
+  const message = err.message
+  // Some SDKs put status in `status`, others in `statusCode` or `code`
+  const status =
+    (err as any).status ?? (err as any).statusCode ?? (err as any).code
 
-  // Authentication
+  // 1. Authentication / API key issues
   if (
-    message.includes("api key") ||
-    message.includes("invalid_api_key") ||
-    message.includes("authentication") ||
-    message.includes("authorization") ||
-    message.includes("unauthorized") ||
-    message.includes("401") ||
-    message.includes("403")
+    name === "AuthenticationError" ||
+    name === "UnauthorizedError" ||
+    name === "InvalidApiKeyError" ||
+    status === 401 ||
+    status === 403 ||
+    /api key|authentication|unauthorized|invalid.*key/i.test(message)
   ) {
-    return "Authentication failed. The API key appears to be invalid."
+    return "Authentication failed. Your API key may be invalid or missing."
   }
 
+  // 2. Rate limiting / quota exhaustion / credit depletion
   if (
-    message.includes("HTTP 408") ||
-    message.includes("RPC failed") ||
-    message.includes("remote end hung up unexpectedly")
+    name === "RateLimitError" ||
+    name === "QuotaExceededError" ||
+    status === 429 ||
+    /rate limit|quota|resource exhausted|too many requests|depleted.*credit|included credits|pre-paid/i.test(
+      message
+    )
   ) {
-    return "GitHub connection timed out. Commit saved locally. Run `git push` to retry."
+    // For credit / billing errors, show the exact message from the provider
+    if (/credit|depleted|pre-paid|included credits/i.test(message)) {
+      return message
+    }
+    return "Rate limit reached. Please try again later or check your plan limits."
   }
 
-  // Rate limits / quotas
+  // 3. Model not found / unsupported / does not exist
   if (
-    message.includes("429") ||
-    message.includes("quota") ||
-    message.includes("rate limit") ||
-    message.includes("resource_exhausted") ||
-    message.includes("too many requests")
+    name === "NotFoundError" ||
+    name === "ModelNotFoundError" ||
+    status === 404 ||
+    /model.*not found|model.*unsupported|does not exist/i.test(message)
   ) {
-    const retryMatch =
-      error.message.match(/retry in ([\d.]+s?)/i) ||
-      error.message.match(/retrydelay":"(\d+s)"/i)
-
-    const retry = retryMatch?.[1]
-
-    return retry
-      ? `Rate limit exceeded. Try again in ${retry}.`
-      : "Rate limit exceeded. Please try again later."
+    return "The selected AI model is unavailable or unsupported. Please choose a different model."
   }
 
-  // Model issues
+  // 4. Context length / token limit overflow
   if (
-    message.includes("model") &&
-    (message.includes("not found") ||
-      message.includes("unsupported") ||
-      message.includes("does not exist"))
+    name === "ContextLengthExceededError" ||
+    /maximum context length|token limit|too long/i.test(message)
   ) {
-    return "The selected AI model is unavailable or unsupported."
+    return "The git diff is too large for this model. Try splitting your changes or using a model with larger context."
   }
 
-  // Context/token overflow
+  // 5. Safety filters / content blocked
   if (
-    message.includes("maximum context length") ||
-    message.includes("token limit")
+    name === "SafetyError" ||
+    /safety|blocked|harmful content/i.test(message)
   ) {
-    return "The git diff is too large for the selected AI model."
+    return "The request was blocked by the AI provider's safety filters."
   }
 
-  // Safety filters
-  if (message.includes("safety") || message.includes("blocked")) {
-    return "The AI provider blocked this request."
-  }
-
-  // Network errors
+  // 6. Network / connection / timeout errors
   if (
-    message.includes("fetch failed") ||
-    message.includes("network") ||
-    message.includes("econnreset") ||
-    message.includes("timeout")
+    name === "APIConnectionError" ||
+    name === "TimeoutError" ||
+    name === "FetchError" ||
+    /fetch failed|network|econnreset|timeout|connection|ECONNRESET|ENOTFOUND/i.test(
+      message
+    )
   ) {
-    return "Network error. Please check your internet connection."
+    return "Network error. Please check your internet connection and try again."
   }
 
-  return "Commit message generation cancelled."
+  // 7. Hugging Face specific – e.g., "InputError: model X is not supported for task text-generation"
+  if (
+    name === "HTTPError" ||
+    name === "InferenceTimeoutError" ||
+    (message.includes("InputError") &&
+      message.includes("not supported for task"))
+  ) {
+    return message // Show the raw error because it's often actionable
+  }
+
+  // 8. Anthropic specific (custom types not yet identified) – fall through to default
+  // 9. OpenAI specific – already covered by names above
+
+  // Fallback: return the original error name and message
+  return `${name}: ${message}`
 }
 
 export function handleError(err: any): void {
   if (err.name === "ExitPromptError") return
-
-  const readableMessage = getReadableErrorMessage(err)
-
-  outro(chalk.red(readableMessage))
-
-  if (readableMessage.includes("Authentication failed")) {
+  const friendly = getUserFriendlyError(err)
+  outro(chalk.red(friendly))
+  if (friendly.includes("Authentication failed")) {
     outro(chalk.yellow(msg.errors.authFix))
   }
 }
