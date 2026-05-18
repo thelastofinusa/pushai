@@ -1,6 +1,9 @@
 import { GoogleGenAI } from "@google/genai"
-import { BaseProvider } from "./base"
-import { SYSTEM_COMMIT_PROMPT, USER_COMMIT_PROMPT } from "../constants/prompt"
+import { BaseProvider } from "../base"
+import {
+  SYSTEM_COMMIT_PROMPT,
+  USER_COMMIT_PROMPT,
+} from "../../constants/prompt"
 
 export class GeminiProvider extends BaseProvider {
   private ai: GoogleGenAI

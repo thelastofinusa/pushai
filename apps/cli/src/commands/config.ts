@@ -8,10 +8,10 @@ import {
   note,
   outro,
 } from "@clack/prompts"
-import { getConfigPath, setStoredConfig } from "../utils/config"
-import { aiProviders } from "../providers"
-import { ProviderType } from "../types"
 import { msg } from "../constants/msg"
+import { ProviderType } from "../types"
+import { aiProviders } from "../providers/models"
+import { getConfigPath, setStoredConfig } from "../utils/config"
 
 export async function runConfig() {
   intro(chalk.blue.bold(msg.config.intro))

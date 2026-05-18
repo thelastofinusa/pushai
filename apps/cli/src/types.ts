@@ -1,4 +1,9 @@
-export type ProviderType = "gemini" | "openai" | "huggingface"
+export type ProviderType =
+  | "gemini"
+  | "openai"
+  | "huggingface"
+  | "anthropic"
+  | "groq"
 
 export interface Config {
   provider: ProviderType
