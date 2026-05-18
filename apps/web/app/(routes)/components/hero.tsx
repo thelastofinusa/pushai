@@ -125,11 +125,11 @@ export function Hero() {
           className="flex flex-col items-center text-center"
         >
           <div className="group mx-auto inline-flex w-fit cursor-pointer items-center gap-2 rounded-full border bg-background p-1 pr-4 shadow-md shadow-zinc-950/5 transition-colors duration-300">
-            <div className="h-6 overflow-hidden rounded-full bg-secondary px-2">
-              <span className="text-sm font-medium">v{version}</span>
+            <div className="flex h-5 items-center justify-center overflow-hidden rounded-full bg-secondary px-2 sm:h-6">
+              <span className="text-xs font-medium sm:text-sm">v{version}</span>
             </div>
             <Separator orientation="vertical" className="my-auto h-4" />
-            <span className="text-sm text-foreground">
+            <span className="text-xs text-foreground sm:text-sm">
               AI-powered git workflow
             </span>
           </div>
