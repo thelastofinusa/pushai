@@ -6,8 +6,9 @@ import { Check } from "lucide-react"
 
 const PREFIXES = [
   "pai",
+  "pushai",
   "npx pushai",
-  "bunx pushai",
+  "bunx --bun pushai",
   "pnpm dlx pushai",
   "yarn pushai",
 ]
