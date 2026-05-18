@@ -65,21 +65,17 @@ After global installation, you can use the shorthand `pai` (recommended).
 
 ### Flags
 
-| Flag                | Applies to | Description                                                     |
-| ------------------- | ---------- | --------------------------------------------------------------- |
-| `--dry-run`         | `commit`   | Preview message – no commit or push.                            |
-| `--push` / `-p`     | `commit`   | Skip approval, commit and push immediately.                     |
-| `--yes` / `-y`      | `reset`    | Skip confirmation, delete configuration without asking.         |
-| `--provider <name>` | `config`   | Set the AI provider (e.g., `gemini`, `openai`).                 |
-| `--model <id>`      | `config`   | Set the model ID directly.                                      |
-| `--key <apiKey>`    | `config`   | Set the API key directly (non‑interactive).                     |
-| `--peek`            | `config`   | Show current saved configuration (provider, model, masked key). |
-
-> **Examples**
-> `pai commit --push` or `pai -p` – generate and push without prompts.
-> `pai reset -y` – wipe config non‑interactively.
-> `pai config --provider gemini --model gemini-3.1-flash-lite --key "your-key"` – set all values at once.
-> `pai config --peek` – view current configuration.
+| Flag                     | Applies to | Description                                                     |
+| ------------------------ | ---------- | --------------------------------------------------------------- |
+| `--dry-run`              | `commit`   | Preview message – no commit or push.                            |
+| `--push` / `-p`          | `commit`   | Skip approval, commit and push immediately.                     |
+| `-m` / `--message <msg>` | `commit`   | Use a custom commit message (skips AI generation).              |
+| `--yes` / `-y`           | `reset`    | Skip confirmation, delete configuration without asking.         |
+| `-e` / `--edit`          | `config`   | Open configuration file in default editor.                      |
+| `--provider <name>`      | `config`   | Set the AI provider (e.g., `gemini`, `openai`).                 |
+| `--model <id>`           | `config`   | Set the model ID directly.                                      |
+| `--key <apiKey>`         | `config`   | Set the API key directly (non‑interactive).                     |
+| `--peek`                 | `config`   | Show current saved configuration (provider, model, masked key). |
 
 ## Configuration
 

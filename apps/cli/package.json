@@ -1,6 +1,6 @@
 {
   "name": "pushai",
-  "version": "1.0.19",
+  "version": "1.0.20",
   "description": "Ship commits at the speed of thought.",
   "bin": {
     "pai": "./dist/index.mjs",

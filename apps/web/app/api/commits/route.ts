@@ -1,13 +1,13 @@
 import { siteConfig } from "@/config/site.config"
 import { NextResponse } from "next/server"
 
-export const revalidate = 60
+export const revalidate = 3600
 
 export async function GET() {
   try {
     const res = await fetch(
       `https://api.github.com/repos/${siteConfig.username}/${siteConfig.name}/commits?per_page=1`,
-      { next: { revalidate } }
+      { next: { revalidate: revalidate } }
     )
 
     let commits = 0

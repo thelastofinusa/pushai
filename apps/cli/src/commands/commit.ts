@@ -101,6 +101,7 @@ async function ensureNonEmptyMessage(
 export async function runCommit(
   dryRun?: boolean,
   autoPush?: boolean,
+  userMessage?: string,
   onControllerCreate?: (controller: AbortController) => void
 ) {
   const abortController = new AbortController()
@@ -111,65 +112,48 @@ export async function runCommit(
 
   const handleCancel = () => {
     abortController.abort()
-
     outro(chalk.red(msg.common.operationCancelled))
-
     process.exit(0)
   }
 
   const handleKeyPress = (key: string) => {
-    if (key === "\u0003") {
-      handleCancel()
-    }
+    if (key === "\u0003") handleCancel()
   }
 
   process.stdin.on("data", handleKeyPress)
-
   onControllerCreate?.(abortController)
 
   const handleSigint = () => {
     abortController.abort()
-
     outro(chalk.red(msg.common.operationCancelled))
-
     process.exit(0)
   }
-
   process.once("SIGINT", handleSigint)
 
   try {
     const config = await getStoredConfig()
-
     if (!config.apiKey || !config.provider || !config.model) {
       await runConfig()
-
       Object.assign(config, await getStoredConfig())
-
       return
     }
 
     console.log(msg.commit.intro(config.provider.toUpperCase(), config.model))
 
     let stageResult = await prepareGitStage()
-
     if (!stageResult.isRepo) {
       console.log(chalk.yellow(msg.commit.gitRepoMissing))
-
       const shouldInit = await confirm({
         message: msg.commit.initConfirm,
         initialValue: true,
       })
-
       if (isCancel(shouldInit)) {
         outro(chalk.red(msg.common.operationCancelled))
         process.exit(0)
       }
-
       if (shouldInit) {
         await initRepo()
-
         console.log(chalk.green(msg.commit.initSuccess))
-
         stageResult = await prepareGitStage()
       } else {
         outro(chalk.dim(msg.commit.abortNoRepo))
@@ -178,63 +162,67 @@ export async function runCommit(
     }
 
     const diff = stageResult.diff
-
     if (!diff) {
       outro(chalk.red(msg.commit.noChanges))
       process.exit(0)
     }
 
-    const spinner = ora({
-      color: "cyan",
-    })
-
+    const spinner = ora({ color: "cyan" })
     let message = ""
     let provider
 
-    try {
-      spinner.start(chalk.blue(msg.commit.generating))
-
-      const stopSlow = createSlowSpinner(
-        spinner,
-        msg.commit.generatingSlow10,
-        msg.commit.generatingSlow60
-      )
-
-      provider = await getAIProvider(config as Config)
-
-      message = await provider.generateCommitMessage(
-        diff,
-        abortController.signal
-      )
-
-      stopSlow()
-
-      message = await ensureNonEmptyMessage(
-        message,
-        provider,
-        diff,
-        abortController.signal,
-        spinner
-      )
-
-      spinner.succeed(chalk.green(msg.commit.generated))
-    } catch (error: any) {
-      spinner.fail(chalk.red.bold(msg.commit.generationFailed))
-
-      if (error.name === "AbortError") {
-        outro(chalk.yellow(msg.commit.generationCancelled))
-        process.exit(0)
+    // =========================================================
+    // USER-PROVIDED MESSAGE (skip AI)
+    // =========================================================
+    if (userMessage) {
+      message = userMessage.trim()
+      if (!message) {
+        spinner.fail(chalk.red("Empty user message provided."))
+        outro(chalk.red("Please provide a non-empty commit message."))
+        process.exit(1)
       }
-
-      handleError(error)
-
-      process.exit(1)
+      spinner.start(chalk.blue(msg.commit.usingUserMessage))
+      await new Promise((resolve) => setTimeout(resolve, 300))
+      spinner.succeed(chalk.green(msg.commit.userMessageAccepted))
+    } else {
+      // =========================================================
+      // AI GENERATION (existing code)
+      // =========================================================
+      try {
+        spinner.start(chalk.blue(msg.commit.generating))
+        const stopSlow = createSlowSpinner(
+          spinner,
+          msg.commit.generatingSlow10,
+          msg.commit.generatingSlow60
+        )
+        provider = await getAIProvider(config as Config)
+        message = await provider.generateCommitMessage(
+          diff,
+          abortController.signal
+        )
+        stopSlow()
+        message = await ensureNonEmptyMessage(
+          message,
+          provider,
+          diff,
+          abortController.signal,
+          spinner
+        )
+        spinner.succeed(chalk.green(msg.commit.generated))
+      } catch (error: any) {
+        spinner.fail(chalk.red.bold(msg.commit.generationFailed))
+        if (error.name === "AbortError") {
+          outro(chalk.yellow(msg.commit.generationCancelled))
+          process.exit(0)
+        }
+        handleError(error)
+        process.exit(1)
+      }
     }
 
     // =========================================================
     // DRY RUN
     // =========================================================
-
     if (dryRun) {
       note(chalk.bold(message), msg.commit.noteTitle)
       outro(chalk.yellow(msg.common.dryRun))
@@ -244,45 +232,26 @@ export async function runCommit(
     // =========================================================
     // CONFIRMATION LOOP
     // =========================================================
-
     let confirmed = false
-
     if (autoPush) {
-      // Skip the whole confirmation loop – just accept the message
       confirmed = true
     } else {
       while (!confirmed) {
         note(chalk.bold(message), msg.commit.noteTitle)
-
         const actionResult = await select({
           message: msg.commit.actionPrompt,
           options: [
-            {
-              label: msg.commit.actions.accept,
-              value: "accept",
-            },
-            {
-              label: msg.commit.actions.edit,
-              value: "edit",
-            },
-            {
-              label: msg.commit.actions.regenerate,
-              value: "regenerate",
-            },
-            {
-              label: msg.commit.actions.cancel,
-              value: "cancel",
-            },
+            { label: msg.commit.actions.accept, value: "accept" },
+            { label: msg.commit.actions.edit, value: "edit" },
+            { label: msg.commit.actions.regenerate, value: "regenerate" },
+            { label: msg.commit.actions.cancel, value: "cancel" },
           ],
         })
-
         if (isCancel(actionResult)) {
           outro(chalk.dim(msg.commit.processStopped))
           process.exit(0)
         }
-
         const action = actionResult as string
-
         if (action === "accept") {
           confirmed = true
         } else if (action === "edit") {
@@ -290,35 +259,30 @@ export async function runCommit(
             message: msg.commit.editPrompt,
             initialValue: message,
           })
-
           if (isCancel(editedResult)) {
             outro(chalk.dim(msg.commit.processStopped))
             process.exit(0)
           }
-
           message = editedResult as string
-
           confirmed = true
         } else if (action === "regenerate") {
+          if (!provider) {
+            outro(chalk.red("Cannot regenerate: provider not available."))
+            process.exit(1)
+          }
           spinner.start(chalk.blue(msg.commit.regenerating))
-
           const stopRegen = createSlowSpinner(
             spinner,
             msg.commit.generatingSlow10,
             msg.commit.generatingSlow60
           )
-
           try {
             message = await provider.generateCommitMessage(
               diff,
               abortController.signal,
-              {
-                regenerate: true,
-              }
+              { regenerate: true }
             )
-
             stopRegen()
-
             message = await ensureNonEmptyMessage(
               message,
               provider,
@@ -326,13 +290,10 @@ export async function runCommit(
               abortController.signal,
               spinner
             )
-
             spinner.succeed(chalk.green(msg.commit.regenerated))
           } catch (err: any) {
             stopRegen()
-
             spinner.fail(chalk.red(msg.commit.regenerationFailed(err.message)))
-
             if (err.name === "AbortError") {
               outro(chalk.yellow(msg.commit.generationCancelled))
               process.exit(0)
@@ -348,7 +309,6 @@ export async function runCommit(
     // =========================================================
     // REMOTE CHECK
     // =========================================================
-
     if (!(await hasRemote())) {
       spinner.fail(chalk.red.bold(msg.common.noRemote.header))
       outro(chalk.yellow(msg.common.noRemote.instruction))
@@ -358,43 +318,32 @@ export async function runCommit(
     // =========================================================
     // COMMIT + PUSH
     // =========================================================
-
     try {
       spinner.start(chalk.blue(msg.commit.committing))
-
       const stopCommit = createSlowSpinner(
         spinner,
         msg.commit.committingSlow10,
         msg.commit.committingSlow60
       )
-
       await git.commit(message)
-
       stopCommit()
-
       spinner.succeed(chalk.green(msg.common.success.committed))
 
       spinner.start(chalk.blue(msg.commit.pushing))
-
       const stopPush = createSlowSpinner(
         spinner,
         msg.commit.pushingSlow10,
         msg.commit.pushingSlow60
       )
-
       await git.push()
-
       stopPush()
 
-      // success after push
       spinner.succeed(chalk.green.bold(msg.common.success.pushed))
       outro(chalk.green(msg.commit.outro))
 
-      // Clean up stdin
       process.stdin.removeListener("data", handleKeyPress)
       process.stdin.setRawMode?.(false)
       process.stdin.pause()
-
       process.exit(0)
     } catch (error: any) {
       spinner.fail(chalk.red.bold(msg.commit.operationFailed))
@@ -406,7 +355,6 @@ export async function runCommit(
       outro(chalk.red(msg.common.operationCancelled))
       process.exit(0)
     }
-
     handleError(error)
     process.exit(1)
   }

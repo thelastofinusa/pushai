@@ -4,6 +4,7 @@ import { Command } from "commander"
 import { runReset } from "./commands/reset"
 import {
   runConfig,
+  runConfigEdit,
   runConfigPeek,
   runConfigProviders,
   runConfigSet,
@@ -27,8 +28,13 @@ program.action(async () => {
   const args = process.argv.slice(2)
   const dryRun = args.includes("--dry-run")
   const autoPush = args.includes("-p") || args.includes("--push")
-
-  await runCommit(dryRun, autoPush, (controller) => {
+  // find message after -m or --message
+  let userMessage: string | undefined
+  const mIndex = args.findIndex((a) => a === "-m" || a === "--message")
+  if (mIndex !== -1 && args[mIndex + 1]) {
+    userMessage = args[mIndex + 1]
+  }
+  await runCommit(dryRun, autoPush, userMessage, (controller) => {
     activeAbortController = controller
   })
   activeAbortController = null
@@ -45,8 +51,11 @@ program
   .option("-m, --model <model>", "Set model ID")
   .option("-k, --key <apiKey>", "Set API key")
   .option("--peek", "Show current saved configuration without changing it")
+  .option("-e, --edit", "Open configuration file in default editor")
   .action(async (options) => {
-    if (options.peek) {
+    if (options.edit) {
+      await runConfigEdit()
+    } else if (options.peek) {
       await runConfigPeek()
     } else if (options.provider || options.model || options.key) {
       await runConfigSet(options)
@@ -60,14 +69,22 @@ program
   .description("Stage changes, generate a message, and push")
   .option("--dry-run", "Generate commit message but do not commit or push")
   .option("-p, --push", "Automatically commit and push without confirmation")
+  .option(
+    "-m, --message <msg>",
+    "Use a custom commit message instead of generating with AI"
+  )
   .action(async (options) => {
     const dryRun = options.dryRun || process.argv.includes("--dry-run")
     const autoPush =
       options.push ||
       process.argv.includes("-p") ||
       process.argv.includes("--push")
+    const userMessage =
+      options.message || process.argv.includes("-m")
+        ? options.message
+        : undefined
 
-    await runCommit(dryRun, autoPush, (controller) => {
+    await runCommit(dryRun, autoPush, userMessage, (controller) => {
       activeAbortController = controller
     })
     activeAbortController = null

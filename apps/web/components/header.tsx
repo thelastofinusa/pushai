@@ -36,12 +36,8 @@ export const Header = () => {
     async function loadStats() {
       try {
         const [commitsRes, downloadsRes] = await Promise.all([
-          fetch("/api/commits", {
-            cache: "force-cache",
-          }),
-          fetch("/api/downloads", {
-            cache: "force-cache",
-          }),
+          fetch("/api/commits"),
+          fetch("/api/downloads"),
         ])
 
         const [commitsData, downloadsData] = await Promise.all([

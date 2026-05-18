@@ -1,13 +1,13 @@
 import { siteConfig } from "@/config/site.config"
 import { NextResponse } from "next/server"
 
-export const revalidate = 60
+export const revalidate = 3600
 
 export async function GET() {
   try {
     const res = await fetch(
       `https://registry.npmjs.org/${siteConfig.name.toLowerCase()}/latest`,
-      { next: { revalidate } }
+      { next: { revalidate: revalidate } }
     )
 
     const data = await res.json()

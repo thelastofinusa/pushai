@@ -32,6 +32,8 @@ export const msg = {
     generated: "Commit message generated.",
     generationFailed: "AI failed to generate commit message.",
     generationCancelled: "Commit message generation cancelled.",
+    usingUserMessage: "Using provided commit message...",
+    userMessageAccepted: "User message accepted.",
     emptyMessageTitle: "Empty commit message",
     emptyMessagePrompt:
       "AI returned an empty commit message. What would you like to do?",

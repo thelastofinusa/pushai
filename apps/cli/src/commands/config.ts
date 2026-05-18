@@ -16,6 +16,32 @@ import {
   getStoredConfig,
   setStoredConfig,
 } from "../utils/config"
+import { spawn } from "child_process"
+
+export async function runConfigEdit() {
+  intro(chalk.blue("Opening configuration file"))
+
+  try {
+    const configPath = getConfigPath()
+    const editor = process.env.EDITOR || process.env.VISUAL || "vim"
+
+    await new Promise<void>((resolve, reject) => {
+      const child = spawn(editor, [configPath], { stdio: "inherit" })
+      child.on("close", (code: number) => {
+        if (code === 0) resolve()
+        else reject(new Error(`Editor exited with code ${code}`))
+      })
+      child.on("error", reject)
+    })
+    outro(
+      chalk.green(
+        `✓ Configuration file edited. Use \`pai config --peek\` to see new values.`
+      )
+    )
+  } catch (error: any) {
+    outro(chalk.red(`Failed to open editor: ${error.message}`))
+  }
+}
 
 export async function runConfig() {
   intro(chalk.blue.bold(msg.config.intro))

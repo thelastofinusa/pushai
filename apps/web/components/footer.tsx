@@ -8,9 +8,7 @@ export const Footer = () => {
   const [version, setVersion] = useState("0.0.0")
 
   useEffect(() => {
-    fetch("/api/version", {
-      cache: "force-cache",
-    })
+    fetch("/api/version")
       .then((res) => res.json())
       .then((data) => setVersion(data))
       .catch(() => setVersion("0.0.0"))

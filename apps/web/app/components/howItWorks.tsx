@@ -113,9 +113,19 @@ const flags = [
     desc: "Skip approval, commit and push immediately.",
   },
   {
+    flag: "-m, --message <msg>",
+    applies: "commit",
+    desc: "Use a custom commit message (skips AI generation).",
+  },
+  {
     flag: "--yes / -y",
     applies: "reset",
     desc: "Skip confirmation, delete config non‑interactively.",
+  },
+  {
+    flag: "-e, --edit",
+    applies: "config",
+    desc: "Open configuration file in default editor.",
   },
   {
     flag: "--provider <name>",
@@ -206,7 +216,7 @@ export const HowItWorks = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-80px" }}
               transition={{ duration: 0.5, delay: i * 0.1 }}
-              className="flex flex-col gap-3 p-6 sm:last-of-type:col-span-2 md:p-8"
+              className="flex flex-col gap-3 p-6 md:p-8"
             >
               <div>
                 <div className="flex items-center gap-2">
