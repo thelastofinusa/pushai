@@ -18,20 +18,21 @@ export const Footer = () => {
 
   return (
     <footer className="py-12">
-      <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6">
+      <div className="mx-auto flex max-w-7xl flex-col-reverse items-center justify-between gap-2 px-6 md:flex-row md:gap-4">
         <span className="text-sm text-muted-foreground">
           © 2026 {siteConfig.name}. All rights reserved.
         </span>
 
-        <div className="flex items-center gap-3 text-sm text-muted-foreground">
-          <span>v{version}</span>
-
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <span>
+            {siteConfig.name}{" "}
+            <span className="text-foreground">v{version}</span>
+          </span>
           <span>•</span>
-
           <Link
             target="_blank"
             href={`https://x.com/${siteConfig.username}`}
-            className="transition-colors hover:text-foreground"
+            className="transition-colors hover:text-foreground hover:underline"
           >
             {siteConfig.nickname}
           </Link>

@@ -1,22 +1,116 @@
 "use client"
+
+import { useEffect, useState, useRef } from "react"
 import { motion } from "motion/react"
 import { Check } from "lucide-react"
 
+const PREFIXES = [
+  "pai",
+  "npx pushai",
+  "bunx pushai",
+  "pnpm dlx pushai",
+  "yarn pushai",
+]
+
+const Typewriter = ({ subcommand }: { subcommand: string }) => {
+  const [displayed, setDisplayed] = useState("")
+  const [prefixIndex, setPrefixIndex] = useState(0)
+  const [charIndex, setCharIndex] = useState(0)
+  const [started, setStarted] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  const fullCommand = `${PREFIXES[prefixIndex]} ${subcommand}`
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting && !started) {
+          setStarted(true)
+        }
+      },
+      { threshold: 0.5, rootMargin: "0px" }
+    )
+    if (ref.current) observer.observe(ref.current)
+    return () => observer.disconnect()
+  }, [started])
+
+  useEffect(() => {
+    if (!started) return
+
+    if (charIndex < fullCommand.length) {
+      const timer = setTimeout(() => {
+        setDisplayed(fullCommand.slice(0, charIndex + 1))
+        setCharIndex(charIndex + 1)
+      }, 40)
+      return () => clearTimeout(timer)
+    } else {
+      const pauseTimer = setTimeout(() => {
+        setDisplayed("")
+        setCharIndex(0)
+        setPrefixIndex((prev) => (prev + 1) % PREFIXES.length)
+      }, 3000)
+      timeoutRef.current = pauseTimer
+      return () => clearTimeout(pauseTimer)
+    }
+  }, [started, charIndex, prefixIndex, fullCommand])
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    }
+  }, [])
+
+  return (
+    <div ref={ref} className="flex items-center gap-2">
+      <span className="text-success">$</span>
+      <span className="text-foreground">
+        {displayed}
+        <motion.span
+          animate={{ opacity: [0, 1, 0] }}
+          transition={{ duration: 1, repeat: Infinity }}
+          className="ml-1"
+        >
+          █
+        </motion.span>
+      </span>
+    </div>
+  )
+}
+
 const steps = [
   {
-    cmd: "pai config",
+    subcommand: "config",
     title: "Configure a provider",
     desc: "Pick from available provider, drop in your API key, and choose a model. One interactive prompt.",
   },
   {
-    cmd: "pai commit",
+    subcommand: "commit",
     title: "Commit and push",
     desc: "PushAI drafts a message, shows it in a confirmation box, then commits and pushes in one go.",
   },
   {
-    cmd: "pai reset",
+    subcommand: "reset",
     title: "Reset anytime",
     desc: "Rotate keys or start fresh — wipe all PushAI configuration with a single confirmation.",
+  },
+]
+
+const flags = [
+  {
+    flag: "--dry-run",
+    applies: "commit",
+    desc: "Preview message – no commit or push.",
+  },
+  {
+    flag: "--push / -p",
+    applies: "commit",
+    desc: "Skip approval, commit and push immediately.",
+  },
+  {
+    flag: "--yes / -y",
+    applies: "reset",
+    desc: "Skip confirmation, delete config non‑interactively.",
   },
 ]
 
@@ -28,14 +122,15 @@ export const HowItWorks = () => {
           How it works
         </p>
         <h2 className="mt-3 text-4xl font-bold tracking-tight sm:text-5xl">
-          Three steps to your first AI commit.
+          Everything you need to use PushAI.
         </h2>
       </div>
 
+      {/* Commands section (3 columns) */}
       <div className="mt-14 grid divide-y divide-border rounded-xl border bg-linear-to-b from-transparent via-secondary/10 to-secondary/30 shadow-2xl shadow-black/10 backdrop-blur-md lg:grid-cols-3 lg:divide-x lg:divide-y-0">
         {steps.map((s, i) => (
           <motion.div
-            key={s.cmd}
+            key={s.subcommand}
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
@@ -54,23 +149,56 @@ export const HowItWorks = () => {
                 <span className="size-2 rounded-full bg-[#ff5f57]" />
                 <span className="size-2 rounded-full bg-[#febc2e]" />
                 <span className="size-2 rounded-full bg-[#28c840]" />
-
-                <span className="ml-2 font-mono text-xs text-muted-foreground">
-                  ~/pushai
+                <span className="ml-2 font-mono text-[10px] text-muted-foreground">
+                  ~/terminal
                 </span>
               </div>
-
-              {/* terminal body */}
               <div className="space-y-3 px-4 py-3 font-mono text-[13px] leading-relaxed">
-                <div className="flex items-center gap-2">
-                  <span className="text-success">%</span>
-
-                  <span className="text-foreground">{s.cmd}</span>
-                </div>
+                <Typewriter subcommand={s.subcommand} />
               </div>
             </div>
           </motion.div>
         ))}
+      </div>
+
+      {/* Flags section – same three‑column layout */}
+      <div className="mt-14">
+        <div className="mx-auto max-w-lg text-center">
+          <h3 className="text-2xl font-semibold tracking-tight">
+            Command flags and optional arguments
+          </h3>
+
+          <p className="mt-2 text-sm text-muted-foreground">
+            Customize how commands run directly from the terminal.
+          </p>
+        </div>
+
+        <div className="mx-auto mt-8 grid max-w-[820px] divide-y divide-border rounded-xl border bg-linear-to-b from-transparent via-secondary/10 to-secondary/30 shadow-2xl shadow-black/10 backdrop-blur-md lg:grid-cols-3 lg:divide-x lg:divide-y-0">
+          {flags.map((f, i) => (
+            <motion.div
+              key={f.flag}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-80px" }}
+              transition={{ duration: 0.5, delay: i * 0.1 }}
+              className="flex flex-col gap-3 p-6 md:p-8"
+            >
+              <div>
+                <div className="flex items-center gap-2">
+                  <code className="rounded bg-background/60 px-2 py-1 font-mono text-[13px] font-medium">
+                    {f.flag}
+                  </code>
+                  <span className="rounded-full border px-1.5 py-px font-mono text-[10px]">
+                    {f.applies}
+                  </span>
+                </div>
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                  {f.desc}
+                </p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
       </div>
 
       <div className="mt-12 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
@@ -79,7 +207,6 @@ export const HowItWorks = () => {
           "MIT licensed",
           "Bring your own key",
           "Add custom model ID",
-          // "Works offline (Ollama)",
         ].map((t) => (
           <span key={t} className="inline-flex items-center gap-1.5">
             <Check className="size-3.5 text-success" />{" "}
