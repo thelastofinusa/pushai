@@ -1,3 +1,11 @@
 {
-  "cSpell.words": ["huggingface", "keytar", "ollama", "pushai", "pushout"]
+  "cSpell.words": [
+    "huggingface",
+    "keytar",
+    "ollama",
+    "opengraph",
+    "pushai",
+    "pushout",
+    "typest"
+  ]
 }
