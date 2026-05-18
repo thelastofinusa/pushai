@@ -82,17 +82,22 @@ const steps = [
   {
     subcommand: "config",
     title: "Configure a provider",
-    desc: "Pick from available provider, drop in your API key, and choose a model. One interactive prompt.",
+    desc: "Choose an AI provider, add your API key, and select a model.",
   },
   {
     subcommand: "commit",
     title: "Commit and push",
-    desc: "PushAI drafts a message, shows it in a confirmation box, then commits and pushes in one go.",
+    desc: "Generate a commit message, review it, then commit and push changes.",
   },
   {
     subcommand: "reset",
     title: "Reset anytime",
-    desc: "Rotate keys or start fresh — wipe all PushAI configuration with a single confirmation.",
+    desc: "Remove saved configuration and API keys to start fresh anytime.",
+  },
+  {
+    subcommand: "list",
+    title: "Browse models",
+    desc: "View available AI providers along with their supported models.",
   },
 ]
 
@@ -112,11 +117,31 @@ const flags = [
     applies: "reset",
     desc: "Skip confirmation, delete config non‑interactively.",
   },
+  {
+    flag: "--provider <name>",
+    applies: "config",
+    desc: "Set AI provider directly (e.g., gemini, openai, huggingface).",
+  },
+  {
+    flag: "--model <id>",
+    applies: "config",
+    desc: "Set model ID directly (e.g., gemini-3.1-flash-lite).",
+  },
+  {
+    flag: "--key <apiKey>",
+    applies: "config",
+    desc: "Set API key directly (non-interactive).",
+  },
+  {
+    flag: "--peek",
+    applies: "config",
+    desc: "Show current saved configuration (provider, model, masked key).",
+  },
 ]
 
 export const HowItWorks = () => {
   return (
-    <section id="how" className="mx-auto max-w-7xl px-4 py-24 sm:px-6">
+    <section id="how" className="mx-auto max-w-[1320px] px-4 py-24 sm:px-6">
       <div className="mx-auto max-w-lg text-center">
         <p className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
           How it works
@@ -127,7 +152,7 @@ export const HowItWorks = () => {
       </div>
 
       {/* Commands section (3 columns) */}
-      <div className="mt-14 grid divide-y divide-border rounded-xl border bg-linear-to-b from-transparent via-secondary/10 to-secondary/30 shadow-2xl shadow-black/10 backdrop-blur-md lg:grid-cols-3 lg:divide-x lg:divide-y-0">
+      <div className="mt-14 grid divide-y divide-border rounded-xl border bg-linear-to-b from-transparent via-secondary/10 to-secondary/30 shadow-2xl shadow-black/10 backdrop-blur-md md:grid-cols-2 md:divide-x lg:grid-cols-4 lg:divide-y-0">
         {steps.map((s, i) => (
           <motion.div
             key={s.subcommand}
@@ -173,7 +198,7 @@ export const HowItWorks = () => {
           </p>
         </div>
 
-        <div className="mx-auto mt-8 grid max-w-[820px] divide-y divide-border rounded-xl border bg-linear-to-b from-transparent via-secondary/10 to-secondary/30 shadow-2xl shadow-black/10 backdrop-blur-md lg:grid-cols-3 lg:divide-x lg:divide-y-0">
+        <div className="mx-auto mt-8 grid max-w-4xl divide-y divide-border rounded-xl border bg-linear-to-b from-transparent via-secondary/10 to-secondary/30 shadow-2xl shadow-black/10 backdrop-blur-md lg:grid-cols-3 lg:divide-x">
           {flags.map((f, i) => (
             <motion.div
               key={f.flag}
@@ -181,7 +206,7 @@ export const HowItWorks = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-80px" }}
               transition={{ duration: 0.5, delay: i * 0.1 }}
-              className="flex flex-col gap-3 p-6 md:p-8"
+              className="flex flex-col gap-3 p-6 last-of-type:col-span-2 md:p-8"
             >
               <div>
                 <div className="flex items-center gap-2">

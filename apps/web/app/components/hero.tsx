@@ -5,8 +5,21 @@ import { ArrowRight } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 import { Terminal } from "@/components/terminal"
 import { siteConfig } from "@/config/site.config"
-import Link from "next/link"
 import { Separator } from "@workspace/ui/components/separator"
+
+/**
+ * ┌  Available Providers & Models
+│
+◇  Google Gemini models ──────────────────────────╮
+│                                                 │
+│    gemini-3.1-flash-lite -> free • recommended  │
+│    gemini-2.0-flash-lite -> free                │
+│    gemini-2.5-flash -> free • fast              │
+│                                                 │
+├─────────────────────────────────────────────────╯
+│
+└  Use `pai config --provider <name> --model <model_id>` to configure.
+ */
 
 const demos = [
   {
@@ -25,6 +38,23 @@ const demos = [
       "│  Gemini 3.1 Flash Lite",
       "│",
       "└ Configuration complete. You're ready to go!",
+    ],
+  },
+  {
+    title: "list",
+    command: "pai list",
+    output: [
+      "┌ Available Providers & Models",
+      "│",
+      "◇ Anthropic (Claude) models ──────────────────────╮",
+      "│                                                 │",
+      "│  claude-3-5-haiku-latest: fast • recommended    │",
+      "│  claude-3-5-sonnet-latest: best quality • paid  │",
+      "│  claude-3-opus-latest: highest quality • paid   │",
+      "│                                                 │",
+      "├─────────────────────────────────────────────────╯",
+      "│",
+      "└ Use `pai config -p <name> -m <model_id>` to configure.",
     ],
   },
   {

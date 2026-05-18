@@ -18,7 +18,7 @@ export const Footer = () => {
 
   return (
     <footer className="py-12">
-      <div className="mx-auto flex max-w-7xl flex-col-reverse items-center justify-between gap-2 px-6 md:flex-row md:gap-4">
+      <div className="mx-auto flex max-w-[1320px] flex-col-reverse items-center justify-between gap-2 px-6 md:flex-row md:gap-4">
         <span className="text-sm text-muted-foreground">
           © 2026 {siteConfig.name}. All rights reserved.
         </span>

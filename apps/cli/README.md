@@ -54,31 +54,44 @@ After global installation, you can use the shorthand `pai` (recommended).
 
 ## Commands
 
-| Command         | Description                                   |
-| --------------- | --------------------------------------------- |
-| `pai commit`    | Stage, generate, approve, commit, and push.   |
-| `pai config`    | Interactive setup (provider, API key, model). |
-| `pai reset`     | Delete all configuration and API keys.        |
-| `pai --version` | Show version.                                 |
-| `pai --help`    | Show help.                                    |
+| Command         | Description                                                |
+| --------------- | ---------------------------------------------------------- |
+| `pai commit`    | Stage, generate, approve, commit, and push.                |
+| `pai config`    | Interactive setup (provider, API key, model).              |
+| `pai reset`     | Delete all configuration and API keys (with confirmation). |
+| `pai list`      | List all available AI providers and their models.          |
+| `pai --version` | Show version.                                              |
+| `pai --help`    | Show help.                                                 |
 
 ### Flags
 
-| Flag            | Applies to | Description                                             |
-| --------------- | ---------- | ------------------------------------------------------- |
-| `--dry-run`     | `commit`   | Preview message – no commit or push.                    |
-| `--push` / `-p` | `commit`   | Skip approval, commit and push immediately.             |
-| `--yes` / `-y`  | `reset`    | Skip confirmation, delete configuration without asking. |
+| Flag                | Applies to | Description                                                     |
+| ------------------- | ---------- | --------------------------------------------------------------- |
+| `--dry-run`         | `commit`   | Preview message – no commit or push.                            |
+| `--push` / `-p`     | `commit`   | Skip approval, commit and push immediately.                     |
+| `--yes` / `-y`      | `reset`    | Skip confirmation, delete configuration without asking.         |
+| `--provider <name>` | `config`   | Set the AI provider (e.g., `gemini`, `openai`).                 |
+| `--model <id>`      | `config`   | Set the model ID directly.                                      |
+| `--key <apiKey>`    | `config`   | Set the API key directly (non‑interactive).                     |
+| `--peek`            | `config`   | Show current saved configuration (provider, model, masked key). |
 
 > **Examples**
 > `pai commit --push` or `pai -p` – generate and push without prompts.
 > `pai reset -y` – wipe config non‑interactively.
+> `pai config --provider gemini --model gemini-3.1-flash-lite --key "your-key"` – set all values at once.
+> `pai config --peek` – view current configuration.
 
 ## Configuration
 
 PushAI stores your non‑secret settings in `~/.config/pushai/config.json` and your API key in the system keychain (macOS/Windows/Linux).
 
-You can manually edit the config file, but using `pai config` is recommended.
+You can configure PushAI in several ways:
+
+- **Interactive wizard** – `pai config` (recommended for first‑time setup).
+- **Non‑interactive flags** – set provider, model, or API key directly:
+  `pai config --provider openai --model gpt-4o-mini --key "sk-..."`
+- **View current config** – `pai config --peek`
+- **List all available providers/models** – `pai list`
 
 Example `config.json`:
 

@@ -2,7 +2,12 @@ import chalk from "chalk"
 import { basename } from "path"
 import { Command } from "commander"
 import { runReset } from "./commands/reset"
-import { runConfig } from "./commands/config"
+import {
+  runConfig,
+  runConfigPeek,
+  runConfigProviders,
+  runConfigSet,
+} from "./commands/config"
 import { runCommit } from "./commands/commit"
 import { version, description } from "../package.json"
 import { msg } from "./constants/msg"
@@ -31,6 +36,26 @@ program.action(async () => {
 
 // Subcommands
 program
+  .command("config")
+  .description("Configure AI providers and API keys")
+  .option(
+    "-p, --provider <provider>",
+    "Set AI provider (gemini, openai, anthropic, e.t.c)"
+  )
+  .option("-m, --model <model>", "Set model ID")
+  .option("-k, --key <apiKey>", "Set API key")
+  .option("--peek", "Show current saved configuration without changing it")
+  .action(async (options) => {
+    if (options.peek) {
+      await runConfigPeek()
+    } else if (options.provider || options.model || options.key) {
+      await runConfigSet(options)
+    } else {
+      await runConfig()
+    }
+  })
+
+program
   .command("commit")
   .description("Stage changes, generate a message, and push")
   .option("--dry-run", "Generate commit message but do not commit or push")
@@ -49,11 +74,6 @@ program
   })
 
 program
-  .command("config")
-  .description("Configure AI providers and API keys")
-  .action(runConfig)
-
-program
   .command("reset")
   .description("Delete the local config.json file")
   .option("-y, --yes", "Skip confirmation prompt")
@@ -63,6 +83,13 @@ program
       process.argv.includes("-y") ||
       process.argv.includes("--yes")
     await runReset(skipConfirm)
+  })
+
+program
+  .command("list")
+  .description("List all available AI providers and their models")
+  .action(async () => {
+    await runConfigProviders()
   })
 
 process.on("SIGINT", () => {

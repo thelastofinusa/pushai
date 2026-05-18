@@ -9,9 +9,13 @@ import {
   outro,
 } from "@clack/prompts"
 import { msg } from "../constants/msg"
-import { ProviderType } from "../types"
+import { Config, ProviderType } from "../types"
 import { aiProviders } from "../providers/models"
-import { getConfigPath, setStoredConfig } from "../utils/config"
+import {
+  getConfigPath,
+  getStoredConfig,
+  setStoredConfig,
+} from "../utils/config"
 
 export async function runConfig() {
   intro(chalk.blue.bold(msg.config.intro))
@@ -48,7 +52,6 @@ export async function runConfig() {
 
     const apiKey = apiKeyResult as string
 
-    // 1. Select from recommended models
     let modelResult = await select({
       message: msg.config.modelPrompt,
       options: [
@@ -68,7 +71,6 @@ export async function runConfig() {
 
     let model = modelResult as string
 
-    // 2. If they chose custom, ask for the string
     if (model === "custom_id") {
       const customModelResult = await text({
         message: msg.config.customModelPrompt,
@@ -97,7 +99,6 @@ export async function runConfig() {
 
     const configPath = getConfigPath()
 
-    // Build configuration details as a multiline string
     const configDetails = `${msg.config.providerLabel(
       aiProviders.find((ai) => provider === ai.value)?.name || provider
     )}
@@ -105,23 +106,128 @@ ${msg.config.modelLabel(model)}
 ${msg.config.apiKeyLabel(apiKey.slice(-4))}
 ${chalk.dim(msg.config.configFile(configPath))}`
 
-    // Display the configuration in a nice box
     note(configDetails, chalk.cyan(msg.config.saved))
 
-    // Build commands guide as a multiline string
     const commandsGuide = `${chalk.white.bold("pai commit:")} ${chalk.white(msg.config.hintCommit)}
 ${chalk.white.bold("pai config:")} ${chalk.white(msg.config.hintConfig)}
 ${chalk.white.bold("pai reset:")}  ${chalk.white(msg.config.hintReset)}`
 
-    // Display the commands guide in a nice box
     note(commandsGuide, chalk.cyan(msg.config.commandsHint))
-
     outro(chalk.green.bold(msg.config.outro))
   } catch (error: any) {
     if (error.name === "ExitPromptError") {
       console.log(chalk.dim(msg.common.operationCancelled))
-      return // Exit the function without crashing
+      return
     }
     throw error
   }
+}
+
+export async function runConfigSet(options: {
+  provider?: string
+  model?: string
+  key?: string
+}) {
+  intro(chalk.blue(msg.config.updateIntro))
+
+  try {
+    const current = await getStoredConfig()
+    const updates: Partial<Config> = {}
+
+    if (options.provider) {
+      const validProviders = aiProviders.map((p) => p.value)
+      if (!validProviders.includes(options.provider as ProviderType)) {
+        outro(
+          chalk.red(
+            `Invalid provider. Use one of: ${validProviders.join(", ")}`
+          )
+        )
+        return
+      }
+      updates.provider = options.provider as ProviderType
+    }
+
+    if (options.model) updates.model = options.model
+    if (options.key) updates.apiKey = options.key
+
+    if (Object.keys(updates).length === 0) {
+      outro(chalk.yellow(msg.config.noValuesProvided))
+      return
+    }
+
+    await setStoredConfig({ ...current, ...updates })
+
+    const newConfig = await getStoredConfig()
+    const configPath = getConfigPath()
+
+    const providerName =
+      aiProviders.find((p) => p.value === newConfig.provider)?.name ||
+      newConfig.provider ||
+      msg.config.notSet
+    const modelDisplay = newConfig.model || msg.config.notSet
+    const apiKeyDisplay = newConfig.apiKey
+      ? `****${newConfig.apiKey.slice(-4)}`
+      : msg.config.notSet
+
+    const configDetails = `${msg.config.providerLabel(providerName)}
+${msg.config.modelLabel(modelDisplay)}
+${msg.config.apiKeyLabel(apiKeyDisplay)}
+${chalk.dim(msg.config.configFile(configPath))}`
+
+    note(configDetails)
+    outro(chalk.green.bold(msg.config.updateOutro))
+  } catch (error: any) {
+    if (error.name !== "ExitPromptError") {
+      outro(chalk.red(`Failed to update config: ${error.message}`))
+    }
+  }
+}
+
+export async function runConfigPeek() {
+  intro(chalk.blue(msg.config.peekIntro))
+
+  try {
+    const config = await getStoredConfig()
+    const configPath = getConfigPath()
+
+    const providerName =
+      aiProviders.find((p) => p.value === config.provider)?.name ||
+      config.provider ||
+      msg.config.notSet
+    const modelDisplay = config.model || msg.config.notSet
+    const apiKeyDisplay = config.apiKey
+      ? `****${config.apiKey.slice(-4)}`
+      : msg.config.notSet
+
+    const configDetails = `${msg.config.providerLabel(providerName)}
+${msg.config.modelLabel(modelDisplay)}
+${msg.config.apiKeyLabel(apiKeyDisplay)}
+${chalk.dim(msg.config.configFile(configPath))}`
+
+    note(configDetails)
+    outro(chalk.green(msg.config.peekOutro))
+  } catch (error: any) {
+    if (error.name !== "ExitPromptError") {
+      outro(chalk.red(`Failed to peek config: ${error.message}`))
+    }
+  }
+}
+
+export async function runConfigProviders() {
+  intro(chalk.blue(msg.config.providersIntro))
+
+  for (const provider of aiProviders) {
+    const modelLines = provider.models
+      .map((model) => {
+        const hintText = model.hint ? `: ${model.hint}` : ""
+        return `  ${chalk.dim(model.value)}${hintText}`
+      })
+      .join("\n")
+
+    const content = modelLines || chalk.dim(msg.config.noModels)
+    const title = chalk.cyan(msg.config.providerTitle(provider.name))
+    note(content, title)
+  }
+
+  outro(msg.config.providersOutro)
 }

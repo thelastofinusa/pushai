@@ -77,8 +77,6 @@ export const msg = {
     customModelSeparator: "Use a custom model ID",
     customModelPrompt: "Enter the custom model ID:",
     customModelRequired: "A model ID is required.",
-    baseUrlPrompt: "Enter a base URL",
-    baseUrlPromptPlaceholder: "Optional — press Enter to skip",
     saved: "Configuration saved successfully.",
     providerLabel: (name: string) => `${chalk.white.bold("Provider:")} ${name}`,
     modelLabel: (name: string) => `${chalk.white.bold("Model:   ")} ${name}`,
@@ -89,6 +87,20 @@ export const msg = {
     hintCommit: "Generate AI-powered commit messages",
     hintConfig: "Update provider or API settings",
     hintReset: "Clear saved configuration",
+
+    // New for --peek and updates
+    peekIntro: "Current PushAI Configuration",
+    peekOutro: "Use `pai config --help` to see how to update.",
+    updateIntro: "Configuration updated successfully",
+    updateOutro: "Ready to use PushAI",
+    noValuesProvided: "No values provided. Use --provider, --model, or --key",
+    notSet: "(not set)",
+
+    // For providers listing
+    providersIntro: "Available Providers & Models",
+    providerTitle: (name: string) => `${name} models`,
+    noModels: "  No models available",
+    providersOutro: "Use `pai config -p <name> -m <model_id>` to configure.",
   },
 
   reset: {

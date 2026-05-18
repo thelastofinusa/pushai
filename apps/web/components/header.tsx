@@ -85,7 +85,7 @@ export const Header = () => {
 
   return (
     <header className="pointer-events-none sticky top-0 left-0 z-50 w-full dark:mix-blend-difference">
-      <nav className="mx-auto flex w-full max-w-7xl items-center justify-between gap-6 px-4 py-6 sm:px-6 md:py-8">
+      <nav className="mx-auto flex w-full max-w-[1320px] items-center justify-between gap-6 px-4 py-6 sm:px-6 md:py-8">
         <Link href="/" className="pointer-events-auto flex items-center gap-3">
           <Image
             src={imagePath("favicon-dark.png")}
