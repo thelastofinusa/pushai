@@ -1,29 +1,10 @@
+/* eslint-disable @next/next/no-img-element */
 "use client"
-import Link from "next/link"
-import Image from "next/image"
-import { useEffect, useState } from "react"
 
 import { siteConfig } from "@/config/site.config"
-
-const imageLoader = ({
-  src,
-  width,
-  quality,
-  theme,
-}: {
-  src: string
-  width: number
-  quality?: number
-  theme: "light" | "dark"
-}) => {
-  const url = new URL(src)
-
-  url.searchParams.set("theme", theme)
-  url.searchParams.set("w", String(width))
-  url.searchParams.set("q", String(quality || 100))
-
-  return url.toString()
-}
+import Image from "next/image"
+import Link from "next/link"
+import { useEffect, useState } from "react"
 
 export const Footer = () => {
   const [version, setVersion] = useState("0.0.0")
@@ -67,27 +48,20 @@ export const Footer = () => {
           rel="noopener noreferrer"
           className="transition-opacity hover:opacity-90"
         >
-          <div className="dark:hidden">
-            <Image
-              loader={(props) => imageLoader({ ...props, theme: "light" })}
-              alt="PushAI - Ship commits at the speed of thought. | Product Hunt"
-              width={210}
-              height={45}
-              priority
-              src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1149282"
-            />
-          </div>
-
-          <div className="hidden dark:block">
-            <Image
-              loader={(props) => imageLoader({ ...props, theme: "dark" })}
-              alt="PushAI - Ship commits at the speed of thought. | Product Hunt"
-              width={210}
-              height={45}
-              priority
-              src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1149282"
-            />
-          </div>
+          <img
+            alt="PushAI - Ship commits at the speed of thought. | Product Hunt"
+            width={210}
+            height={45}
+            className="dark:hidden"
+            src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1149282&amp;theme=light&amp;t=1779119503029"
+          />
+          <img
+            alt="PushAI - Ship commits at the speed of thought. | Product Hunt"
+            width={210}
+            height={45}
+            className="hidden dark:block"
+            src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1149282&amp;theme=dark&amp;t=1779119503029"
+          />
         </a>
       </div>
     </footer>
