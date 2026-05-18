@@ -224,7 +224,7 @@ export async function runCommit(
     // DRY RUN
     // =========================================================
     if (dryRun) {
-      note(chalk.magenta(message), msg.commit.noteTitle)
+      note(chalk.greenBright(` ${message} `), msg.commit.noteTitle)
       outro(chalk.yellow(msg.common.dryRun))
       process.exit(0)
     }
@@ -237,7 +237,7 @@ export async function runCommit(
       confirmed = true
     } else {
       while (!confirmed) {
-        note(chalk.magenta(message), msg.commit.noteTitle)
+        note(chalk.greenBright(` ${message} `), msg.commit.noteTitle)
         const actionResult = await select({
           message: msg.commit.actionPrompt,
           options: [

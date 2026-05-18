@@ -42,8 +42,7 @@ export class AnthropicProvider extends BaseProvider {
         response.content[0]?.type === "text" ? response.content[0].text : ""
       const cleaned = text.trim().replace(/['"]/g, "")
 
-      const isValid =
-        /^[a-z]+(\([a-z0-9-]+\))?: .+/.test(cleaned) && cleaned.length <= 200
+      const isValid = /^[a-z]+(\([a-z0-9-]+\))?: .+/.test(cleaned)
       if (!isValid) throw new Error("Invalid commit message generated")
 
       return cleaned

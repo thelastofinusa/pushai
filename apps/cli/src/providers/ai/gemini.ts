@@ -33,8 +33,7 @@ export class GeminiProvider extends BaseProvider {
 
       const text = response.text?.trim() || ""
 
-      const isValid =
-        /^[a-z]+(\([a-z0-9-]+\))?: .+/.test(text) && text.length <= 200
+      const isValid = /^[a-z]+(\([a-z0-9-]+\))?: .+/.test(text)
       if (!isValid) throw new Error("Invalid commit message generated")
 
       return text

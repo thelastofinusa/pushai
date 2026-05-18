@@ -43,24 +43,24 @@ export const Footer = () => {
         </div>
 
         <a
-          href="https://www.producthunt.com/products/pushai?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-pushai"
+          href="https://www.producthunt.com/products/pushai?utm_source=badge-follow&utm_medium=badge&utm_source=badge-pushai"
           target="_blank"
           rel="noopener noreferrer"
           className="transition-opacity hover:opacity-90"
         >
           <img
-            alt="PushAI - Ship commits at the speed of thought. | Product Hunt"
-            width="210"
-            height="45"
-            className="dark:hidden"
-            src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1149282&amp;theme=light&amp;t=1779119503029"
+            src="https://api.producthunt.com/widgets/embed-image/v1/product_review.svg?product_id=1227466&theme=light"
+            alt="PushAI - Ship&#0032;commits&#0032;at&#0032;the&#0032;speed&#0032;of&#0032;thought&#0046; | Product Hunt"
+            className="h-[50px] w-[200px] dark:hidden"
+            width="200"
+            height="50"
           />
           <img
-            alt="PushAI - Ship commits at the speed of thought. | Product Hunt"
-            width="210"
-            height="45"
-            className="hidden dark:block"
-            src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1149282&amp;theme=dark&amp;t=1779119503029"
+            src="https://api.producthunt.com/widgets/embed-image/v1/product_review.svg?product_id=1227466&theme=dark"
+            alt="PushAI - Ship&#0032;commits&#0032;at&#0032;the&#0032;speed&#0032;of&#0032;thought&#0046; | Product Hunt"
+            className="hidden h-[50px] w-[200px] dark:block"
+            width="200"
+            height="50"
           />
         </a>
       </div>
