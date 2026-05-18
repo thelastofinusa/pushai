@@ -52,6 +52,8 @@ export const Footer = () => {
             width={210}
             height={45}
             className="dark:hidden"
+            priority
+            quality={100}
             src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1149282&amp;theme=light&amp;t=1779119503029"
           />
           <Image
@@ -59,6 +61,8 @@ export const Footer = () => {
             width={210}
             height={45}
             className="hidden dark:block"
+            priority
+            quality={100}
             src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1149282&amp;theme=dark&amp;t=1779119503029"
           />
         </a>
