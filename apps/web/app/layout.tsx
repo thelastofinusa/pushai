@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     siteName: siteConfig.name,
     images: [
       {
-        url: `${siteConfig.url}/${imagePath("opengraph.png")}`,
+        url: `${siteConfig.url}${imagePath("opengraph.png")}`,
         width: 1200,
         height: 630,
         alt: siteConfig.name,
@@ -49,11 +49,11 @@ export const metadata: Metadata = {
       template: `%s - ${siteConfig.name}`,
     },
     description: siteConfig.description,
-    images: [`${siteConfig.url}/${imagePath("opengraph.png")}`],
+    images: [`${siteConfig.url}${imagePath("opengraph.png")}`],
     creator: `@${siteConfig.username}`,
   },
   icons: imagePath("logo.svg"),
-  manifest: `${siteConfig.url}/${assetPath("site.webmanifest")}`,
+  manifest: `${siteConfig.url}${assetPath("site.webmanifest")}`,
 }
 
 export default function RootLayout(props: LayoutProps<"/">) {
