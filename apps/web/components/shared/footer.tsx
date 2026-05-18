@@ -50,15 +50,15 @@ export const Footer = () => {
         >
           <img
             alt="PushAI - Ship commits at the speed of thought. | Product Hunt"
-            width={210}
-            height={45}
+            width="210"
+            height="45"
             className="dark:hidden"
             src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1149282&amp;theme=light&amp;t=1779119503029"
           />
           <img
             alt="PushAI - Ship commits at the speed of thought. | Product Hunt"
-            width={210}
-            height={45}
+            width="210"
+            height="45"
             className="hidden dark:block"
             src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1149282&amp;theme=dark&amp;t=1779119503029"
           />
