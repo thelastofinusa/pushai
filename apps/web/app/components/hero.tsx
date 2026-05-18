@@ -93,7 +93,7 @@ export function Hero() {
 
   return (
     <section className="relative overflow-hidden">
-      <div className="relative mx-auto max-w-6xl px-4 pt-20 pb-16 sm:px-6 sm:pb-24">
+      <div className="relative mx-auto max-w-6xl px-4 pt-10 pb-16 sm:px-6 sm:pt-20 sm:pb-24">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -122,7 +122,7 @@ export function Hero() {
             </div>
           </div>
 
-          <h1 className="mt-6 max-w-4xl text-5xl leading-[0.95] font-bold tracking-[-0.04em] sm:text-7xl lg:text-[5.5rem]">
+          <h1 className="mt-4 max-w-4xl text-5xl leading-[0.95] font-bold tracking-[-0.04em] sm:mt-6 sm:text-7xl lg:text-[5.5rem]">
             Ship commits at the speed of thought.
           </h1>
 

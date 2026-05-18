@@ -351,9 +351,7 @@ export async function runCommit(
 
     if (!(await hasRemote())) {
       spinner.fail(chalk.red.bold(msg.common.noRemote.header))
-
       outro(chalk.yellow(msg.common.noRemote.instruction))
-
       process.exit(1)
     }
 
@@ -388,15 +386,19 @@ export async function runCommit(
 
       stopPush()
 
+      // success after push
       spinner.succeed(chalk.green.bold(msg.common.success.pushed))
-
       outro(chalk.green(msg.commit.outro))
+
+      // Clean up stdin
+      process.stdin.removeListener("data", handleKeyPress)
+      process.stdin.setRawMode?.(false)
+      process.stdin.pause()
+
       process.exit(0)
     } catch (error: any) {
       spinner.fail(chalk.red.bold(msg.commit.operationFailed))
-
       outro(chalk.red(handleError(error)))
-
       process.exit(1)
     }
   } catch (error: any) {
@@ -406,13 +408,6 @@ export async function runCommit(
     }
 
     handleError(error)
-
     process.exit(1)
-  } finally {
-    process.stdin.removeListener("data", handleKeyPress)
-
-    process.stdin.setRawMode?.(false)
-
-    onControllerCreate?.(null as any)
   }
 }

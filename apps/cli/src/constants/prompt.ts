@@ -1,30 +1,89 @@
 export const GENERATE_COMMIT_PROMPT = (diff: string, regenerate = false) => {
   let prompt = `
-Generate a single conventional commit message from the git diff.
+You are an expert software engineer generating high-quality Conventional Commit messages from git diffs.
+
+Your task is to analyze the provided git diff and generate a concise, accurate, and meaningful commit message that clearly describes the primary change.
 
 Rules:
-- Output exactly ONE line
-- Maximum 200 characters
-- Lowercase only
-- No markdown
-- No quotes
-- No explanations
-- Must be a complete commit message
-- Never output placeholders or incomplete text
-- Format: <type>(<scope>): <description>
+- Output EXACTLY one commit message
+- Do not output multiple options
+- Do not include explanations, markdown, code blocks, quotes, prefixes, or suffixes
+- Output must be a single plain-text line
+- Maximum length: 200 characters
+- Use lowercase only
+- The message must be complete and production-ready
+- Never output placeholders, generic filler text, or incomplete sentences
+- Never mention filenames unless absolutely necessary
+- Avoid repeating obvious implementation details from the diff
 
-Use one of the Conventional Commits type (feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert).
+Format:
+<type>(<scope>): <description>
 
 Examples:
 feat(auth): add wallet connection modal
 fix(cli): prevent empty commit generation
 refactor(api): simplify gemini provider setup
+docs(readme): update installation instructions
+perf(cache): reduce repeated api requests
+style(ui): improve terminal output spacing
+
+Allowed Conventional Commit types:
+- feat     → new features
+- fix      → bug fixes
+- docs     → documentation changes
+- style    → formatting, styling, or non-functional UI changes
+- refactor → code restructuring without behavior changes
+- perf     → performance improvements
+- test     → adding or updating tests
+- build    → dependency or build system updates
+- ci       → CI/CD configuration changes
+- chore    → maintenance tasks or minor updates
+- revert   → reverted changes
 
 Guidelines:
-- Focus on the most important change
-- Describe the outcome, not implementation details
-- Avoid vague words like "update" or "change"
-- Use specific scopes when relevant
+- Focus on the MOST important change in the diff
+- Describe the outcome or intent, not low-level implementation details
+- Use clear and specific wording
+- Avoid vague descriptions like:
+  - update stuff
+  - fix issues
+  - improve code
+  - make changes
+- Prefer meaningful scopes when applicable:
+  - auth
+  - cli
+  - api
+  - ui
+  - config
+  - git
+  - parser
+  - commit
+  - prompts
+  - spinner
+  - theme
+- If no clear scope exists, omit the scope entirely:
+  - feat: add interactive onboarding flow
+
+Commit quality requirements:
+- Sound natural and professional
+- Be specific without being overly verbose
+- Prioritize clarity over cleverness
+- Match the actual intent of the changes
+- Infer the purpose of the changes intelligently from the diff
+- Use present tense verbs:
+  - add
+  - fix
+  - improve
+  - remove
+  - simplify
+  - optimize
+  - rename
+  - replace
+
+Important:
+- Return ONLY the final commit message
+- Do not explain your reasoning
+- Do not include extra whitespace or newlines
 
 Git diff:
 ${diff}
@@ -33,8 +92,15 @@ ${diff}
   if (regenerate) {
     prompt += `
 
+Additional instruction:
 Generate a DIFFERENT commit message for the same diff.
-Use a different perspective or emphasis while following all rules.
+
+Requirements for regeneration:
+- Keep the message accurate
+- Use a different wording, emphasis, or scope
+- Avoid repeating the previous structure
+- Focus on another meaningful aspect of the changes if possible
+- Still follow every rule above
 `
   }
 

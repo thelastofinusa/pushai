@@ -32,7 +32,7 @@ export const FloatingIcons = () => {
       {icons.map(({ Icon, top, left, delay }, i) => (
         <motion.div
           key={i}
-          className="absolute text-foreground/12"
+          className="absolute text-foreground/15"
           style={{ top, left }}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: [10, -10, 10] }}
