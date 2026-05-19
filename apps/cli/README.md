@@ -33,7 +33,7 @@ npm install -g pushai
 # or: pnpm add -g pushai | yarn global add pushai | bun install -g pushai
 ```
 
-After global installation, you can use the shorthand `pai` (recommended).
+After global installation, you can use the shorthand `pushai` or `pai` (recommended).
 
 ## Quick Start
 
@@ -67,10 +67,10 @@ After global installation, you can use the shorthand `pai` (recommended).
 
 | Flag                     | Applies to | Description                                                     |
 | ------------------------ | ---------- | --------------------------------------------------------------- |
+| `--yes` / `-y`           | `reset`    | Skip confirmation, delete configuration without asking.         |
 | `--dry-run`              | `commit`   | Preview message – no commit or push.                            |
 | `--push` / `-p`          | `commit`   | Skip approval, commit and push immediately.                     |
 | `-m` / `--message <msg>` | `commit`   | Use a custom commit message (skips AI generation).              |
-| `--yes` / `-y`           | `reset`    | Skip confirmation, delete configuration without asking.         |
 | `-e` / `--edit`          | `config`   | Open configuration file in default editor.                      |
 | `--provider <name>`      | `config`   | Set the AI provider (e.g., `gemini`, `openai`).                 |
 | `--model <id>`           | `config`   | Set the model ID directly.                                      |

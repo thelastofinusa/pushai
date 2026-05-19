@@ -86,9 +86,10 @@ export const msg = {
       `${chalk.white.bold("API Key: ")} ****${last4}`,
     configFile: (filePath: string) => `\nFile: ${filePath}`,
     commandsHint: "Here are a few commands to try:",
-    hintCommit: "Generate AI-powered commit messages",
-    hintConfig: "Update provider or API settings",
-    hintReset: "Clear saved configuration",
+    hintCommit: "Stage changes, generate a message, and push",
+    hintConfig: "Configure AI providers and API keys",
+    hintReset: "Delete the local config.json file",
+    hintList: "List available AI providers and their models",
 
     // New for --peek and updates
     peekIntro: "Current PushAI Configuration",

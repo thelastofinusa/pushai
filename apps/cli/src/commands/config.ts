@@ -136,7 +136,8 @@ ${chalk.dim(msg.config.configFile(configPath))}`
 
     const commandsGuide = `${chalk.white.bold("pai commit:")} ${chalk.white(msg.config.hintCommit)}
 ${chalk.white.bold("pai config:")} ${chalk.white(msg.config.hintConfig)}
-${chalk.white.bold("pai reset:")}  ${chalk.white(msg.config.hintReset)}`
+${chalk.white.bold("pai reset:")}  ${chalk.white(msg.config.hintReset)}
+${chalk.white.bold("pai list:")}  ${chalk.white(msg.config.hintReset)}`
 
     note(commandsGuide, chalk.cyan(msg.config.commandsHint))
     outro(chalk.green.bold(msg.config.outro))

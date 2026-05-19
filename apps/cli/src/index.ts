@@ -1,7 +1,3 @@
-import chalk from "chalk"
-import { basename } from "path"
-import { Command } from "commander"
-import { runReset } from "./commands/reset"
 import {
   runConfig,
   runConfigEdit,
@@ -9,9 +5,13 @@ import {
   runConfigProviders,
   runConfigSet,
 } from "./commands/config"
+import chalk from "chalk"
+import { basename } from "path"
+import { Command } from "commander"
+import { msg } from "./constants/msg"
+import { runReset } from "./commands/reset"
 import { runCommit } from "./commands/commit"
 import { version, description } from "../package.json"
-import { msg } from "./constants/msg"
 
 let activeAbortController: AbortController | null = null
 
@@ -104,7 +104,7 @@ program
 
 program
   .command("list")
-  .description("List all available AI providers and their models")
+  .description("List available AI providers and their models")
   .action(async () => {
     await runConfigProviders()
   })
