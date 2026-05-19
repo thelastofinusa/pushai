@@ -113,7 +113,7 @@ export const Header = () => {
                 target="_blank"
                 className={buttonVariants({
                   variant: "ghost",
-                  className: "pointer-events-auto",
+                  className: "pointer-events-auto pl-2!",
                 })}
               >
                 <Icon className={link.iconClass} />
