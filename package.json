@@ -9,7 +9,9 @@
     "format": "turbo format",
     "typecheck": "turbo typecheck",
     "run:cli": "pnpm --filter pushai start",
-    "run:web": "pnpm --filter web dev"
+    "run:web": "pnpm --filter web dev",
+    "pushout": "pnpm --filter pushai pushout",
+    "pushout-inc": "pnpm --filter pushai pushout-inc"
   },
   "devDependencies": {
     "@workspace/eslint-config": "workspace:*",
