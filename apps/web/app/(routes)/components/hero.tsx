@@ -12,7 +12,7 @@ const demos = [
     title: "config",
     command: "pai config",
     output: [
-      "┌ Welcome to PushAI. Let's get things set up.",
+      "┌ ● PushAI Config → Set up your AI provider and model",
       "│",
       "◇ Choose from the available AI providers:",
       "│  Google Gemini",
@@ -30,7 +30,7 @@ const demos = [
     title: "list",
     command: "pai list",
     output: [
-      "┌ Available Providers & Models",
+      "┌ ● PushAI Config → Browse available providers & models",
       "│",
       "◇ Anthropic (Claude) models ──────────────────────╮",
       "│                                                 │",
@@ -47,7 +47,7 @@ const demos = [
     title: "commit",
     command: "pai commit",
     output: [
-      "┌ ● GEMINI • gemini-3.1-flash-lite",
+      "┌ ● PushAI Commit → Google Gemini session initialized",
       "│",
       "◇ Ready to commit ────────────────────────────────╮",
       "│                                                 │",
@@ -65,7 +65,7 @@ const demos = [
     title: "commit",
     command: "pai commit  --dry-run",
     output: [
-      "┌ ● GEMINI • gemini-3.1-flash-lite",
+      "┌ ● PushAI Commit → Google Gemini session initialized",
       "│",
       "◇ Ready to commit ────────────────────────────────╮",
       "│                                                 │",
@@ -80,12 +80,12 @@ const demos = [
     title: "reset",
     command: "pai reset",
     output: [
-      "┌  Resetting PushAI configuration",
+      "┌ ● PushAI Reset → Clear saved configuration",
       "│",
-      "◇  Remove all PushAI configurations and API keys?",
+      "◇ Remove all PushAI configurations and API keys?",
       "│  ● Yes / ○ No",
       "│",
-      "└  PushAI configuration removed successfully.",
+      "└ PushAI configuration removed successfully.",
     ],
   },
 ]

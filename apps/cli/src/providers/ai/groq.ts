@@ -18,24 +18,20 @@ export class GroqProvider extends BaseProvider {
 
   async generateCommitMessage(
     diff: string,
-    signal?: AbortSignal,
     options?: { regenerate?: boolean }
   ): Promise<string> {
     const regenerate = options?.regenerate || false
 
     try {
-      const response = await this.client.chat.completions.create(
-        {
-          model: this.model,
-          messages: [
-            { role: "system", content: SYSTEM_COMMIT_PROMPT },
-            { role: "user", content: USER_COMMIT_PROMPT(diff, regenerate) },
-          ],
-          temperature: regenerate ? 0.8 : 0.2,
-          max_tokens: 100,
-        },
-        { signal }
-      )
+      const response = await this.client.chat.completions.create({
+        model: this.model,
+        messages: [
+          { role: "system", content: SYSTEM_COMMIT_PROMPT },
+          { role: "user", content: USER_COMMIT_PROMPT(diff, regenerate) },
+        ],
+        temperature: regenerate ? 0.8 : 0.2,
+        max_tokens: 100,
+      })
 
       return (
         response.choices[0]?.message.content?.trim().replace(/['"]/g, "") || ""

@@ -189,7 +189,7 @@ export const HowItWorks = () => {
                   ~/terminal
                 </span>
               </div>
-              <div className="space-y-3 px-4 py-3 font-mono text-[13px] leading-relaxed">
+              <div className="space-y-3 px-4 py-2 font-mono text-[13px] leading-relaxed">
                 <Typewriter subcommand={s.subcommand} />
               </div>
             </div>

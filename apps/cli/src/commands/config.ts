@@ -1,15 +1,5 @@
-import chalk from "chalk"
-import {
-  select,
-  password,
-  isCancel,
-  text,
-  intro,
-  note,
-  outro,
-  log,
-} from "@clack/prompts"
-import { msg } from "../constants/msg"
+import color from "chalk"
+import * as p from "@clack/prompts"
 import { Config, ProviderType } from "../types"
 import { aiProviders } from "../providers/models"
 import {
@@ -18,75 +8,79 @@ import {
   setStoredConfig,
 } from "../utils/config"
 import { spawn } from "child_process"
+import { renderIntro } from "../utils/lib"
 
 export async function runConfig() {
-  intro(chalk.blue.bold(msg.config.intro))
+  renderIntro({
+    badge: "PushAI Config",
+    title: "Set up your AI provider and model",
+  })
 
   try {
-    const providerResult = await select({
-      message: msg.config.providerPrompt,
+    const providerResult = await p.select({
+      message: "Choose from the available AI providers:",
       options: aiProviders.map((p) => ({ label: p.name, value: p.value })),
     })
 
-    if (isCancel(providerResult)) {
-      outro(chalk.red("Operation cancelled."))
+    if (p.isCancel(providerResult)) {
+      p.outro(color.red("Operation cancelled."))
       return
     }
 
     const provider = providerResult as ProviderType
     const selectedProvider = aiProviders.find((p) => p.value === provider)
 
-    const apiKeyResult = await password({
-      message: msg.config.apiKeyPrompt(provider),
+    const apiKeyResult = await p.password({
+      message: `Enter your ${color.cyan.bold(provider)} API key:`,
       mask: "*",
       validate: (value) => {
         if (!value || value.trim() === "") {
-          return msg.config.apiKeyRequired
+          return "You'll need an API key to continue."
         }
         return undefined
       },
     })
 
-    if (isCancel(apiKeyResult)) {
-      outro(chalk.red("Operation cancelled."))
+    if (p.isCancel(apiKeyResult)) {
+      p.outro(color.red("Operation cancelled."))
       return
     }
 
     const apiKey = apiKeyResult as string
 
-    let modelResult = await select({
-      message: msg.config.modelPrompt,
+    let modelResult = await p.select({
+      message: "Which model would you like to use?",
       options: [
         ...(selectedProvider?.models.map((m) => ({
           label: m.name,
           value: m.value,
           hint: m.hint,
         })) || []),
-        { label: msg.config.customModelSeparator, value: "custom_id" },
+        { label: "Use a custom model ID", value: "custom_id" },
       ],
     })
 
-    if (isCancel(modelResult)) {
-      outro(chalk.red("Operation cancelled."))
+    if (p.isCancel(modelResult)) {
+      p.outro(color.red("Operation cancelled."))
       return
     }
 
     let model = modelResult as string
 
     if (model === "custom_id") {
-      const customModelResult = await text({
-        message: msg.config.customModelPrompt,
+      const customModelResult = await p.text({
+        message: "Enter the custom model ID:",
         placeholder: "...",
         validate: (value) => {
           if (!value || value.trim() === "") {
-            return msg.config.customModelRequired
+            return "A model ID is required."
           }
           return undefined
         },
       })
 
-      if (isCancel(customModelResult)) {
-        outro(chalk.red("Operation cancelled."))
+      if (p.isCancel(customModelResult)) {
+        p.outro(color.red("Operation cancelled."))
         return
       }
 
@@ -101,30 +95,30 @@ export async function runConfig() {
 
     const configPath = getConfigPath()
 
-    const configDetails = `Provider ${chalk.gray("→")}  ${chalk.cyan(aiProviders.find((ai) => provider === ai.value)?.name || provider)}
-Model    ${chalk.gray("→")}  ${chalk.cyan(model)}
-API Key  ${chalk.gray("→")}  ${chalk.cyan(`****${apiKey.slice(-4)}`)}
-Storage  ${chalk.gray("→")}  ${chalk.cyan(configPath)}`
+    const configDetails = `Provider ${color.gray("→")}  ${color.cyan(aiProviders.find((ai) => provider === ai.value)?.name || provider)}
+Model    ${color.gray("→")}  ${color.cyan(model)}
+API Key  ${color.gray("→")}  ${color.cyan(`****${apiKey.slice(-4)}`)}
+Storage  ${color.gray("→")}  ${color.cyan(configPath)}`
 
-    log.message(configDetails)
+    p.log.message(configDetails)
 
     const commandsGuide = `
- ${chalk.cyan("$")} pai commit ${chalk.gray("→")}  ${chalk.cyan(msg.config.hintCommit)}
- ${chalk.cyan("$")} pai config ${chalk.gray("→")}  ${chalk.cyan(msg.config.hintConfig)}
- ${chalk.cyan("$")} pai reset  ${chalk.gray("→")}  ${chalk.cyan(msg.config.hintReset)}
- ${chalk.cyan("$")} pai list   ${chalk.gray("→")}  ${chalk.cyan(msg.config.hintList)}`
+ ${color.cyan("$")} pai commit ${color.gray("→")}  ${color.cyan("Stage changes, generate a message, and push")}
+ ${color.cyan("$")} pai config ${color.gray("→")}  ${color.cyan("Configure AI providers and API keys")}
+ ${color.cyan("$")} pai reset  ${color.gray("→")}  ${color.cyan("Delete the local config.json file")}
+ ${color.cyan("$")} pai list   ${color.gray("→")}  ${color.cyan("List available AI providers and their models")}`
 
-    outro(
+    p.outro(
       [
-        `${chalk.green(msg.config.outro)}`,
+        `${color.green("Configuration complete. You're ready to go!")}`,
         "",
-        `${chalk.bold(msg.config.commandsHint)}`,
+        `${color.bold("Here are a few commands to try:")}`,
         `${commandsGuide}`,
       ].join("\n")
     )
   } catch (error: any) {
     if (error.name === "ExitPromptError") {
-      console.log(chalk.dim("Operation cancelled."))
+      console.log(color.dim("Operation cancelled."))
       return
     }
     throw error
@@ -132,7 +126,10 @@ Storage  ${chalk.gray("→")}  ${chalk.cyan(configPath)}`
 }
 
 export async function runConfigEdit() {
-  intro(chalk.blue("Opening configuration file"))
+  renderIntro({
+    badge: "PushAI Config",
+    title: "Editing local configuration",
+  })
 
   try {
     const configPath = getConfigPath()
@@ -146,13 +143,13 @@ export async function runConfigEdit() {
       })
       child.on("error", reject)
     })
-    outro(
-      chalk.green(
+    p.outro(
+      color.green(
         `✓ Configuration file edited. Use \`pai config --peek\` to see new values.`
       )
     )
   } catch (error: any) {
-    outro(chalk.red(`Failed to open editor: ${error.message}`))
+    p.outro(color.red(`Failed to open editor: ${error.message}`))
   }
 }
 
@@ -161,7 +158,10 @@ export async function runConfigSet(options: {
   model?: string
   key?: string
 }) {
-  intro(chalk.blue(msg.config.updateIntro))
+  renderIntro({
+    badge: "PushAI Config",
+    title: "Updating configuration values",
+  })
 
   try {
     const current = await getStoredConfig()
@@ -170,8 +170,8 @@ export async function runConfigSet(options: {
     if (options.provider) {
       const validProviders = aiProviders.map((p) => p.value)
       if (!validProviders.includes(options.provider as ProviderType)) {
-        outro(
-          chalk.red(
+        p.outro(
+          color.red(
             `Invalid provider. Use one of: ${validProviders.join(", ")}`
           )
         )
@@ -184,7 +184,9 @@ export async function runConfigSet(options: {
     if (options.key) updates.apiKey = options.key
 
     if (Object.keys(updates).length === 0) {
-      outro(chalk.yellow(msg.config.noValuesProvided))
+      p.outro(
+        color.yellow("No values provided. Use --provider, --model, or --key")
+      )
       return
     }
 
@@ -196,28 +198,31 @@ export async function runConfigSet(options: {
     const providerName =
       aiProviders.find((p) => p.value === newConfig.provider)?.name ||
       newConfig.provider ||
-      msg.config.notSet
-    const modelDisplay = newConfig.model || msg.config.notSet
+      "(not set)"
+    const modelDisplay = newConfig.model || "(not set)"
     const apiKeyDisplay = newConfig.apiKey
       ? `****${newConfig.apiKey.slice(-4)}`
-      : msg.config.notSet
+      : "(not set)"
 
-    const configDetails = `Provider ${chalk.gray("→")}  ${chalk.cyan(providerName)}
-Model    ${chalk.gray("→")}  ${chalk.cyan(modelDisplay)}
-API Key  ${chalk.gray("→")}  ${chalk.cyan(apiKeyDisplay)}
-Storage  ${chalk.gray("→")}  ${chalk.cyan(configPath)}`
+    const configDetails = `Provider ${color.gray("→")}  ${color.cyan(providerName)}
+Model    ${color.gray("→")}  ${color.cyan(modelDisplay)}
+API Key  ${color.gray("→")}  ${color.cyan(apiKeyDisplay)}
+Storage  ${color.gray("→")}  ${color.cyan(configPath)}`
 
-    log.message(configDetails)
-    outro(chalk.green(msg.config.updateOutro))
+    p.log.message(configDetails)
+    p.outro(color.green("Ready to use PushAI"))
   } catch (error: any) {
     if (error.name !== "ExitPromptError") {
-      outro(chalk.red(`Failed to update config: ${error.message}`))
+      p.outro(color.red(`Failed to update config: ${error.message}`))
     }
   }
 }
 
 export async function runConfigPeek() {
-  intro(chalk.blue(msg.config.peekIntro))
+  renderIntro({
+    badge: "PushAI Config",
+    title: "Viewing current configuration",
+  })
 
   try {
     const config = await getStoredConfig()
@@ -226,41 +231,22 @@ export async function runConfigPeek() {
     const providerName =
       aiProviders.find((p) => p.value === config.provider)?.name ||
       config.provider ||
-      msg.config.notSet
-    const modelDisplay = config.model || msg.config.notSet
+      "(not set)"
+    const modelDisplay = config.model || "(not set)"
     const apiKeyDisplay = config.apiKey
       ? `****${config.apiKey.slice(-4)}`
-      : msg.config.notSet
+      : "(not set)"
 
-    const configDetails = `Provider ${chalk.gray("→")}  ${chalk.cyan(providerName)}
-Model    ${chalk.gray("→")}  ${chalk.cyan(modelDisplay)}
-API Key  ${chalk.gray("→")}  ${chalk.cyan(apiKeyDisplay)}
-Storage  ${chalk.gray("→")}  ${chalk.cyan(configPath)}`
+    const configDetails = `Provider ${color.gray("→")}  ${color.cyan(providerName)}
+Model    ${color.gray("→")}  ${color.cyan(modelDisplay)}
+API Key  ${color.gray("→")}  ${color.cyan(apiKeyDisplay)}
+Storage  ${color.gray("→")}  ${color.cyan(configPath)}`
 
-    log.message(configDetails)
-    outro(chalk.green(msg.config.peekOutro))
+    p.log.message(configDetails)
+    p.outro(color.green("Use `pai config --help` to see how to update."))
   } catch (error: any) {
     if (error.name !== "ExitPromptError") {
-      outro(chalk.red(`Failed to peek config: ${error.message}`))
+      p.outro(color.red(`Failed to peek config: ${error.message}`))
     }
   }
-}
-
-export async function runConfigProviders() {
-  intro(chalk.blue(msg.config.providersIntro))
-
-  for (const provider of aiProviders) {
-    const modelLines = provider.models
-      .map((model) => {
-        const hintText = model.hint ? `: ${model.hint}` : ""
-        return `  ${chalk.dim(model.value)}${hintText}`
-      })
-      .join("\n")
-
-    const content = modelLines || chalk.dim(msg.config.noModels)
-    const title = chalk.cyan(msg.config.providerTitle(provider.name))
-    note(content, title)
-  }
-
-  outro(msg.config.providersOutro)
 }

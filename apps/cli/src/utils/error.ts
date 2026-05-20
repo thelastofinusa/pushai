@@ -1,6 +1,5 @@
 import chalk from "chalk"
 import { outro } from "@clack/prompts"
-import { msg } from "../constants/msg"
 
 /**
  * Converts provider-specific errors into a user-friendly message.
@@ -107,6 +106,6 @@ export function handleError(err: any): void {
   const friendly = getUserFriendlyError(err)
   outro(chalk.red(friendly))
   if (friendly.includes("Authentication failed")) {
-    outro(chalk.yellow(msg.errors.authFix))
+    outro(chalk.yellow("Run `pai reset` to update your credentials."))
   }
 }

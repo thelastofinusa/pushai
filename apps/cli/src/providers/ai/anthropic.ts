@@ -20,23 +20,19 @@ export class AnthropicProvider extends BaseProvider {
 
   async generateCommitMessage(
     diff: string,
-    signal?: AbortSignal,
     options?: { regenerate?: boolean }
   ): Promise<string> {
     const regenerate = options?.regenerate || false
     const userPrompt = USER_COMMIT_PROMPT(diff, regenerate)
 
     try {
-      const response = await this.client.messages.create(
-        {
-          model: this.model,
-          system: SYSTEM_COMMIT_PROMPT,
-          messages: [{ role: "user", content: userPrompt }],
-          max_tokens: 100,
-          temperature: regenerate ? 0.8 : 0.2,
-        },
-        { signal }
-      )
+      const response = await this.client.messages.create({
+        model: this.model,
+        system: SYSTEM_COMMIT_PROMPT,
+        messages: [{ role: "user", content: userPrompt }],
+        max_tokens: 100,
+        temperature: regenerate ? 0.8 : 0.2,
+      })
 
       const text =
         response.content[0]?.type === "text" ? response.content[0].text : ""

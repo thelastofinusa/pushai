@@ -2,7 +2,6 @@ import {
   runConfig,
   runConfigEdit,
   runConfigPeek,
-  runConfigProviders,
   runConfigSet,
 } from "./commands/config"
 import chalk from "chalk"
@@ -11,8 +10,7 @@ import { Command } from "commander"
 import { runReset } from "./commands/reset"
 import { runCommit } from "./commands/commit"
 import { version, description } from "../package.json"
-
-let activeAbortController: AbortController | null = null
+import { runList } from "./commands/list"
 
 const program = new Command()
 
@@ -33,10 +31,7 @@ program.action(async () => {
   if (mIndex !== -1 && args[mIndex + 1]) {
     userMessage = args[mIndex + 1]
   }
-  await runCommit(dryRun, autoPush, userMessage, (controller) => {
-    activeAbortController = controller
-  })
-  activeAbortController = null
+  await runCommit(dryRun, autoPush, userMessage)
 })
 
 // Subcommands
@@ -83,10 +78,7 @@ program
         ? options.message
         : undefined
 
-    await runCommit(dryRun, autoPush, userMessage, (controller) => {
-      activeAbortController = controller
-    })
-    activeAbortController = null
+    await runCommit(dryRun, autoPush, userMessage)
   })
 
 program
@@ -104,17 +96,11 @@ program
 program
   .command("list")
   .description("List available AI providers and their models")
-  .action(async () => {
-    await runConfigProviders()
-  })
+  .action(async () => await runList())
 
 process.on("SIGINT", () => {
   console.log(chalk.yellow("Request interrupted."))
-  if (activeAbortController) {
-    activeAbortController.abort()
-  } else {
-    process.exit(0)
-  }
+  process.exit(0)
 })
 
 if (process.argv.length <= 2) {

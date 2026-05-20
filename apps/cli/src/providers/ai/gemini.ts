@@ -15,7 +15,6 @@ export class GeminiProvider extends BaseProvider {
 
   async generateCommitMessage(
     diff: string,
-    _signal?: AbortSignal,
     options?: { regenerate?: boolean }
   ): Promise<string> {
     const regenerate = options?.regenerate || false

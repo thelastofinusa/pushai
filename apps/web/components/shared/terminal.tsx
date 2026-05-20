@@ -24,24 +24,54 @@ function renderLine(line: string, i: number) {
     buf = ""
   }
 
-  for (let j = 0; j < line.length; j++) {
-    const ch = line[j] as string
+  // Match PushAI badges
+  const badgeRegex = /(PushAI (?:Config|Commit|Reset))/g
 
-    let cls = "text-muted-foreground"
+  // Split while preserving badge matches
+  const segments = line.split(badgeRegex).filter(Boolean)
 
-    if (TREE.has(ch)) cls = "text-muted-foreground"
-    else if (ch === "◇") cls = "text-[#7dd3fc]"
-    else if (ch === "✔") cls = "text-success"
-    else if (ch === "●") cls = "text-[#22d3ee]"
-    else if (ch === "○") cls = "text-muted-foreground"
-    else if (ch === "$") cls = "text-success"
+  let processed = 0
 
-    if (cls !== bufClass) {
+  for (const segment of segments) {
+    const isBadge = /^PushAI (?:Config|Commit|Reset)$/.test(segment)
+
+    if (isBadge) {
       flush()
-      bufClass = cls
+
+      chars.push(
+        <span
+          key={`${i}-badge-${processed}`}
+          className="bg-cyan-400 px-1.5 py-0.5 text-[11px] font-semibold text-black"
+        >
+          {segment}
+        </span>
+      )
+
+      processed += segment.length
+      continue
     }
 
-    buf += ch
+    for (let j = 0; j < segment.length; j++) {
+      const ch = segment[j] as string
+
+      let cls = "text-muted-foreground"
+
+      if (TREE.has(ch)) cls = "text-muted-foreground"
+      else if (ch === "◇") cls = "text-sky-300"
+      else if (ch === "✔") cls = "text-success"
+      else if (ch === "●") cls = "text-cyan-400"
+      else if (ch === "○") cls = "text-muted-foreground"
+      else if (ch === "$") cls = "text-success"
+
+      if (cls !== bufClass) {
+        flush()
+        bufClass = cls
+      }
+
+      buf += ch
+    }
+
+    processed += segment.length
   }
 
   flush()
@@ -80,7 +110,6 @@ export const Terminal = ({
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting && !hasStarted) {
-            console.log("Terminal is visible, starting animation")
             setHasStarted(true)
           }
         })
@@ -98,7 +127,6 @@ export const Terminal = ({
     if (!hasStarted) return
     if (!command) return
 
-    console.log("Starting typing for command:", command)
     setTyped("")
     setVisibleLines(0)
 
@@ -150,7 +178,7 @@ export const Terminal = ({
 
       <div className="min-h-36 p-4 font-mono text-[11px] leading-[1.55] sm:p-5 sm:text-xs">
         <div className="mb-3 whitespace-pre text-foreground">
-          <span className="text-success">$ </span>
+          <span className="text-emerald-400">$ </span>
           {typed}
           <motion.span
             animate={{ opacity: [0, 1, 0] }}

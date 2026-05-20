@@ -14,7 +14,6 @@ export interface Config {
 export interface AIProvider {
   generateCommitMessage(
     diff: string,
-    signal?: AbortSignal,
     options?: { regenerate?: boolean }
   ): Promise<string>
 }

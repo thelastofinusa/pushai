@@ -1,21 +1,34 @@
-import { createSpinner } from "./lib"
-import type { ChalkColor } from "./lib" // or wherever you defined it
+import * as p from "@clack/prompts"
+import chalk, { ForegroundColorName } from "chalk"
 
 type Threshold = {
   afterMs: number
   message: string
-  /** Spinner frame colour while this message is shown */
-  color?: ChalkColor
+  color?: ForegroundColorName
 }
 
 type Options<T> = {
   fn: () => Promise<T>
   initialMessage: string
-  initialColor?: ChalkColor
+  initialColor?: ForegroundColorName
   thresholds?: Threshold[]
   successMessage?: string | ((result: T) => string)
   errorMessage?: string | ((error: any) => string)
   abortMessage?: string
+}
+
+export function createSpinner(
+  colorOrGetter: ForegroundColorName | (() => ForegroundColorName) = "cyan"
+) {
+  return p.spinner({
+    frames: ["⬒", "⬔", "⬓", "⬕"],
+    styleFrame: (frame) => {
+      const color =
+        typeof colorOrGetter === "function" ? colorOrGetter() : colorOrGetter
+      const fn = chalk[color] as (text: string) => string
+      return fn(frame)
+    },
+  })
 }
 
 export async function withTimedSpinner<T>({
@@ -27,7 +40,7 @@ export async function withTimedSpinner<T>({
   errorMessage = "Failed.",
   abortMessage = "Cancelled.",
 }: Options<T>): Promise<T> {
-  let currentColor: ChalkColor = initialColor
+  let currentColor: ForegroundColorName = initialColor
 
   const spinner = createSpinner(() => currentColor)
   spinner.start(initialMessage)

@@ -9,25 +9,21 @@ import {
 export class OpenAIProvider extends BaseProvider {
   async generateCommitMessage(
     diff: string,
-    signal?: AbortSignal,
     options?: { regenerate?: boolean }
   ): Promise<string> {
     const regenerate = options?.regenerate || false
     const openai = new OpenAI({ apiKey: this.apiKey })
 
     try {
-      const response = await openai.chat.completions.create(
-        {
-          model: this.model,
-          messages: [
-            { role: "system", content: SYSTEM_COMMIT_PROMPT },
-            { role: "user", content: USER_COMMIT_PROMPT(diff, regenerate) },
-          ],
-          temperature: regenerate ? 0.8 : 0.7,
-          max_tokens: 100,
-        },
-        { signal }
-      )
+      const response = await openai.chat.completions.create({
+        model: this.model,
+        messages: [
+          { role: "system", content: SYSTEM_COMMIT_PROMPT },
+          { role: "user", content: USER_COMMIT_PROMPT(diff, regenerate) },
+        ],
+        temperature: regenerate ? 0.8 : 0.7,
+        max_tokens: 100,
+      })
 
       return (
         response.choices[0]?.message.content?.trim().replace(/['"]/g, "") || ""

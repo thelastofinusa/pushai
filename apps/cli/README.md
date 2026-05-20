@@ -33,24 +33,53 @@ npm install -g pushai
 # or: pnpm add -g pushai | yarn global add pushai | bun install -g pushai
 ```
 
-After global installation, you can use the shorthand `pushai` or `pai` (recommended).
+After global installation, you can use the shorthand `pushai` or `pai` to see available commands.
 
 ## Quick Start
 
-1. **Configure your AI provider** – run `pai config` and follow the wizard.
-2. **Stage and commit** – run `pai` (or `pai commit`). PushAI stages all changes, generates a conventional commit message, and asks for approval before pushing.
+**1. Configure your provider**
+
+```bash
+pai config
+```
+
+Choose:
+
+- AI provider
+- API key
+- Model
+
+PushAI stores your API key securely using your system keychain.
+
+**2. Generate and push commits**
+
+```bash
+pai commit
+```
+
+PushAI will:
+
+- Detect your Git repository
+- Stage changes
+- Analyze diffs
+- Generate a conventional commit message
+- Let you review/edit/regenerate
+- Commit and push to remote
 
 ## Features
 
-| Feature                  | Description                                   |
-| ------------------------ | --------------------------------------------- |
-| **Multi‑Provider**       | Gemini, OpenAI, HuggingFace                   |
-| **Conventional Commits** | Standardized messages (`feat:`, `fix:`, etc.) |
-| **Auto‑Push**            | Stages, commits, and pushes in one flow       |
-| **Smart Init**           | Detects missing repo and offers to initialize |
-| **Interactive Approval** | Review, edit, or regenerate the message       |
-| **Dry‑Run Mode**         | Preview message without committing/pushing    |
-| **Progressive Timeouts** | Feedback at 10s and 60s (slow operations)     |
+| Feature                    | Description                                                |
+| -------------------------- | ---------------------------------------------------------- |
+| **Multi-Provider Support** | Works with Gemini, OpenAI, Hugging Face, and more          |
+| **Conventional Commits**   | Generates clean `feat:`, `fix:`, `refactor:` style commits |
+| **Interactive Flow**       | Approve, edit, regenerate, or cancel before pushing        |
+| **Smart Git Detection**    | Detects missing repositories and offers initialization     |
+| **Timed Loading States**   | Progressive feedback for slow AI or Git operations         |
+| **Custom Messages**        | Skip AI generation entirely with `-m`                      |
+| **Dry Run Mode**           | Preview commits without committing or pushing              |
+| **Secure API Keys**        | Uses system keychain via `keytar`                          |
+| **Provider Explorer**      | View available providers and supported models              |
+| **Config Editor**          | Open and edit config directly from your terminal           |
 
 ## Commands
 
