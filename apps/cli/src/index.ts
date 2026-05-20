@@ -8,7 +8,6 @@ import {
 import chalk from "chalk"
 import { basename } from "path"
 import { Command } from "commander"
-import { msg } from "./constants/msg"
 import { runReset } from "./commands/reset"
 import { runCommit } from "./commands/commit"
 import { version, description } from "../package.json"
@@ -110,7 +109,7 @@ program
   })
 
 process.on("SIGINT", () => {
-  console.log(chalk.yellow(msg.common.interrupted))
+  console.log(chalk.yellow("Request interrupted."))
   if (activeAbortController) {
     activeAbortController.abort()
   } else {

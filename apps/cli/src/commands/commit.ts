@@ -3,7 +3,7 @@ import simpleGit from "simple-git"
 import * as p from "@clack/prompts"
 
 import { runConfig } from "./config"
-import { Config } from "../types"
+import { AIProvider, Config } from "../types"
 import { getAIProvider } from "../providers"
 import { handleError } from "../utils/error"
 import { getStoredConfig } from "../utils/config"
@@ -61,7 +61,7 @@ export async function runCommit(
     }
 
     let message = ""
-    let provider
+    let provider: AIProvider
 
     // user-provided message (skip AI)
     if (userMessage) {
@@ -77,10 +77,11 @@ export async function runCommit(
     } else {
       // AI generation
       try {
+        provider = await getAIProvider(config as Config)
+        let genProvider = provider
         const msg = await withTimedSpinner({
           fn: async () => {
-            provider = await getAIProvider(config as Config)
-            return await provider.generateCommitMessage(diff)
+            return await genProvider.generateCommitMessage(diff)
           },
           initialMessage: `${color.cyanBright(config.model)} is generating commit message`,
           initialColor: "cyanBright",
@@ -103,7 +104,6 @@ export async function runCommit(
 
         message = msg
       } catch (error: any) {
-        s.stop(color.red.bold("AI failed to generate commit message."))
         if (error.name === "AbortError") {
           p.outro(color.yellow("Commit message generation cancelled."))
           process.exit(0)
@@ -231,15 +231,14 @@ export async function runCommit(
             },
           ],
           successMessage: color.green("Changes pushed successfully."),
-          errorMessage: color.red.bold("Failed to commit message"),
+          errorMessage: color.red.bold(
+            "Something went wrong while completing the operation."
+          ),
         })
 
         p.outro(color.cyan("✓ Successfully synced with the remote repository."))
         process.exit(0)
       } catch (error) {
-        s.stop(
-          color.red.bold("Something went wrong while completing the operation.")
-        )
         p.outro(color.red(handleError(error)))
         process.exit(1)
       }
