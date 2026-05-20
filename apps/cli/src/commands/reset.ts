@@ -16,14 +16,14 @@ export async function runReset(skipConfirm: boolean = false) {
         initialValue: false,
       })
       if (isCancel(shouldDeleteResult)) {
-        outro(chalk.red(msg.common.operationCancelled))
+        outro(chalk.red("Operation cancelled."))
         return
       }
       shouldDelete = shouldDeleteResult
     }
 
     if (!shouldDelete) {
-      outro(chalk.red(msg.common.operationCancelled))
+      outro(chalk.red("Operation cancelled."))
       return
     }
 
@@ -35,7 +35,7 @@ export async function runReset(skipConfirm: boolean = false) {
     }
   } catch (error: any) {
     if (error.name === "ExitPromptError" || error.name === "AbortError") {
-      outro(chalk.red(msg.common.operationCancelled))
+      outro(chalk.red("Operation cancelled."))
       return
     }
     throw error

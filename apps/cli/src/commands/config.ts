@@ -7,6 +7,7 @@ import {
   intro,
   note,
   outro,
+  log,
 } from "@clack/prompts"
 import { msg } from "../constants/msg"
 import { Config, ProviderType } from "../types"
@@ -17,6 +18,118 @@ import {
   setStoredConfig,
 } from "../utils/config"
 import { spawn } from "child_process"
+
+export async function runConfig() {
+  intro(chalk.blue.bold(msg.config.intro))
+
+  try {
+    const providerResult = await select({
+      message: msg.config.providerPrompt,
+      options: aiProviders.map((p) => ({ label: p.name, value: p.value })),
+    })
+
+    if (isCancel(providerResult)) {
+      outro(chalk.red("Operation cancelled."))
+      return
+    }
+
+    const provider = providerResult as ProviderType
+    const selectedProvider = aiProviders.find((p) => p.value === provider)
+
+    const apiKeyResult = await password({
+      message: msg.config.apiKeyPrompt(provider),
+      mask: "*",
+      validate: (value) => {
+        if (!value || value.trim() === "") {
+          return msg.config.apiKeyRequired
+        }
+        return undefined
+      },
+    })
+
+    if (isCancel(apiKeyResult)) {
+      outro(chalk.red("Operation cancelled."))
+      return
+    }
+
+    const apiKey = apiKeyResult as string
+
+    let modelResult = await select({
+      message: msg.config.modelPrompt,
+      options: [
+        ...(selectedProvider?.models.map((m) => ({
+          label: m.name,
+          value: m.value,
+          hint: m.hint,
+        })) || []),
+        { label: msg.config.customModelSeparator, value: "custom_id" },
+      ],
+    })
+
+    if (isCancel(modelResult)) {
+      outro(chalk.red("Operation cancelled."))
+      return
+    }
+
+    let model = modelResult as string
+
+    if (model === "custom_id") {
+      const customModelResult = await text({
+        message: msg.config.customModelPrompt,
+        placeholder: "...",
+        validate: (value) => {
+          if (!value || value.trim() === "") {
+            return msg.config.customModelRequired
+          }
+          return undefined
+        },
+      })
+
+      if (isCancel(customModelResult)) {
+        outro(chalk.red("Operation cancelled."))
+        return
+      }
+
+      model = customModelResult as string
+    }
+
+    await setStoredConfig({
+      provider,
+      apiKey,
+      model,
+    })
+
+    const configPath = getConfigPath()
+
+    const configDetails = `Provider ${chalk.gray("→")}  ${chalk.cyan(aiProviders.find((ai) => provider === ai.value)?.name || provider)}
+Model    ${chalk.gray("→")}  ${chalk.cyan(model)}
+API Key  ${chalk.gray("→")}  ${chalk.cyan(`****${apiKey.slice(-4)}`)}
+Storage  ${chalk.gray("→")}  ${chalk.cyan(configPath)}`
+
+    log.message(configDetails)
+
+    const commandsGuide = `
+ ${chalk.cyan("$")} pai commit ${chalk.gray("→")}  ${chalk.cyan(msg.config.hintCommit)}
+ ${chalk.cyan("$")} pai config ${chalk.gray("→")}  ${chalk.cyan(msg.config.hintConfig)}
+ ${chalk.cyan("$")} pai reset  ${chalk.gray("→")}  ${chalk.cyan(msg.config.hintReset)}
+ ${chalk.cyan("$")} pai list   ${chalk.gray("→")}  ${chalk.cyan(msg.config.hintList)}`
+
+    outro(
+      [
+        `${chalk.green(msg.config.outro)}`,
+        "",
+        `${chalk.bold(msg.config.commandsHint)}`,
+        `${commandsGuide}`,
+      ].join("\n")
+    )
+  } catch (error: any) {
+    if (error.name === "ExitPromptError") {
+      console.log(chalk.dim("Operation cancelled."))
+      return
+    }
+    throw error
+  }
+}
 
 export async function runConfigEdit() {
   intro(chalk.blue("Opening configuration file"))
@@ -40,113 +153,6 @@ export async function runConfigEdit() {
     )
   } catch (error: any) {
     outro(chalk.red(`Failed to open editor: ${error.message}`))
-  }
-}
-
-export async function runConfig() {
-  intro(chalk.blue.bold(msg.config.intro))
-
-  try {
-    const providerResult = await select({
-      message: msg.config.providerPrompt,
-      options: aiProviders.map((p) => ({ label: p.name, value: p.value })),
-    })
-
-    if (isCancel(providerResult)) {
-      outro(chalk.red(msg.common.operationCancelled))
-      return
-    }
-
-    const provider = providerResult as ProviderType
-    const selectedProvider = aiProviders.find((p) => p.value === provider)
-
-    const apiKeyResult = await password({
-      message: msg.config.apiKeyPrompt(provider),
-      mask: "*",
-      validate: (value) => {
-        if (!value || value.trim() === "") {
-          return msg.config.apiKeyRequired
-        }
-        return undefined
-      },
-    })
-
-    if (isCancel(apiKeyResult)) {
-      outro(chalk.red(msg.common.operationCancelled))
-      return
-    }
-
-    const apiKey = apiKeyResult as string
-
-    let modelResult = await select({
-      message: msg.config.modelPrompt,
-      options: [
-        ...(selectedProvider?.models.map((m) => ({
-          label: m.name,
-          value: m.value,
-          hint: m.hint,
-        })) || []),
-        { label: msg.config.customModelSeparator, value: "custom_id" },
-      ],
-    })
-
-    if (isCancel(modelResult)) {
-      outro(chalk.red(msg.common.operationCancelled))
-      return
-    }
-
-    let model = modelResult as string
-
-    if (model === "custom_id") {
-      const customModelResult = await text({
-        message: msg.config.customModelPrompt,
-        placeholder: "...",
-        validate: (value) => {
-          if (!value || value.trim() === "") {
-            return msg.config.customModelRequired
-          }
-          return undefined
-        },
-      })
-
-      if (isCancel(customModelResult)) {
-        outro(chalk.red(msg.common.operationCancelled))
-        return
-      }
-
-      model = customModelResult as string
-    }
-
-    await setStoredConfig({
-      provider,
-      apiKey,
-      model,
-    })
-
-    const configPath = getConfigPath()
-
-    const configDetails = `${msg.config.providerLabel(
-      aiProviders.find((ai) => provider === ai.value)?.name || provider
-    )}
-${msg.config.modelLabel(model)}
-${msg.config.apiKeyLabel(apiKey.slice(-4))}
-${chalk.dim(msg.config.configFile(configPath))}`
-
-    note(configDetails, chalk.cyan(msg.config.saved))
-
-    const commandsGuide = `${chalk.white.bold("pai commit:")} ${chalk.white(msg.config.hintCommit)}
-${chalk.white.bold("pai config:")} ${chalk.white(msg.config.hintConfig)}
-${chalk.white.bold("pai reset:")}  ${chalk.white(msg.config.hintReset)}
-${chalk.white.bold("pai list:")}  ${chalk.white(msg.config.hintReset)}`
-
-    note(commandsGuide, chalk.cyan(msg.config.commandsHint))
-    outro(chalk.green.bold(msg.config.outro))
-  } catch (error: any) {
-    if (error.name === "ExitPromptError") {
-      console.log(chalk.dim(msg.common.operationCancelled))
-      return
-    }
-    throw error
   }
 }
 
@@ -196,13 +202,13 @@ export async function runConfigSet(options: {
       ? `****${newConfig.apiKey.slice(-4)}`
       : msg.config.notSet
 
-    const configDetails = `${msg.config.providerLabel(providerName)}
-${msg.config.modelLabel(modelDisplay)}
-${msg.config.apiKeyLabel(apiKeyDisplay)}
-${chalk.dim(msg.config.configFile(configPath))}`
+    const configDetails = `Provider ${chalk.gray("→")}  ${chalk.cyan(providerName)}
+Model    ${chalk.gray("→")}  ${chalk.cyan(modelDisplay)}
+API Key  ${chalk.gray("→")}  ${chalk.cyan(apiKeyDisplay)}
+Storage  ${chalk.gray("→")}  ${chalk.cyan(configPath)}`
 
-    note(configDetails)
-    outro(chalk.green.bold(msg.config.updateOutro))
+    log.message(configDetails)
+    outro(chalk.green(msg.config.updateOutro))
   } catch (error: any) {
     if (error.name !== "ExitPromptError") {
       outro(chalk.red(`Failed to update config: ${error.message}`))
@@ -226,12 +232,12 @@ export async function runConfigPeek() {
       ? `****${config.apiKey.slice(-4)}`
       : msg.config.notSet
 
-    const configDetails = `${msg.config.providerLabel(providerName)}
-${msg.config.modelLabel(modelDisplay)}
-${msg.config.apiKeyLabel(apiKeyDisplay)}
-${chalk.dim(msg.config.configFile(configPath))}`
+    const configDetails = `Provider ${chalk.gray("→")}  ${chalk.cyan(providerName)}
+Model    ${chalk.gray("→")}  ${chalk.cyan(modelDisplay)}
+API Key  ${chalk.gray("→")}  ${chalk.cyan(apiKeyDisplay)}
+Storage  ${chalk.gray("→")}  ${chalk.cyan(configPath)}`
 
-    note(configDetails)
+    log.message(configDetails)
     outro(chalk.green(msg.config.peekOutro))
   } catch (error: any) {
     if (error.name !== "ExitPromptError") {

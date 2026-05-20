@@ -118,4 +118,10 @@ process.on("SIGINT", () => {
   }
 })
 
-program.parse()
+if (process.argv.length <= 2) {
+  console.clear()
+  program.help()
+} else {
+  console.clear()
+  program.parse()
+}

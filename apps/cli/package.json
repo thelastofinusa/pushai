@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "tsup src/index.ts --format esm --watch --clean",
     "build": "tsup",
-    "start": "pnpm build && clear && node dist/index.mjs",
+    "start": "pnpm build && node dist/index.mjs",
     "pushout": "npm publish",
     "pushout-inc": "npm version patch --no-git-tag-version && pnpm pushout"
   },
