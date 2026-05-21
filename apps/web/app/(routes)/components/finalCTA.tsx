@@ -1,8 +1,8 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { motion } from "motion/react"
-import { CheckCheck, Copy, Sparkles } from "lucide-react"
+import { CheckCheck, Copy } from "lucide-react"
 import {
   Tabs,
   TabsContent,
@@ -49,13 +49,25 @@ const TypewriterCommand = ({ text }: { text: string }) => {
 }
 
 export function FinalCTA() {
-  const [copied, setCopied] = useState(false)
-  const installCommands = {
-    npm: "npm install -g pushai",
-    pnpm: "pnpm add -g pushai",
-    yarn: "yarn global add pushai",
-    bun: "bun add -g pushai",
-  }
+  const [copied, setCopied] = useState<string | null>(null)
+
+  const commands = useMemo(
+    () => ({
+      install: {
+        npm: "npm install -g pushai",
+        pnpm: "pnpm add -g pushai",
+        yarn: "yarn global add pushai",
+        bun: "bun add -g pushai",
+      },
+      run: {
+        npm: "npx pushai commit",
+        pnpm: "pnpm dlx pushai commit",
+        yarn: "yarn dlx pushai commit",
+        bun: "bunx pushai commit",
+      },
+    }),
+    []
+  )
 
   return (
     <section className="mx-auto max-w-5xl px-4 py-24 sm:px-6">
@@ -67,89 +79,109 @@ export function FinalCTA() {
         transition={{ duration: 0.6 }}
         className="relative overflow-hidden rounded-xl border bg-linear-to-b from-transparent via-secondary/10 to-secondary/30 shadow-2xl shadow-black/10 backdrop-blur-md"
       >
-        {/* Content */}
-        <div className="px-6 py-12 text-center sm:px-12 sm:py-16">
-          <div className="inline-flex items-center gap-2 rounded-full border bg-background/60 px-3 py-1 font-mono text-xs text-muted-foreground backdrop-blur">
-            <Sparkles className="size-3" /> Free · MIT licensed
-          </div>
-
-          <h2 className="mx-auto mt-6 max-w-2xl text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
-            Stop writing commit messages.
-          </h2>
-          <p className="mx-auto mt-4 max-w-md text-muted-foreground">
-            Install PushAI in your next terminal session and let AI handle your
-            commits.
-          </p>
-
-          <Tabs
-            defaultValue="npm"
-            className="mx-auto mt-10 w-full items-center sm:max-w-sm"
-          >
+        <Tabs defaultValue="install">
+          <div className="px-6 py-12 text-center sm:px-12 sm:py-16">
             <TabsList>
-              <TabsTrigger value="npm">
-                <SiNpm className="size-3.5 sm:size-4" />
-                <span className="text-xs">npm</span>
+              <TabsTrigger value="install">
+                <span className="text-xs">Global Install</span>
               </TabsTrigger>
-              <TabsTrigger value="pnpm">
-                <SiPnpm className="size-3 sm:size-3.5" />
-                <span className="text-xs">pnpm</span>
-              </TabsTrigger>
-              <TabsTrigger value="yarn">
-                <SiYarn className="size-3.5 sm:size-4" />
-                <span className="text-xs">yarn</span>
-              </TabsTrigger>
-              <TabsTrigger value="bun">
-                <SiBun className="size-3.5 sm:size-4" />
-                <span className="text-xs">bun</span>
+              <TabsTrigger value="run">
+                <span className="text-xs">One-Time Run</span>
               </TabsTrigger>
             </TabsList>
 
-            <Separator orientation="horizontal" className="my-2 w-20!" />
+            <h2 className="mx-auto mt-6 max-w-2xl text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
+              Stop writing commit messages.
+            </h2>
 
-            {Object.entries(installCommands).map(([manager, command]) => (
-              <TabsContent
-                key={manager}
-                value={manager}
-                className="w-full overflow-hidden rounded-lg border bg-background shadow-2xl shadow-black/5 backdrop-blur"
-              >
-                <div className="flex items-center gap-1 border-b px-3 py-2 sm:px-4">
-                  <span className="size-2 rounded-full bg-[#ff5f57]" />
-                  <span className="size-2 rounded-full bg-[#febc2e]" />
-                  <span className="size-2 rounded-full bg-[#28c840]" />
+            <p className="mx-auto mt-4 max-w-md text-muted-foreground">
+              Install PushAI globally and run{" "}
+              <b className="text-cyan-500">pai commit</b>, or execute it
+              instantly without installing anything.
+            </p>
 
-                  <span className="ml-2 font-mono text-[10px] text-muted-foreground">
-                    ~/installation
-                  </span>
-                </div>
+            <div className="mx-auto mt-10 w-full items-center sm:max-w-sm">
+              {Object.entries(commands).map(([mode, modeCommands]) => (
+                <TabsContent key={mode} value={mode} className="w-full">
+                  <Tabs defaultValue="npm" className="items-center">
+                    <TabsList>
+                      <TabsTrigger value="npm">
+                        <SiNpm className="size-3.5 sm:size-4" />
+                        <span className="text-xs">npm</span>
+                      </TabsTrigger>
 
-                <div className="flex items-center gap-3 px-4 py-3 font-mono text-[13px] leading-relaxed">
-                  <span className="mt-px text-success">$</span>
+                      <TabsTrigger value="pnpm">
+                        <SiPnpm className="size-3 sm:size-3.5" />
+                        <span className="text-xs">pnpm</span>
+                      </TabsTrigger>
 
-                  <code>
-                    <TypewriterCommand text={command} />
-                  </code>
+                      <TabsTrigger value="yarn">
+                        <SiYarn className="size-3.5 sm:size-4" />
+                        <span className="text-xs">yarn</span>
+                      </TabsTrigger>
 
-                  <button
-                    onClick={() => {
-                      navigator.clipboard.writeText(command)
-                      setCopied(true)
+                      <TabsTrigger value="bun">
+                        <SiBun className="size-3.5 sm:size-4" />
+                        <span className="text-xs">bun</span>
+                      </TabsTrigger>
+                    </TabsList>
 
-                      setTimeout(() => setCopied(false), 1500)
-                    }}
-                    className="ml-auto text-muted-foreground transition-colors hover:text-foreground"
-                    aria-label="Copy install command"
-                  >
-                    {copied ? (
-                      <CheckCheck className="size-3.5 text-success" />
-                    ) : (
-                      <Copy className="size-3.5" />
-                    )}
-                  </button>
-                </div>
-              </TabsContent>
-            ))}
-          </Tabs>
-        </div>
+                    <Separator
+                      orientation="horizontal"
+                      className="my-2 w-20!"
+                    />
+
+                    {Object.entries(modeCommands).map(([manager, command]) => (
+                      <TabsContent
+                        key={manager}
+                        value={manager}
+                        className="w-full overflow-hidden rounded-lg border bg-background shadow-2xl shadow-black/5 backdrop-blur"
+                      >
+                        <div className="flex items-center gap-1 border-b px-3 py-2 sm:px-4">
+                          <span className="size-2 rounded-full bg-[#ff5f57]" />
+                          <span className="size-2 rounded-full bg-[#febc2e]" />
+                          <span className="size-2 rounded-full bg-[#28c840]" />
+
+                          <span className="ml-2 font-mono text-[10px] text-muted-foreground">
+                            ~/terminal
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-3 px-4 py-3 font-mono text-[13px] leading-relaxed">
+                          <span className="mt-px text-success">$</span>
+
+                          <code className="overflow-x-auto">
+                            <TypewriterCommand text={command} />
+                          </code>
+
+                          <button
+                            onClick={() => {
+                              navigator.clipboard.writeText(command)
+
+                              setCopied(command)
+
+                              setTimeout(() => {
+                                setCopied(null)
+                              }, 1500)
+                            }}
+                            className="ml-auto shrink-0 text-muted-foreground transition-colors hover:text-foreground"
+                            aria-label="Copy command"
+                          >
+                            {copied === command ? (
+                              <CheckCheck className="size-3.5 text-success" />
+                            ) : (
+                              <Copy className="size-3.5" />
+                            )}
+                          </button>
+                        </div>
+                      </TabsContent>
+                    ))}
+                  </Tabs>
+                </TabsContent>
+              ))}
+            </div>
+          </div>
+        </Tabs>
       </motion.div>
     </section>
   )
