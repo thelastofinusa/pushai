@@ -23,7 +23,7 @@ export const Footer = () => {
 
   const theme = mounted ? resolvedTheme : "light"
 
-  const badgeSrc = `https://api.producthunt.com/widgets/embed-image/v1/product_review.svg?product_id=1227466&theme=${theme}`
+  const badgeSrc = `https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1149282&amp;theme=${theme}&amp;t=1779372651208`
 
   return (
     <footer className="py-12">
@@ -52,7 +52,7 @@ export const Footer = () => {
         </div>
 
         <a
-          href="https://www.producthunt.com/products/pushai"
+          href="https://www.producthunt.com/products/pushai?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-pushai"
           target="_blank"
           rel="noopener noreferrer"
           className="transition-opacity hover:opacity-90"
