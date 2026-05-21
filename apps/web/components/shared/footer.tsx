@@ -3,7 +3,7 @@
 
 import { siteConfig } from "@/config/site.config"
 import Link from "next/link"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useTheme } from "next-themes"
 
 export const Footer = () => {
@@ -23,7 +23,9 @@ export const Footer = () => {
 
   const theme = mounted ? resolvedTheme : "light"
 
-  const badgeSrc = `https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1149282&amp;theme=${theme}&amp;t=1779372651208`
+  const badgeSrc = useMemo(() => {
+    return `https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1149282&theme=${theme}`
+  }, [theme])
 
   return (
     <footer className="py-12">
@@ -52,12 +54,13 @@ export const Footer = () => {
         </div>
 
         <a
-          href="https://www.producthunt.com/products/pushai?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-pushai"
+          href="https://www.producthunt.com/products/pushai?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-pushai"
           target="_blank"
           rel="noopener noreferrer"
           className="transition-opacity hover:opacity-90"
         >
           <img
+            key={theme}
             src={badgeSrc}
             alt="PushAI on Product Hunt"
             width={200}
