@@ -104,49 +104,49 @@ const steps = [
 
 const flags = [
   {
-    flag: "-d, --dry-run",
+    flag: "-d, --dry",
     applies: "commit",
-    desc: "Preview the generated message without committing or pushing changes.",
+    desc: "Generate message only, no commit/push",
   },
   {
     flag: "-p, --push",
     applies: "commit",
-    desc: "Skip confirmation and immediately commit and push changes.",
+    desc: "Skip confirmation, commit & push",
   },
   {
-    flag: "-m, --message <msg>",
+    flag: "-m, --msg <msg>",
     applies: "commit",
-    desc: "Use a custom commit message instead of AI generation.",
+    desc: "Use custom commit message",
   },
   {
     flag: "-y, --yes",
     applies: "reset",
-    desc: "Skip confirmation and remove saved configuration instantly.",
+    desc: "Skip confirmation and delete configuration",
   },
   {
     flag: "-e, --edit",
     applies: "config",
-    desc: "Open the PushAI configuration file in your default editor.",
+    desc: "Edit the configuration file manually",
   },
   {
     flag: "-p, --provider <name>",
     applies: "config",
-    desc: "Set an AI provider directly from the terminal.",
+    desc: "Set AI provider (e.g. gemini, openai)",
   },
   {
     flag: "-m, --model <id>",
     applies: "config",
-    desc: "Choose a model directly without interactive prompts.",
+    desc: "Set model ID directly",
   },
   {
     flag: "-k, --key <apiKey>",
     applies: "config",
-    desc: "Save an API key directly from the command line.",
+    desc: "Save or update your API key",
   },
   {
-    flag: "--peek",
+    flag: "-s, --show",
     applies: "config",
-    desc: "Show the currently saved provider, model, and API key.",
+    desc: "Display the current configuration",
   },
 ]
 

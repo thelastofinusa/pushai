@@ -13,7 +13,6 @@ type Options<T> = {
   initialColor?: ForegroundColorName
   thresholds?: Threshold[]
   successMessage?: string | ((result: T) => string)
-  errorMessage?: string | ((error: any) => string)
   abortMessage?: string
 }
 
@@ -36,9 +35,8 @@ export async function withTimedSpinner<T>({
   initialMessage,
   initialColor = "cyan",
   thresholds = [],
-  successMessage = "Done.",
-  errorMessage = "Failed.",
-  abortMessage = "Cancelled.",
+  successMessage,
+  abortMessage,
 }: Options<T>): Promise<T> {
   let currentColor: ForegroundColorName = initialColor
 
@@ -69,9 +67,10 @@ export async function withTimedSpinner<T>({
       spinner.stop(abortMessage)
       throw error
     }
-    spinner.stop(
-      typeof errorMessage === "function" ? errorMessage(error) : errorMessage
-    )
+    // Stop the spinner without any message
+    spinner.stop()
+    // Erase the spinner's final frame (◇ and newline)
+    process.stderr.write("\x1b[1A\x1b[2K")
     throw error
   }
 }

@@ -1,17 +1,17 @@
 {
   "name": "pushai",
-  "version": "2.0.0",
+  "version": "2.0.4",
   "description": "Ship commits at the speed of thought.",
   "bin": {
     "pai": "./dist/index.mjs",
     "pushai": "./dist/index.mjs"
   },
   "scripts": {
-    "dev": "tsup src/index.ts --format esm --watch --clean",
     "build": "tsup",
-    "start": "pnpm build && node dist/index.mjs",
+    "dev": "tsx src/index.ts",
     "pushout": "npm publish",
-    "pushout-inc": "npm version patch --no-git-tag-version && pnpm pushout"
+    "pushout-inc": "npm version patch --no-git-tag-version && pnpm pushout",
+    "sync:providers": "tsx scripts/sync-provider-types.ts"
   },
   "homepage": "https://pushai.vercel.app",
   "repository": {
@@ -56,15 +56,13 @@
     "commander": "^14.0.3",
     "keytar": "^7.9.0",
     "openai": "^6.37.0",
-    "ora": "^9.4.0",
     "simple-git": "^3.36.0",
     "zod": "^3.25.76"
   },
   "devDependencies": {
-    "@types/keytar": "^4.4.2",
-    "@types/node": "^25.1.0",
-    "@types/ora": "^3.2.0",
+    "@types/node": "^25.9.1",
     "tsup": "^8.5.1",
+    "tsx": "^4.22.3",
     "typescript": "^5.9.3"
   }
 }

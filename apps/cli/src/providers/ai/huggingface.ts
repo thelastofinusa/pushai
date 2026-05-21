@@ -1,9 +1,7 @@
 import { InferenceClient } from "@huggingface/inference"
 import { BaseProvider } from "../base"
-import {
-  SYSTEM_COMMIT_PROMPT,
-  USER_COMMIT_PROMPT,
-} from "../../constants/prompt"
+import { SYSTEM_COMMIT_PROMPT, USER_COMMIT_PROMPT } from "../../lib/prompt"
+import { cleanCommitMessage, getReadableError } from "../../lib/utils"
 
 export class HuggingFaceProvider extends BaseProvider {
   async generateCommitMessage(
@@ -29,18 +27,11 @@ export class HuggingFaceProvider extends BaseProvider {
       })
 
       const content = response.choices[0]?.message.content || ""
-      return content
-        .trim()
-        .replace(/['"]/g, "")
-        .replace(/^commit:\s*/i, "")
+      let cleaned = cleanCommitMessage(content)
+      cleaned = cleaned.replace(/^commit:\s*/i, "")
+      return cleaned
     } catch (error: any) {
-      if (
-        error.name === "HTTPError" ||
-        error.name === "InferenceTimeoutError"
-      ) {
-        throw new Error(`Hugging Face API error: ${error.message}`)
-      }
-      throw error
+      throw new Error(getReadableError(error))
     }
   }
 }

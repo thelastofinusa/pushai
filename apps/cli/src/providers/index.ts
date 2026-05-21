@@ -1,11 +1,9 @@
-import {
-  AnthropicProvider,
-  GeminiProvider,
-  GroqProvider,
-  HuggingFaceProvider,
-  OpenAIProvider,
-} from "./ai"
-import { Config, AIProvider } from "../types"
+import { AIProvider, Config } from "../types"
+import { AnthropicProvider } from "./ai/anthropic"
+import { GeminiProvider } from "./ai/gemini"
+import { GroqProvider } from "./ai/groq"
+import { HuggingFaceProvider } from "./ai/huggingface"
+import { OpenAIProvider } from "./ai/openai"
 
 export function getAIProvider(config: Config): Promise<AIProvider> {
   switch (config.provider) {

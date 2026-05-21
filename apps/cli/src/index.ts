@@ -1,107 +1,69 @@
+import { basename } from "path"
+import { Command } from "commander"
+
 import {
   runConfig,
   runConfigEdit,
-  runConfigPeek,
+  runConfigShow,
   runConfigSet,
 } from "./commands/config"
-import chalk from "chalk"
-import { basename } from "path"
-import { Command } from "commander"
-import { runReset } from "./commands/reset"
-import { runCommit } from "./commands/commit"
-import { version, description } from "../package.json"
+import {
+  runCommit,
+  runCommitDry,
+  runCommitMsg,
+  runCommitPush,
+} from "./commands/commit"
 import { runList } from "./commands/list"
+import { runReset } from "./commands/reset"
+import { version, description } from "../package.json"
 
 const program = new Command()
 
-// Set dynamic name based on how it's invoked (pai or pushai)
 const programName = basename(process.argv[1])
 program.name(programName)
 program.description(description)
 program.version(version, "-v, --version", "output the version number")
 
-// Default action (when no subcommand)
-program.action(async () => {
-  const args = process.argv.slice(2)
-  const dryRun = args.includes("--dry-run")
-  const autoPush = args.includes("-p") || args.includes("--push")
-  // find message after -m or --message
-  let userMessage: string | undefined
-  const mIndex = args.findIndex((a) => a === "-m" || a === "--message")
-  if (mIndex !== -1 && args[mIndex + 1]) {
-    userMessage = args[mIndex + 1]
-  }
-  await runCommit(dryRun, autoPush, userMessage)
-})
-
-// Subcommands
 program
-  .command("config")
-  .description("Configure AI providers and API keys")
-  .option(
-    "-p, --provider <provider>",
-    "Set AI provider (gemini, openai, anthropic, e.t.c)"
-  )
-  .option("-m, --model <model>", "Set model ID")
-  .option("-k, --key <apiKey>", "Set API key")
-  .option("--peek", "Show current saved configuration without changing it")
-  .option("-e, --edit", "Open configuration file in default editor")
-  .action(async (options) => {
-    if (options.edit) {
-      await runConfigEdit()
-    } else if (options.peek) {
-      await runConfigPeek()
-    } else if (options.provider || options.model || options.key) {
-      await runConfigSet(options)
-    } else {
-      await runConfig()
-    }
-  })
+  .command("list")
+  .description("browse available providers & models")
+  .action(async () => await runList())
 
 program
   .command("commit")
-  .description("Stage changes, generate a message, and push")
-  .option("--dry-run", "Generate commit message but do not commit or push")
-  .option("-p, --push", "Automatically commit and push without confirmation")
-  .option(
-    "-m, --message <msg>",
-    "Use a custom commit message instead of generating with AI"
-  )
-  .action(async (options) => {
-    const dryRun = options.dryRun || process.argv.includes("--dry-run")
-    const autoPush =
-      options.push ||
-      process.argv.includes("-p") ||
-      process.argv.includes("--push")
-    const userMessage =
-      options.message || process.argv.includes("-m")
-        ? options.message
-        : undefined
+  .description("stage changes, generate a message, and push")
+  .option("-d, --dry", "generate message only, no commit/push")
+  .option("-p, --push", "skip confirmation, commit and push automatically")
+  .option("-m, --msg <message>", "use custom commit message (skip generation)")
+  .action(async (option) => {
+    if (option.dry) return runCommitDry()
+    if (option.push) return runCommitPush()
+    if (option.msg) return runCommitMsg(option.msg)
+    return runCommit()
+  })
 
-    await runCommit(dryRun, autoPush, userMessage)
+program
+  .command("config")
+  .description("configure AI providers and API keys")
+  .option("-k, --key <apiKey>", "save or update your API key")
+  .option("-m, --model <model>", "set model ID directly")
+  .option("-p, --provider <provider>", "set AI provider (e.g. gemini, openai)")
+  .option("-s, --show", "display the current configuration")
+  .option("-e, --edit", "edit the configuration file manually")
+  .action(async (options) => {
+    if (options.edit) return runConfigEdit()
+    if (options.show) return runConfigShow()
+    if (options.provider || options.model || options.key)
+      return runConfigSet(options)
+    return runConfig()
   })
 
 program
   .command("reset")
-  .description("Delete the local config.json file")
-  .option("-y, --yes", "Skip confirmation prompt")
-  .action(async (options) => {
-    const skipConfirm =
-      options.yes ||
-      process.argv.includes("-y") ||
-      process.argv.includes("--yes")
-    await runReset(skipConfirm)
-  })
-
-program
-  .command("list")
-  .description("List available AI providers and their models")
-  .action(async () => await runList())
-
-process.on("SIGINT", () => {
-  console.log(chalk.yellow("Request interrupted."))
-  process.exit(0)
-})
+  .description("clear saved configuration and API keys")
+  .option("-y, --yes", "skip confirmation and delete configuration")
+  .option("-k, --key", "only delete the API key, keep provider/model")
+  .action(async (options) => await runReset(options.yes, options.key))
 
 if (process.argv.length <= 2) {
   console.clear()

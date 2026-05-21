@@ -3,7 +3,7 @@ import { ProviderType } from "../types"
 export type AIProviderType = {
   name: string
   value: ProviderType
-  models: {
+  models?: {
     name: string
     value: string
     hint?: string
@@ -75,7 +75,7 @@ export const aiProviders: AIProviderType[] = [
     ],
   },
   {
-    name: "Anthropic (Claude)",
+    name: "Anthropic Claude",
     value: "anthropic",
     models: [
       {

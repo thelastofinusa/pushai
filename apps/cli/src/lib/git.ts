@@ -1,6 +1,6 @@
 import { simpleGit } from "simple-git"
 
-const git = simpleGit()
+export const git = simpleGit()
 
 export async function prepareGitStage() {
   const isRepo = await git.checkIsRepo()

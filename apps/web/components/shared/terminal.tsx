@@ -6,74 +6,172 @@ import { cn } from "@workspace/ui/lib/utils"
 
 const TREE = new Set(["┌", "│", "└", "├", "╮", "╯", "╭", "╰", "─"])
 
-function renderLine(line: string, i: number) {
-  const chars: React.ReactNode[] = []
+// Mapping from badge text to Tailwind classes
+const badgeStyles: Record<string, { bg: string; icon: string }> = {
+  "PushAI Commit": { bg: "bg-cyan-500", icon: "text-cyan-500" },
+  "PushAI Config": { bg: "bg-cyan-500", icon: "text-cyan-500" },
+  "PushAI Reset": { bg: "bg-red-500", icon: "text-red-500" },
+  "PushAI Explorer": { bg: "bg-fuchsia-500", icon: "text-fuchsia-500" },
+  "Setup Required": { bg: "bg-yellow-500", icon: "text-yellow-500" },
+}
 
+function renderLine(line: string, i: number) {
+  // Special case: commit message preview line (starts with "│ ◆ ")
+  // Example: "│ ◆ refactor(auth): swap JWT for httpOnly cookies"
+  if (line.match(/^│\s+◆\s+/)) {
+    const diamondIndex = line.indexOf("◆")
+    const prefix = line.slice(0, diamondIndex) // includes "│ " and any spaces before ◆
+    const rest = line.slice(diamondIndex) // from "◆" to the end
+    return (
+      <div key={i} className="whitespace-pre">
+        <span className="text-muted-foreground">{prefix}</span>
+        <span className="text-cyan-400">{rest}</span>
+      </div>
+    )
+  }
+
+  // Try to match a badge line: ┌ ● PushAI Reset → Clear saved configuration
+  const badgeMatch = line.match(/^([^●]*)●\s+([^→]+)→\s*(.*)$/)
+  if (badgeMatch) {
+    const [, prefix, badgeTextRaw, rest] = badgeMatch
+    const badgeText = badgeTextRaw?.trim()
+
+    // Only apply badge styling if badgeText exists and is a known badge
+    if (badgeText && badgeStyles[badgeText]) {
+      const styles = badgeStyles[badgeText]
+      const bulletColor = styles.icon
+      const badgeBg = styles.bg
+
+      return (
+        <div key={i} className="whitespace-pre">
+          <span className="text-muted-foreground">{prefix}</span>
+          <span className={bulletColor}>●</span>
+          <span className="text-muted-foreground"> </span>
+          <span
+            className={cn(
+              "px-1.5 py-px text-[11px] font-medium text-black",
+              badgeBg
+            )}
+          >
+            {badgeText}
+          </span>
+          <span className="text-muted-foreground"> </span>
+          <span className="text-muted-foreground">→</span>
+          <span className="text-muted-foreground"> </span>
+          <span className="text-foreground">{rest}</span>
+        </div>
+      )
+    }
+  }
+
+  const chars: React.ReactNode[] = []
   let buf = ""
   let bufClass = ""
 
   const flush = () => {
     if (!buf) return
-
     chars.push(
       <span key={`${i}-${chars.length}`} className={bufClass}>
         {buf}
       </span>
     )
-
     buf = ""
   }
 
-  // Match PushAI badges
-  const badgeRegex = /(PushAI (?:Config|Commit|Reset))/g
+  // Find which badge (if any) is present in the line
+  let matchedBadge: string | null = null
+  let badgeBgClass = "bg-cyan-500" // fallback
+  let badgeIconColor = "text-cyan-400"
 
-  // Split while preserving badge matches
-  const segments = line.split(badgeRegex).filter(Boolean)
-
-  let processed = 0
-
-  for (const segment of segments) {
-    const isBadge = /^PushAI (?:Config|Commit|Reset)$/.test(segment)
-
-    if (isBadge) {
-      flush()
-
-      chars.push(
-        <span
-          key={`${i}-badge-${processed}`}
-          className="bg-cyan-400 px-1.5 py-0.5 text-[11px] font-semibold text-black"
-        >
-          {segment}
-        </span>
-      )
-
-      processed += segment.length
-      continue
+  for (const [text, styles] of Object.entries(badgeStyles)) {
+    // Badge appears as "● BadgeText →" in the line
+    if (line.includes(`● ${text} →`)) {
+      matchedBadge = text
+      badgeBgClass = styles.bg
+      badgeIconColor = styles.icon
+      break
     }
+  }
 
-    for (let j = 0; j < segment.length; j++) {
-      const ch = segment[j] as string
-
+  // If no badge, fallback to simple per‑character rendering (no special badge span)
+  if (!matchedBadge) {
+    for (let j = 0; j < line.length; j++) {
+      const ch = line[j] as string
       let cls = "text-muted-foreground"
 
       if (TREE.has(ch)) cls = "text-muted-foreground"
-      else if (ch === "◇") cls = "text-sky-300"
-      else if (ch === "✔") cls = "text-success"
-      else if (ch === "●") cls = "text-cyan-400"
+      else if (ch === "◇") cls = "text-cyan-500"
+      else if (ch === "◆") cls = "text-cyan-500"
+      else if (ch === "✔") cls = "text-green-500"
+      else if (ch === "●") cls = "text-cyan-500"
       else if (ch === "○") cls = "text-muted-foreground"
-      else if (ch === "$") cls = "text-success"
+      else if (ch === "$") cls = "text-emerald-500"
 
       if (cls !== bufClass) {
         flush()
         bufClass = cls
       }
-
       buf += ch
     }
-
-    processed += segment.length
+    flush()
+    return (
+      <div key={i} className="whitespace-pre">
+        {chars.length ? chars : "\u00A0"}
+      </div>
+    )
   }
 
+  // Line contains a badge – split into three parts: before, badge, after
+  const badgePattern = `● ${matchedBadge} →`
+  const badgeIndex = line.indexOf(badgePattern)
+  const beforeBadge = line.substring(0, badgeIndex)
+  const afterBadge = line.substring(badgeIndex + badgePattern.length)
+
+  // Render part before badge (usually just "●" and maybe a space)
+  for (let j = 0; j < beforeBadge.length; j++) {
+    const ch = beforeBadge[j] as string
+    let cls = "text-muted-foreground"
+    if (ch === "●") cls = badgeIconColor
+    else if (TREE.has(ch)) cls = "text-muted-foreground"
+
+    if (cls !== bufClass) {
+      flush()
+      bufClass = cls
+    }
+    buf += ch
+  }
+  flush()
+
+  // Render badge span
+  chars.push(
+    <span
+      key={`${i}-badge`}
+      className={`${badgeBgClass} px-1.5 py-0.5 text-[11px] font-semibold text-black`}
+    >
+      {matchedBadge}
+    </span>
+  )
+
+  // Render the arrow and the rest of the line
+  for (let j = 0; j < afterBadge.length; j++) {
+    const ch = afterBadge[j] as string
+    let cls = "text-muted-foreground"
+
+    if (TREE.has(ch)) cls = "text-muted-foreground"
+    else if (ch === "→") cls = badgeIconColor
+    else if (ch === "◇") cls = "text-cyan-400"
+    else if (ch === "◆") cls = "text-cyan-300"
+    else if (ch === "✔") cls = "text-green-400"
+    else if (ch === "●") cls = badgeIconColor
+    else if (ch === "○") cls = "text-muted-foreground"
+    else if (ch === "$") cls = "text-emerald-400"
+
+    if (cls !== bufClass) {
+      flush()
+      bufClass = cls
+    }
+    buf += ch
+  }
   flush()
 
   return (
@@ -178,7 +276,7 @@ export const Terminal = ({
 
       <div className="min-h-36 p-4 font-mono text-[11px] leading-[1.55] sm:p-5 sm:text-xs">
         <div className="mb-3 whitespace-pre text-foreground">
-          <span className="text-emerald-400">$ </span>
+          <span className="text-green-500">$ </span>
           {typed}
           <motion.span
             animate={{ opacity: [0, 1, 0] }}

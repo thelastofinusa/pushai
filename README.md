@@ -83,28 +83,41 @@ PushAI will:
 
 ## Commands
 
-| Command         | Description                                                |
-| --------------- | ---------------------------------------------------------- |
-| `pai commit`    | Stage, generate, approve, commit, and push.                |
-| `pai config`    | Interactive setup (provider, API key, model).              |
-| `pai reset`     | Delete all configuration and API keys (with confirmation). |
-| `pai list`      | List all available AI providers and their models.          |
-| `pai --version` | Show version.                                              |
-| `pai --help`    | Show help.                                                 |
+| Command         | Description                                 |
+| --------------- | ------------------------------------------- |
+| `pai commit`    | stage changes, generate a message, and push |
+| `pai config`    | configure AI providers and API keys         |
+| `pai list`      | browse available providers & models         |
+| `pai reset`     | clear saved configuration and API keys      |
+| `pai --version` | output the version number                   |
+| `pai --help`    | display help for command                    |
 
 ### Flags
 
-| Flag                     | Applies to | Description                                                     |
-| ------------------------ | ---------- | --------------------------------------------------------------- |
-| `--yes` / `-y`           | `reset`    | Skip confirmation, delete configuration without asking.         |
-| `--dry-run`              | `commit`   | Preview message – no commit or push.                            |
-| `--push` / `-p`          | `commit`   | Skip approval, commit and push immediately.                     |
-| `-m` / `--message <msg>` | `commit`   | Use a custom commit message (skips AI generation).              |
-| `-e` / `--edit`          | `config`   | Open configuration file in default editor.                      |
-| `--provider <name>`      | `config`   | Set the AI provider (e.g., `gemini`, `openai`).                 |
-| `--model <id>`           | `config`   | Set the model ID directly.                                      |
-| `--key <apiKey>`         | `config`   | Set the API key directly (non‑interactive).                     |
-| `--peek`                 | `config`   | Show current saved configuration (provider, model, masked key). |
+**commit**
+
+| Flag                    | Description                                      |
+| ----------------------- | ------------------------------------------------ |
+| `-d`, `--dry`           | generate message only, no commit/push            |
+| `-p`, `--push`          | skip confirmation, commit and push automatically |
+| `-m`, `--msg <message>` | use custom commit message (skip generation)      |
+
+**config**
+
+| Flag                      | Description                               |
+| ------------------------- | ----------------------------------------- |
+| `-e`, `--edit`            | edit the configuration file manually      |
+| `-p`, `--provider <name>` | set AI provider (e.g. `gemini`, `openai`) |
+| `-m`, `--model <model>`   | set model ID directly                     |
+| `-k`, `--key <apiKey>`    | save or update your API key               |
+| `-s`, `--show`            | display the current configuration         |
+
+**reset**
+
+| Flag          | Description                                  |
+| ------------- | -------------------------------------------- |
+| `-y`, `--yes` | skip confirmation and delete configuration   |
+| `-k`, `--key` | only delete the API key, keep provider/model |
 
 ## Configuration
 
@@ -115,7 +128,7 @@ You can configure PushAI in several ways:
 - **Interactive wizard** – `pai config` (recommended for first‑time setup).
 - **Non‑interactive flags** – set provider, model, or API key directly:
   `pai config --provider openai --model gpt-4o-mini --key "sk-..."`
-- **View current config** – `pai config --peek`
+- **View current config** – `pai config --show`
 - **List all available providers/models** – `pai list`
 
 Example `config.json`:

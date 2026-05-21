@@ -2,19 +2,28 @@
 "use client"
 
 import { siteConfig } from "@/config/site.config"
-import Image from "next/image"
 import Link from "next/link"
 import { useEffect, useState } from "react"
+import { useTheme } from "next-themes"
 
 export const Footer = () => {
   const [version, setVersion] = useState("0.0.0")
+  const [mounted, setMounted] = useState(false)
+
+  const { resolvedTheme } = useTheme()
 
   useEffect(() => {
+    setMounted(true)
+
     fetch("/api/version")
       .then((res) => res.json())
       .then((data) => setVersion(data))
       .catch(() => setVersion("0.0.0"))
   }, [])
+
+  const theme = mounted ? resolvedTheme : "light"
+
+  const badgeSrc = `https://api.producthunt.com/widgets/embed-image/v1/product_review.svg?product_id=1227466&theme=${theme}`
 
   return (
     <footer className="py-12">
@@ -43,24 +52,17 @@ export const Footer = () => {
         </div>
 
         <a
-          href="https://www.producthunt.com/products/pushai?utm_source=badge-follow&utm_medium=badge&utm_source=badge-pushai"
+          href="https://www.producthunt.com/products/pushai"
           target="_blank"
           rel="noopener noreferrer"
           className="transition-opacity hover:opacity-90"
         >
           <img
-            src="https://api.producthunt.com/widgets/embed-image/v1/product_review.svg?product_id=1227466&theme=light"
-            alt="PushAI - Ship&#0032;commits&#0032;at&#0032;the&#0032;speed&#0032;of&#0032;thought&#0046; | Product Hunt"
-            className="h-[50px] w-[200px] dark:hidden"
-            width="200"
-            height="50"
-          />
-          <img
-            src="https://api.producthunt.com/widgets/embed-image/v1/product_review.svg?product_id=1227466&theme=dark"
-            alt="PushAI - Ship&#0032;commits&#0032;at&#0032;the&#0032;speed&#0032;of&#0032;thought&#0046; | Product Hunt"
-            className="hidden h-[50px] w-[200px] dark:block"
-            width="200"
-            height="50"
+            src={badgeSrc}
+            alt="PushAI on Product Hunt"
+            width={200}
+            height={50}
+            className="h-[50px] w-[200px]"
           />
         </a>
       </div>

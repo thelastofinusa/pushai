@@ -1,9 +1,7 @@
-import { ApiError, GoogleGenAI } from "@google/genai"
+import { GoogleGenAI } from "@google/genai"
 import { BaseProvider } from "../base"
-import {
-  SYSTEM_COMMIT_PROMPT,
-  USER_COMMIT_PROMPT,
-} from "../../constants/prompt"
+import { SYSTEM_COMMIT_PROMPT, USER_COMMIT_PROMPT } from "../../lib/prompt"
+import { cleanCommitMessage, getReadableError } from "../../lib/utils"
 
 export class GeminiProvider extends BaseProvider {
   private ai: GoogleGenAI
@@ -31,15 +29,15 @@ export class GeminiProvider extends BaseProvider {
       })
 
       const text = response.text?.trim() || ""
+      const cleaned = cleanCommitMessage(text)
 
-      const isValid = /^[a-z]+(\([a-z0-9-]+\))?: .+/.test(text)
+      const isValid = /^[a-z]+(\([a-z0-9-]+\))?: .+/.test(cleaned)
       if (!isValid) throw new Error("Invalid commit message generated")
 
-      return text
+      return cleaned
     } catch (error: any) {
-      if (error instanceof ApiError)
-        throw new Error(`Gemini error (${error.status}): ${error.message}`)
-      throw error
+      console.log(error)
+      throw new Error(getReadableError(error))
     }
   }
 }

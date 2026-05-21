@@ -1,14 +1,7 @@
-import Anthropic, {
-  APIConnectionError,
-  APIError,
-  AuthenticationError,
-  RateLimitError,
-} from "@anthropic-ai/sdk"
+import Anthropic from "@anthropic-ai/sdk"
 import { BaseProvider } from "../base"
-import {
-  SYSTEM_COMMIT_PROMPT,
-  USER_COMMIT_PROMPT,
-} from "../../constants/prompt"
+import { SYSTEM_COMMIT_PROMPT, USER_COMMIT_PROMPT } from "../../lib/prompt"
+import { cleanCommitMessage, getReadableError } from "../../lib/utils"
 
 export class AnthropicProvider extends BaseProvider {
   private client: Anthropic
@@ -36,23 +29,14 @@ export class AnthropicProvider extends BaseProvider {
 
       const text =
         response.content[0]?.type === "text" ? response.content[0].text : ""
-      const cleaned = text.trim().replace(/['"]/g, "")
+      const cleaned = cleanCommitMessage(text)
 
       const isValid = /^[a-z]+(\([a-z0-9-]+\))?: .+/.test(cleaned)
       if (!isValid) throw new Error("Invalid commit message generated")
 
       return cleaned
     } catch (error: any) {
-      if (error instanceof AuthenticationError) {
-        throw new Error(`Anthropic authentication failed: ${error.message}`)
-      } else if (error instanceof RateLimitError) {
-        throw new Error(`Anthropic rate limit: ${error.message}`)
-      } else if (error instanceof APIConnectionError) {
-        throw new Error(`Anthropic connection error: ${error.message}`)
-      } else if (error instanceof APIError) {
-        throw new Error(`Anthropic error (${error.status}): ${error.message}`)
-      }
-      throw error
+      throw new Error(getReadableError(error))
     }
   }
 }

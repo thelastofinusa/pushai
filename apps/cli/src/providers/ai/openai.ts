@@ -1,10 +1,7 @@
 import OpenAI from "openai"
-import { AuthenticationError, RateLimitError, APIError } from "openai"
 import { BaseProvider } from "../base"
-import {
-  SYSTEM_COMMIT_PROMPT,
-  USER_COMMIT_PROMPT,
-} from "../../constants/prompt"
+import { SYSTEM_COMMIT_PROMPT, USER_COMMIT_PROMPT } from "../../lib/prompt"
+import { cleanCommitMessage, getReadableError } from "../../lib/utils"
 
 export class OpenAIProvider extends BaseProvider {
   async generateCommitMessage(
@@ -21,22 +18,14 @@ export class OpenAIProvider extends BaseProvider {
           { role: "system", content: SYSTEM_COMMIT_PROMPT },
           { role: "user", content: USER_COMMIT_PROMPT(diff, regenerate) },
         ],
-        temperature: regenerate ? 0.8 : 0.7,
+        temperature: regenerate ? 0.8 : 0.2,
         max_tokens: 100,
       })
 
-      return (
-        response.choices[0]?.message.content?.trim().replace(/['"]/g, "") || ""
-      )
+      const content = response.choices[0]?.message.content || ""
+      return cleanCommitMessage(content)
     } catch (error: any) {
-      if (error instanceof AuthenticationError) {
-        throw new Error(`OpenAI authentication failed: ${error.message}`)
-      } else if (error instanceof RateLimitError) {
-        throw new Error(`OpenAI rate limit: ${error.message}`)
-      } else if (error instanceof APIError) {
-        throw new Error(`OpenAI error (${error.status}): ${error.message}`)
-      }
-      throw error
+      throw new Error(getReadableError(error))
     }
   }
 }
