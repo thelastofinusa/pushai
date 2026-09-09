@@ -1,0 +1,13 @@
+{
+  "name": "pushai-monorepo",
+  "private": "true",
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.2",
+    "@types/bun": "latest"
+  }
+}
