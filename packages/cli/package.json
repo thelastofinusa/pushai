@@ -1,0 +1,16 @@
+{
+  "name": "pushai",
+  "version": "0.0.1",
+  "description": "AI Git assistant",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "chalk": "^6.0.0",
+    "commander": "^15.0.0",
+    "inquirer": "^14.2.2",
+    "ora": "^9.4.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.2"
+  }
+}

@@ -1,0 +1,213 @@
+import * as fs from "node:fs";
+import * as path from "node:path";
+import chalk from "chalk";
+import { Command } from "commander";
+import inquirer from "inquirer";
+import ora from "ora";
+
+const program = new Command();
+const CONFIG_PATH = path.join(process.cwd(), "simulated-config.json");
+
+interface Config {
+  mode: "cloud" | "byok" | "local";
+  apiKey?: string;
+  model: string;
+}
+
+// Safe prompt wrapper to catch Ctrl+C / ExitPromptError gracefully
+async function prompt<T>(questions: any): Promise<T> {
+  try {
+    return (await inquirer.prompt(questions)) as T;
+  } catch (error: any) {
+    if (
+      error.name === "ExitPromptError" ||
+      error.message?.includes("force closed")
+    ) {
+      console.log(chalk.yellow("\nOperation cancelled."));
+      process.exit(0);
+    }
+    throw error;
+  }
+}
+
+function loadConfig(): Config | null {
+  if (fs.existsSync(CONFIG_PATH)) {
+    return JSON.parse(fs.readFileSync(CONFIG_PATH, "utf-8"));
+  }
+  return null;
+}
+
+function saveConfig(config: Config) {
+  fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2));
+}
+
+async function runSetupWizard() {
+  console.log(chalk.bold("\nPushAI Setup\n"));
+
+  const { mode } = await prompt<{ mode: "cloud" | "byok" | "local" }>([
+    {
+      type: "select",
+      name: "mode",
+      message: "Select execution mode:",
+      choices: [
+        { name: "Managed Cloud", value: "cloud" },
+        { name: "BYOK (Bring Your Own Key)", value: "byok" },
+        { name: "Local AI (Ollama)", value: "local" },
+      ],
+    },
+  ]);
+
+  const config: Config = { mode, model: "" };
+
+  if (mode === "cloud") {
+    const { token } = await prompt<{ token: string }>([
+      {
+        type: "password",
+        name: "token",
+        message: "Enter session token:",
+        mask: "*",
+      },
+    ]);
+    config.apiKey = token;
+    config.model = "pushai-managed-standard";
+
+    const spinner = ora("Validating token...").start();
+    await new Promise((r) => setTimeout(r, 900));
+    spinner.succeed("Token valid");
+  } else if (mode === "byok") {
+    const { provider, key } = await prompt<{ provider: string; key: string }>([
+      {
+        type: "select",
+        name: "provider",
+        message: "Select Provider:",
+        choices: ["OpenAI", "Anthropic", "Groq"],
+      },
+      {
+        type: "password",
+        name: "key",
+        message: "Enter API Key:",
+        mask: "*",
+      },
+    ]);
+    config.apiKey = key;
+    config.model = provider === "OpenAI" ? "gpt-4o-mini" : "claude-3-5-sonnet";
+
+    const spinner = ora("Validating key...").start();
+    await new Promise((r) => setTimeout(r, 900));
+    spinner.succeed("Key valid");
+  } else if (mode === "local") {
+    const spinner = ora("Connecting to Ollama...").start();
+    await new Promise((r) => setTimeout(r, 900));
+    spinner.succeed("Ollama detected");
+
+    console.log(chalk.dim("\nRecommended Models:"));
+    console.log(chalk.gray("  • deepseek-coder:1.3b (Small)"));
+    console.log(chalk.gray("  • qwen2.5-coder:7b    (Medium / Recommended)"));
+    console.log(chalk.gray("  • qwen3-coder:30b     (Large)"));
+    console.log(
+      chalk.cyan("\nInstall via terminal: ollama pull qwen2.5-coder:7b\n"),
+    );
+
+    const { selectedModel } = await prompt<{ selectedModel: string }>([
+      {
+        type: "input",
+        name: "selectedModel",
+        message: "Model name:",
+        default: "qwen2.5-coder:7b",
+      },
+    ]);
+    config.model = selectedModel;
+  }
+
+  const spinner = ora("Saving configuration...").start();
+  saveConfig(config);
+  await new Promise((r) => setTimeout(r, 500));
+  spinner.succeed("Setup completed successfully.");
+  console.log();
+}
+
+program.name("pai").description("AI Git assistant").version("1.0.0");
+
+program.command("setup").description("Run setup wizard").action(runSetupWizard);
+
+program
+  .command("config")
+  .description("View current configuration")
+  .action(async () => {
+    const spinner = ora("Reading configuration...").start();
+    await new Promise((r) => setTimeout(r, 400));
+    const config = loadConfig();
+
+    if (config) {
+      spinner.succeed("Current configuration loaded.");
+      console.log(chalk.gray(`  • Mode:  ${config.mode}`));
+      console.log(chalk.gray(`  • Model: ${config.model}`));
+      if (config.apiKey) {
+        console.log(chalk.gray(`  • Key:   configured (hidden)`));
+      }
+    } else {
+      spinner.fail('No configuration found. Run "pai setup" to get started.');
+    }
+  });
+
+program
+  .command("reset")
+  .description("Delete local configuration")
+  .action(async () => {
+    const spinner = ora("Checking configuration...").start();
+    if (fs.existsSync(CONFIG_PATH)) {
+      await new Promise((r) => setTimeout(r, 600));
+      fs.unlinkSync(CONFIG_PATH);
+      spinner.succeed("Configuration reset successfully.");
+    } else {
+      spinner.fail("No configuration file found.");
+    }
+  });
+
+program
+  .command("commit")
+  .description("Generate AI commit and push")
+  .action(async () => {
+    let config = loadConfig();
+    if (!config) {
+      ora().warn("Config missing. Running setup...");
+      console.log();
+      await runSetupWizard();
+      config = loadConfig()!;
+    }
+
+    let spinner = ora("Analyzing diff...").start();
+    await new Promise((r) => setTimeout(r, 800));
+    spinner.succeed("Diff analyzed");
+
+    spinner = ora(`Generating commit (${config.model})...`).start();
+    await new Promise((r) => setTimeout(r, 900));
+    spinner.succeed("Commit generated");
+
+    console.log(
+      chalk.blueBright("\n  feat(auth): integrate local model config\n"),
+    );
+
+    const { confirm } = await prompt<{ confirm: boolean }>([
+      {
+        type: "confirm",
+        name: "confirm",
+        message: "Proceed to push?",
+        default: true,
+      },
+    ]);
+
+    if (confirm) {
+      spinner = ora("Pushing changes...").start();
+      await new Promise((r) => setTimeout(r, 900));
+      spinner.succeed("Successfully pushed changes!");
+    } else {
+      ora().fail("Commit cancelled.");
+    }
+  });
+
+program.parse(process.argv);
+
+if (!process.argv.slice(2).length) {
+  program.outputHelp();
+}

@@ -6,16 +6,7 @@
     "useIgnoreFile": true
   },
   "files": {
-    "ignoreUnknown": true,
-    "includes": [
-      "**",
-      "!node_modules",
-      ".vscode/**/*",
-      "!.next",
-      "!dist",
-      "!build",
-      "!/src/app/globals.css"
-    ]
+    "ignoreUnknown": true
   },
   "formatter": {
     "enabled": true,

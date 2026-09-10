@@ -6,6 +6,9 @@
     "packages/*",
     "apps/*"
   ],
+  "scripts": {
+    "dev:cli": "bun run packages/cli/src/index.ts"
+  },
   "devDependencies": {
     "@biomejs/biome": "^2.4.2",
     "@types/bun": "latest"
