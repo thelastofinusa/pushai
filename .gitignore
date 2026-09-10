@@ -7,3 +7,4 @@ dist/
 *.log
 bun.lock
 simulation.txt
+pack.md

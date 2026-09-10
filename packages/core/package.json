@@ -1,5 +1,14 @@
 {
   "name": "@pushai/core",
   "version": "0.0.1",
-  "type": "module"
+  "type": "module",
+  "main": "./src/index.ts",
+  "module": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "simple-git": "^3.36.0",
+    "zod": "^4.6.1"
+  }
 }
