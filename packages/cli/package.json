@@ -5,6 +5,7 @@
   "private": true,
   "type": "module",
   "dependencies": {
+    "@pushai/core": "workspace:*",
     "chalk": "^6.0.0",
     "commander": "^15.0.0",
     "inquirer": "^14.2.2",
