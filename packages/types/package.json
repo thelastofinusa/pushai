@@ -1,0 +1,31 @@
+{
+  "name": "@pushai/types",
+  "version": "0.0.1",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "lint": "biome check .",
+    "clean": "rm -rf .turbo dist node_modules"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "@pushai/tsconfig": "workspace:*",
+    "@types/bun": "latest",
+    "@types/node": "^22.20.2"
+  }
+}

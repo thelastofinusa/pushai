@@ -4,14 +4,26 @@
   "description": "AI Git assistant",
   "private": true,
   "type": "module",
+  "bin": {
+    "pai": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "bun run ./src/index.ts",
+    "lint": "biome check .",
+    "clean": "rm -rf .turbo dist node_modules"
+  },
   "dependencies": {
-    "@pushai/core": "workspace:*",
+    "@pushai/types": "workspace:*",
     "chalk": "^6.0.0",
     "commander": "^15.0.0",
     "inquirer": "^14.2.2",
     "ora": "^9.4.1"
   },
   "devDependencies": {
-    "@types/node": "^22.20.2"
+    "@pushai/tsconfig": "workspace:*",
+    "@types/bun": "latest",
+    "@types/node": "^22.20.2",
+    "tsup": "^8.5.1"
   }
 }
