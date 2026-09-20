@@ -1,29 +1,47 @@
 import type { SetupMode } from "@pushai/types";
+import { cancellation } from "@pushai/utils";
 import chalk from "chalk";
 import type { Command } from "commander";
-import { prompt } from "../utils/prompt";
+import inquirer from "inquirer";
 
-async function action() {
-  console.log(chalk.bold("\nPushAI Setup\n"));
+async function action(title: string) {
+  console.log(chalk.bold(title));
 
-  const { mode } = await prompt<{ mode: SetupMode }>([
+  const { mode } = await inquirer.prompt<{ mode: SetupMode }>([
     {
       type: "select",
       name: "mode",
-      message: "Select execution mode:",
+      message: "How should we power your commit messages?",
       choices: [
-        { name: "Managed Cloud", value: "cloud" },
-        { name: "BYOK (Bring Your Own Key)", value: "byok" },
-        { name: "Local AI (Ollama)", value: "local" },
+        {
+          name: "PushAI Cloud",
+          value: "cloud",
+          description: "Managed AI service with no API key required",
+          disabled: "Cloud support coming soon",
+        },
+        {
+          name: "Custom API Key",
+          value: "byok",
+          description: "Use your own API key from a supported provider",
+          disabled: "Custom providers coming soon",
+        },
+        {
+          name: "Local AI",
+          value: "local",
+          description: "Run models locally with Ollama, including offline",
+        },
       ],
     },
   ]);
 
-  console.log(mode);
+  console.log({ mode });
 }
 
 export const setupCommand = {
   register(program: Command) {
-    program.command("setup").description("Run setup wizard").action(action);
+    program
+      .command("setup")
+      .description("Run setup wizard")
+      .action(cancellation(async () => action("\nPushAI Setup\n")));
   },
 };

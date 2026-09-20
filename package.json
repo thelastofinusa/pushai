@@ -7,6 +7,7 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
+    "dev:watch": "turbo run dev:watch",
     "dev:cli": "bun run packages/cli/src/index.ts",
     "lint": "turbo run lint",
     "clean": "turbo run clean && rm -rf .turbo node_modules && bun install",

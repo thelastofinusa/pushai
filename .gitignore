@@ -7,3 +7,4 @@ dist/
 *.log
 bun.lock
 .turbo
+packages/cli/src/structure.ts

@@ -1,5 +1,5 @@
 {
-  "name": "@pushai/types",
+  "name": "@pushai/utils",
   "version": "0.0.1",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -22,6 +22,12 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "dependencies": {
+    "@pushai/types": "workspace:*",
+    "chalk": "^6.0.0",
+    "keytar": "^7.9.0",
+    "ora": "^9.4.1"
   },
   "devDependencies": {
     "@pushai/tsconfig": "workspace:*",
