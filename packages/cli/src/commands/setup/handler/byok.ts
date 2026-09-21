@@ -30,15 +30,17 @@ export async function handleByokMode(
       mask: "*",
     });
 
-    spinner.start(`Checking ${provider.name} API key...`);
+    spinner.start(`Validating ${chalk.green(provider.name)} API key..`);
 
     try {
       models = await provider.getModels(apiKey);
 
-      spinner.succeed(`${provider.name} API key is valid`);
+      spinner.succeed(
+        `Successfully validated ${chalk.green(provider.name)} API key`,
+      );
       break;
     } catch (error) {
-      spinner.fail(`Could not authenticate with ${provider.name}`);
+      spinner.fail(`Could not authenticate with ${chalk.red(provider.name)}`);
 
       if (error instanceof Error) {
         console.log(chalk.yellow(error.message));

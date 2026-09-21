@@ -1,5 +1,5 @@
 import { select } from "@inquirer/prompts";
-import { getOllamaInfo, type getPackageManager, sleep } from "@pushai/utils";
+import { getOllamaInfo, type getPackageManager } from "@pushai/utils";
 import chalk from "chalk";
 import type ora from "ora";
 import { showNoModels, showOllamaNotInstalled } from "../../../lib/messages";
@@ -11,7 +11,6 @@ export async function handleLocalMode(
   command: string,
 ): Promise<string> {
   spinner.start("Verifying Ollama installation..");
-  await sleep();
 
   const ollama = await getOllamaInfo();
 
@@ -24,7 +23,6 @@ export async function handleLocalMode(
   spinner.succeed(`Ollama ${chalk.bold(`v${ollama.version}`)} detected`);
 
   spinner.start("Finding local models..");
-  await sleep();
 
   if (!ollama.models.length) {
     spinner.warn(chalk.yellow("No local models found"));

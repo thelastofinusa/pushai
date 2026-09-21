@@ -21,23 +21,18 @@ async function action(title: string, name: string, command: string) {
       {
         name: "PushAI Managed AI",
         value: "cloud",
-        description: chalk.bgGreen(
-          " Use PushAI's managed AI — authentication required ",
-        ),
+        description: "Use PushAI's managed AI — authentication required",
+        disabled: "(coming soon)",
       },
       {
         name: "Bring Your Own API Key",
         value: "byok",
-        description: chalk.bgGreen(
-          " Connect your own API key from supported providers ",
-        ),
+        description: "Connect your own API key from supported providers",
       },
       {
         name: "Run AI Locally",
         value: "local",
-        description: chalk.bgGreen(
-          " Run AI on your machine — Ollama required ",
-        ),
+        description: "Run AI on your machine — Ollama required",
       },
     ],
   });
@@ -70,10 +65,9 @@ async function action(title: string, name: string, command: string) {
   }
 
   console.log();
-  spinner.start(`Saving ${config.mode} configuration..`);
-  await sleep(400);
+  spinner.start(`Setting up ${chalk.gray(config.mode)} configuration..`);
+  await sleep();
   spinner.succeed("Setup wizard completed successfully.");
-  console.log();
 }
 
 export const setupCommand = {
