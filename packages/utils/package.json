@@ -24,10 +24,13 @@
     "access": "public"
   },
   "dependencies": {
+    "@types/which-pm-runs": "^1.0.2",
     "@pushai/types": "workspace:*",
     "chalk": "^6.0.0",
     "keytar": "^7.9.0",
-    "ora": "^9.4.1"
+    "ollama": "^0.6.3",
+    "ora": "^9.4.1",
+    "which-pm-runs": "^2.0.0"
   },
   "devDependencies": {
     "@pushai/tsconfig": "workspace:*",

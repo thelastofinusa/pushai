@@ -1,6 +1,6 @@
 import { Command } from "commander";
 import { description, name, version } from "../package.json";
-import { setupCommand } from "./commands/setup.command";
+import { setupCommand } from "./commands/setup";
 
 const program = new Command();
 
