@@ -31,3 +31,17 @@ ${muted("Then install it with:")}
 ${muted("Once the model is installed, run:")} ${chalk.bold(run)}
 `);
 }
+
+export function showConfiguration(config: {
+  mode: string;
+  provider?: string;
+  model?: string;
+  apiKey?: string;
+}) {
+  console.log(`
+${chalk.bold("Current PushAI configuration:")}
+
+${muted("Mode:")}     ${chalk.bold(config.mode)}
+${config.provider ? `${muted("Provider:")} ${chalk.bold(config.provider)}\n` : ""}${config.model ? `${muted("Model:")}    ${chalk.bold(config.model)}\n` : ""}${config.apiKey ? `${muted("API Key:")}  ${chalk.green("configured")}` : ""}
+`);
+}

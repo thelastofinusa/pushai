@@ -1,8 +1,8 @@
 import { confirm, password, search, select } from "@inquirer/prompts";
+import { providers } from "@pushai/core";
 import type { AIModel } from "@pushai/types";
 import chalk from "chalk";
 import type { Ora } from "ora";
-import { providers } from "../../../providers";
 
 export async function handleByokMode(
   spinner: Ora,

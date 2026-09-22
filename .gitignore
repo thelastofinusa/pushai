@@ -8,3 +8,4 @@ dist/
 bun.lock
 .turbo
 packages/cli/src/structure.ts
+pack.md

@@ -1,8 +1,9 @@
 import { select } from "@inquirer/prompts";
-import { getOllamaInfo, type getPackageManager } from "@pushai/utils";
+import { ollamaProvider } from "@pushai/core";
+import type { getPackageManager } from "@pushai/utils";
 import chalk from "chalk";
 import type ora from "ora";
-import { showNoModels, showOllamaNotInstalled } from "../../../lib/messages";
+import { showNoModels, showOllamaNotInstalled } from "../lib/messages";
 
 export async function handleLocalMode(
   spinner: ReturnType<typeof ora>,
@@ -12,7 +13,7 @@ export async function handleLocalMode(
 ): Promise<string> {
   spinner.start("Verifying Ollama installation..");
 
-  const ollama = await getOllamaInfo();
+  const ollama = await ollamaProvider();
 
   if (!ollama.installed) {
     spinner.fail(chalk.red("Ollama is not installed."));

@@ -1,11 +1,12 @@
 import { select } from "@inquirer/prompts";
+import { setStoredConfig } from "@pushai/core";
 import type { SetupConfig, SetupMode } from "@pushai/types";
-import { cancellation, getPackageManager, sleep } from "@pushai/utils";
+import { cancellation, getPackageManager } from "@pushai/utils";
 import chalk from "chalk";
 import type { Command } from "commander";
 import ora from "ora";
-import { handleByokMode } from "./handler/byok";
-import { handleLocalMode } from "./handler/local";
+import { handleByokMode } from "../handlers/byok.handler";
+import { handleLocalMode } from "../handlers/local.handler";
 
 async function action(title: string, name: string, command: string) {
   console.log();
@@ -66,15 +67,28 @@ async function action(title: string, name: string, command: string) {
 
   console.log();
   spinner.start(`Setting up ${chalk.gray(config.mode)} configuration..`);
-  await sleep();
-  spinner.succeed("Setup wizard completed successfully.");
+
+  try {
+    await setStoredConfig(config);
+    spinner.succeed("Setup wizard completed successfully.");
+  } catch (error) {
+    spinner.fail("Failed to save configuration.");
+    console.error(
+      chalk.red(error instanceof Error ? error.message : "Unknown error"),
+    );
+    process.exit(1);
+  }
 }
 
 export const setupCommand = {
   register(program: Command) {
     program
       .command("setup")
-      .description("Run setup wizard")
-      .action(cancellation(() => action("PushAI Setup", "pushai", "setup")));
+      .description("Run PushAI setup wizard")
+      .action(
+        cancellation(() =>
+          action("Run PushAI setup wizard", "pushai", "setup"),
+        ),
+      );
   },
 };

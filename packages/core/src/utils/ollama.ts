@@ -1,4 +1,4 @@
-import { execFile } from "node:child_process";
+import { execFile, spawn } from "node:child_process";
 import { promisify } from "node:util";
 import { Ollama } from "ollama";
 
@@ -32,50 +32,26 @@ async function ping(timeoutMs = 500): Promise<boolean> {
   }
 }
 
-export async function getOllamaInfo(): Promise<OllamaInfo> {
-  let installed = false;
-  let version: string | undefined;
-
+async function startOllama(): Promise<boolean> {
   try {
-    const { stdout, stderr } = await execFileAsync("ollama", ["-v"]);
+    const child = spawn("ollama", ["serve"], {
+      detached: true,
+      stdio: "ignore",
+    });
 
-    installed = true;
-    version = `${stdout}${stderr}`.match(/(\d+\.\d+\.\d+)/)?.[1];
+    child.unref();
+
+    for (let i = 0; i < 20; i++) {
+      if (await ping(500)) {
+        return true;
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, 250));
+    }
+
+    return false;
   } catch {
-    return {
-      installed: false,
-      running: false,
-      models: [],
-    };
-  }
-
-  const running = await ping();
-
-  if (!running) {
-    return {
-      installed,
-      running: false,
-      version,
-      models: [],
-    };
-  }
-
-  try {
-    const { models } = await ollama.list();
-
-    return {
-      installed,
-      running: true,
-      version,
-      models: models.map((model) => model.name),
-    };
-  } catch {
-    return {
-      installed,
-      running: true,
-      version,
-      models: [],
-    };
+    return false;
   }
 }
 
@@ -95,5 +71,54 @@ export async function ensureModel(
       const pct = Math.round((part.completed / part.total) * 100);
       onProgress?.(pct);
     }
+  }
+}
+
+export async function ollamaProvider(): Promise<OllamaInfo> {
+  let version: string | undefined;
+
+  try {
+    const { stdout, stderr } = await execFileAsync("ollama", ["-v"]);
+
+    version = `${stdout}${stderr}`.match(/(\d+\.\d+\.\d+)/)?.[1];
+  } catch {
+    return {
+      installed: false,
+      running: false,
+      models: [],
+    };
+  }
+
+  let running = await ping();
+
+  if (!running) {
+    running = await startOllama();
+  }
+
+  if (!running) {
+    return {
+      installed: true,
+      running: false,
+      version,
+      models: [],
+    };
+  }
+
+  try {
+    const { models } = await ollama.list();
+
+    return {
+      installed: true,
+      running: true,
+      version,
+      models: models.map((model) => model.name),
+    };
+  } catch {
+    return {
+      installed: true,
+      running: true,
+      version,
+      models: [],
+    };
   }
 }

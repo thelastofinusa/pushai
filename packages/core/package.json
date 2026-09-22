@@ -1,38 +1,23 @@
 {
-  "name": "@pushai/utils",
+  "name": "@pushai/core",
   "version": "0.0.1",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.js"
-    }
-  },
-  "files": [
-    "dist"
-  ],
   "scripts": {
     "build": "tsc",
     "dev:watch": "tsc --watch",
     "lint": "biome check .",
     "clean": "rm -rf .turbo dist node_modules"
   },
-  "publishConfig": {
-    "access": "public"
-  },
   "dependencies": {
-    "@types/which-pm-runs": "^1.0.2",
     "@pushai/types": "workspace:*",
-    "chalk": "^6.0.0",
-    "ora": "^9.4.1",
-    "which-pm-runs": "^2.0.0"
+    "@pushai/utils": "workspace:*",
+    "keytar": "^7.9.0",
+    "ollama": "^0.6.3"
   },
   "devDependencies": {
     "@pushai/tsconfig": "workspace:*",
-    "@types/bun": "latest",
     "@types/node": "^22.20.2"
   }
 }
