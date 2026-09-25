@@ -1,63 +1,63 @@
-"use client"
+"use client";
 
-import { Separator } from "@pushai/ui/components/separator"
-import { siteConfig } from "@/config/site.config"
-import { imagePath } from "@typest/nextjs"
-import { Button, buttonVariants } from "@pushai/ui/components/button"
-import { Route } from "next"
-import { useTheme } from "next-themes"
-import Image from "next/image"
-import Link from "next/link"
-import { useEffect, useMemo, useState } from "react"
-import { FiMoon } from "react-icons/fi"
-import { IoIosGitCommit } from "react-icons/io"
-import { MdOutlineWbSunny } from "react-icons/md"
-import { SiNpm } from "react-icons/si"
+import { Button, buttonVariants } from "@pushai/ui/components/button";
+import { Separator } from "@pushai/ui/components/separator";
+import { imagePath } from "@typest/nextjs";
+import type { Route } from "next";
+import Image from "next/image";
+import Link from "next/link";
+import { useTheme } from "next-themes";
+import { useEffect, useMemo, useState } from "react";
+import { FiMoon } from "react-icons/fi";
+import { IoIosGitCommit } from "react-icons/io";
+import { MdOutlineWbSunny } from "react-icons/md";
+import { SiNpm } from "react-icons/si";
+import { siteConfig } from "@/config/site.config";
 
 type Stats = {
-  downloads: string
-  commits: number
-}
+  downloads: string;
+  commits: number;
+};
 
 export const Header = () => {
-  const { resolvedTheme, setTheme } = useTheme()
+  const { resolvedTheme, setTheme } = useTheme();
 
-  const [mounted, setMounted] = useState(false)
+  const [mounted, setMounted] = useState(false);
 
   const [stats, setStats] = useState<Stats>({
     downloads: "0",
     commits: 0,
-  })
+  });
 
   useEffect(() => {
-    setMounted(true)
+    setMounted(true);
 
     async function loadStats() {
       try {
         const [commitsRes, downloadsRes] = await Promise.all([
           fetch("/api/commits"),
           fetch("/api/downloads"),
-        ])
+        ]);
 
         const [commitsData, downloadsData] = await Promise.all([
           commitsRes.json(),
           downloadsRes.json(),
-        ])
+        ]);
 
         setStats({
           downloads: downloadsData || "0",
           commits: commitsData || 0,
-        })
+        });
       } catch {
         setStats({
           downloads: "0",
           commits: 0,
-        })
+        });
       }
     }
 
-    loadStats()
-  }, [])
+    loadStats();
+  }, []);
 
   const links = useMemo(
     () => [
@@ -76,8 +76,8 @@ export const Header = () => {
         iconClass: "size-5",
       },
     ],
-    [stats]
-  )
+    [stats],
+  );
 
   return (
     <header className="pointer-events-none sticky top-0 left-0 z-50 w-full dark:mix-blend-difference">
@@ -104,7 +104,7 @@ export const Header = () => {
 
         <div className="flex items-center">
           {links.map((link) => {
-            const Icon = link.icon
+            const Icon = link.icon;
 
             return (
               <Link
@@ -123,7 +123,7 @@ export const Header = () => {
                   <span className="sr-only md:not-sr-only">{link.label}</span>
                 </span>
               </Link>
-            )
+            );
           })}
 
           <Separator
@@ -153,5 +153,5 @@ export const Header = () => {
         </div>
       </nav>
     </header>
-  )
-}
+  );
+};

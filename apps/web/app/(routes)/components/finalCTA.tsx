@@ -1,37 +1,37 @@
-"use client"
+"use client";
 
-import { useEffect, useMemo, useState } from "react"
-import { motion } from "motion/react"
-import { CheckCheck, Copy } from "lucide-react"
+import { Separator } from "@pushai/ui/components/separator";
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
-} from "@pushai/ui/components/tabs"
-import { SiBun, SiNpm, SiPnpm, SiYarn } from "react-icons/si"
-import { Separator } from "@pushai/ui/components/separator"
+} from "@pushai/ui/components/tabs";
+import { CheckCheck, Copy } from "lucide-react";
+import { motion } from "motion/react";
+import { useEffect, useMemo, useState } from "react";
+import { SiBun, SiNpm, SiPnpm, SiYarn } from "react-icons/si";
 
 const TypewriterCommand = ({ text }: { text: string }) => {
-  const [displayed, setDisplayed] = useState("")
+  const [displayed, setDisplayed] = useState("");
 
   useEffect(() => {
-    let index = 0
+    let index = 0;
 
-    setDisplayed("")
+    setDisplayed("");
 
     const interval = setInterval(() => {
-      index++
+      index++;
 
-      setDisplayed(text.slice(0, index))
+      setDisplayed(text.slice(0, index));
 
       if (index >= text.length) {
-        clearInterval(interval)
+        clearInterval(interval);
       }
-    }, 35)
+    }, 35);
 
-    return () => clearInterval(interval)
-  }, [text])
+    return () => clearInterval(interval);
+  }, [text]);
 
   return (
     <span>
@@ -45,11 +45,11 @@ const TypewriterCommand = ({ text }: { text: string }) => {
         █
       </motion.span>
     </span>
-  )
-}
+  );
+};
 
 export function FinalCTA() {
-  const [copied, setCopied] = useState<string | null>(null)
+  const [copied, setCopied] = useState<string | null>(null);
 
   const commands = useMemo(
     () => ({
@@ -66,8 +66,8 @@ export function FinalCTA() {
         bun: "bunx pushai commit",
       },
     }),
-    []
-  )
+    [],
+  );
 
   return (
     <section className="mx-auto max-w-5xl px-4 py-24 sm:px-6">
@@ -90,7 +90,7 @@ export function FinalCTA() {
               </TabsTrigger>
             </TabsList>
 
-            <h2 className="mx-auto mt-6 max-w-2xl text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
+            <h2 className="mx-auto mt-6 max-w-2xl font-bold text-3xl tracking-tight sm:text-4xl md:text-5xl">
               Stop writing commit messages.
             </h2>
 
@@ -156,13 +156,13 @@ export function FinalCTA() {
 
                           <button
                             onClick={() => {
-                              navigator.clipboard.writeText(command)
+                              navigator.clipboard.writeText(command);
 
-                              setCopied(command)
+                              setCopied(command);
 
                               setTimeout(() => {
-                                setCopied(null)
-                              }, 1500)
+                                setCopied(null);
+                              }, 1500);
                             }}
                             className="ml-auto shrink-0 text-muted-foreground transition-colors hover:text-foreground"
                             aria-label="Copy command"
@@ -184,5 +184,5 @@ export function FinalCTA() {
         </Tabs>
       </motion.div>
     </section>
-  )
+  );
 }

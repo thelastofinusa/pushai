@@ -1,10 +1,8 @@
-import React from "react"
-import { FloatingIcons } from "@/components/shared/floating-icons"
-
-import { Hero } from "../components/hero"
-import { FinalCTA } from "../components/finalCTA"
-import { Features } from "../components/features"
-import { HowItWorks } from "../components/howItWorks"
+import { FloatingIcons } from "@/components/shared/floating-icons";
+import { Features } from "../components/features";
+import { FinalCTA } from "../components/finalCTA";
+import { Hero } from "../components/hero";
+import { HowItWorks } from "../components/howItWorks";
 
 export default function Page() {
   return (
@@ -15,5 +13,5 @@ export default function Page() {
       <HowItWorks />
       <FinalCTA />
     </div>
-  )
+  );
 }

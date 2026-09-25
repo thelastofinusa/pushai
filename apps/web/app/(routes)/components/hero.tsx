@@ -1,11 +1,11 @@
-"use client"
-import { useEffect, useMemo, useState } from "react"
-import { motion } from "motion/react"
-import { ArrowRight } from "lucide-react"
-import { Button } from "@pushai/ui/components/button"
-import { Terminal } from "@/components/shared/terminal"
-import { siteConfig } from "@/config/site.config"
-import { Separator } from "@pushai/ui/components/separator"
+"use client";
+import { Button } from "@pushai/ui/components/button";
+import { Separator } from "@pushai/ui/components/separator";
+import { ArrowRight } from "lucide-react";
+import { motion } from "motion/react";
+import { useEffect, useMemo, useState } from "react";
+import { Terminal } from "@/components/shared/terminal";
+import { siteConfig } from "@/config/site.config";
 
 const demos = [
   {
@@ -83,32 +83,32 @@ const demos = [
       "└ PushAI configuration and credentials cleared.",
     ],
   },
-]
+];
 
 function scrollTo(id: string) {
-  const el = document.getElementById(id)
-  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" })
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 export function Hero() {
-  const [idx, setIdx] = useState(0)
-  const current = useMemo(() => demos[idx], [idx])
-  const [version, setVersion] = useState("0.0.0")
+  const [idx, setIdx] = useState(0);
+  const current = useMemo(() => demos[idx], [idx]);
+  const [version, setVersion] = useState("0.0.0");
 
   useEffect(() => {
     fetch("/api/version")
       .then((res) => res.json())
       .then((data) => setVersion(data))
-      .catch(() => setVersion("0.0.0"))
-  }, [])
+      .catch(() => setVersion("0.0.0"));
+  }, []);
 
   useEffect(() => {
     const t = setInterval(() => {
-      setIdx((i) => (i + 1) % demos.length)
-    }, 7000)
+      setIdx((i) => (i + 1) % demos.length);
+    }, 7000);
 
-    return () => clearInterval(t)
-  }, [])
+    return () => clearInterval(t);
+  }, []);
 
   return (
     <section className="relative overflow-hidden">
@@ -121,19 +121,19 @@ export function Hero() {
         >
           <div className="group mx-auto inline-flex w-fit cursor-pointer items-center gap-2 rounded-full border bg-background p-1 pr-4 shadow-md shadow-zinc-950/5 transition-colors duration-300">
             <div className="flex h-5 items-center justify-center overflow-hidden rounded-full bg-secondary px-2 sm:h-6">
-              <span className="text-xs font-medium sm:text-sm">v{version}</span>
+              <span className="font-medium text-xs sm:text-sm">v{version}</span>
             </div>
             <Separator orientation="vertical" className="my-auto h-4" />
-            <span className="text-xs text-foreground sm:text-sm">
+            <span className="text-foreground text-xs sm:text-sm">
               AI-powered git workflow
             </span>
           </div>
 
-          <h1 className="mt-4 max-w-4xl text-5xl leading-[0.95] font-bold tracking-[-0.04em] sm:mt-6 sm:text-7xl lg:text-[5.5rem]">
+          <h1 className="mt-4 max-w-4xl font-bold text-5xl leading-[0.95] tracking-[-0.04em] sm:mt-6 sm:text-7xl lg:text-[5.5rem]">
             Ship commits at the speed of thought.
           </h1>
 
-          <p className="mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+          <p className="mt-6 max-w-2xl text-base text-muted-foreground leading-relaxed sm:text-lg">
             PushAI stages your changes, writes meaningful commit messages with
             AI, and pushes — all from a single terminal command.
           </p>
@@ -163,5 +163,5 @@ export function Hero() {
         </motion.div>
       </div>
     </section>
-  )
+  );
 }

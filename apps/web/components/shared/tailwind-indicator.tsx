@@ -1,15 +1,15 @@
-import { buttonVariants } from "@pushai/ui/components/button"
+import { buttonVariants } from "@pushai/ui/components/button";
 
-const SHOW = true
+const SHOW = true;
 
 export function TailwindIndicator({
   forceMount = false,
 }: {
-  forceMount?: boolean
+  forceMount?: boolean;
 }) {
   // eslint-disable-next-line turbo/no-undeclared-env-vars
   if (process.env.NODE_ENV === "production" || (!SHOW && !forceMount)) {
-    return null
+    return null;
   }
 
   return (
@@ -18,7 +18,7 @@ export function TailwindIndicator({
       className={buttonVariants({
         size: "icon-lg",
         className:
-          "fixed bottom-2 left-2 z-50 rounded-full font-head text-sm font-semibold",
+          "fixed bottom-2 left-2 z-50 rounded-full font-head font-semibold text-sm",
       })}
     >
       <div className="block sm:hidden">xs</div>
@@ -28,5 +28,5 @@ export function TailwindIndicator({
       <div className="hidden xl:block 2xl:hidden">xl</div>
       <div className="hidden 2xl:block">2xl</div>
     </button>
-  )
+  );
 }

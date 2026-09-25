@@ -1,6 +1,6 @@
-"use client"
-import { Zap, Lock, Code2, GitBranch, Sparkles, Cloud } from "lucide-react"
-import { motion } from "motion/react"
+"use client";
+import { Cloud, Code2, GitBranch, Lock, Sparkles, Zap } from "lucide-react";
+import { motion } from "motion/react";
 
 const features = [
   {
@@ -37,7 +37,7 @@ const features = [
     description:
       "MIT licensed and transparent. Contribute and extend PushAI however you want.",
   },
-]
+];
 
 export const Features = () => {
   return (
@@ -49,7 +49,7 @@ export const Features = () => {
         viewport={{ once: true }}
         className="mb-16 text-center"
       >
-        <h2 className="mb-4 text-4xl font-bold sm:text-5xl">
+        <h2 className="mb-4 font-bold text-4xl sm:text-5xl">
           Everything you need
         </h2>
         <p className="text-muted-foreground">
@@ -60,7 +60,7 @@ export const Features = () => {
 
       <div className="relative mx-auto grid divide-x divide-y overflow-hidden rounded-xl border bg-background/80 shadow-2xl shadow-black/10 backdrop-blur sm:grid-cols-2 lg:grid-cols-3">
         {features.map((feature, idx) => {
-          const Icon = feature.icon
+          const Icon = feature.icon;
           return (
             <motion.div
               key={idx}
@@ -72,15 +72,15 @@ export const Features = () => {
             >
               <div className="mb-2 flex items-center gap-2 md:mb-4">
                 <Icon className="size-4" />
-                <h3 className="text-sm font-medium">{feature.title}</h3>
+                <h3 className="font-medium text-sm">{feature.title}</h3>
               </div>
-              <p className="text-sm leading-relaxed text-muted-foreground">
+              <p className="text-muted-foreground text-sm leading-relaxed">
                 {feature.description}
               </p>
             </motion.div>
-          )
+          );
         })}
       </div>
     </section>
-  )
-}
+  );
+};

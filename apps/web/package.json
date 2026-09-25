@@ -8,7 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "biome check .",
-    "clean": "rm -rf .turbo dist node_modules"
+    "clean": "rm -rf .turbo .next dist node_modules"
   },
   "dependencies": {
     "@typest/nextjs": "^1.0.4",

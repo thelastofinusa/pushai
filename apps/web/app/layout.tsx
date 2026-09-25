@@ -1,15 +1,15 @@
-import type { Metadata } from "next"
-import { assetPath, imagePath } from "@typest/nextjs"
+import { assetPath, imagePath } from "@typest/nextjs";
+import type { Metadata } from "next";
 
-import "@pushai/ui/globals.css"
-import { fontVariable } from "@/fonts"
-import { siteConfig } from "@/config/site.config"
-import Provider from "@/components/providers/lenis.provider"
-import { ThemeProvider } from "@/components/providers/theme.provider"
-import { Header } from "@/components/shared/header"
-import { Footer } from "@/components/shared/footer"
-import { TailwindIndicator } from "@/components/shared/tailwind-indicator"
-import { Analytics } from "@vercel/analytics/next"
+import "@pushai/ui/globals.css";
+import { Analytics } from "@vercel/analytics/next";
+import Provider from "@/components/providers/lenis.provider";
+import { ThemeProvider } from "@/components/providers/theme.provider";
+import { Footer } from "@/components/shared/footer";
+import { Header } from "@/components/shared/header";
+import { TailwindIndicator } from "@/components/shared/tailwind-indicator";
+import { siteConfig } from "@/config/site.config";
+import { fontVariable } from "@/fonts";
 
 export const metadata: Metadata = {
   title: {
@@ -55,7 +55,7 @@ export const metadata: Metadata = {
   },
   icons: imagePath("logo.svg"),
   manifest: `${siteConfig.url}${assetPath("site.webmanifest")}`,
-}
+};
 
 export default function RootLayout(props: LayoutProps<"/">) {
   return (
@@ -72,5 +72,5 @@ export default function RootLayout(props: LayoutProps<"/">) {
         </Provider>
       </body>
     </html>
-  )
+  );
 }

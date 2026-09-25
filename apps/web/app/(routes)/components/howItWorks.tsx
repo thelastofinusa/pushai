@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { useEffect, useState, useRef } from "react"
-import { motion } from "motion/react"
-import { Check } from "lucide-react"
+import { Check } from "lucide-react";
+import { motion } from "motion/react";
+import { useEffect, useRef, useState } from "react";
 
 const PREFIXES = [
   "pai",
@@ -11,56 +11,56 @@ const PREFIXES = [
   "bunx pushai",
   "pnpm dlx pushai",
   "yarn pushai",
-]
+];
 
 const Typewriter = ({ subcommand }: { subcommand: string }) => {
-  const [displayed, setDisplayed] = useState("")
-  const [prefixIndex, setPrefixIndex] = useState(0)
-  const [charIndex, setCharIndex] = useState(0)
-  const [started, setStarted] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const [displayed, setDisplayed] = useState("");
+  const [prefixIndex, setPrefixIndex] = useState(0);
+  const [charIndex, setCharIndex] = useState(0);
+  const [started, setStarted] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const fullCommand = `${PREFIXES[prefixIndex]} ${subcommand}`
+  const fullCommand = `${PREFIXES[prefixIndex]} ${subcommand}`;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0]?.isIntersecting && !started) {
-          setStarted(true)
+          setStarted(true);
         }
       },
-      { threshold: 0.5, rootMargin: "0px" }
-    )
-    if (ref.current) observer.observe(ref.current)
-    return () => observer.disconnect()
-  }, [started])
+      { threshold: 0.5, rootMargin: "0px" },
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [started]);
 
   useEffect(() => {
-    if (!started) return
+    if (!started) return;
 
     if (charIndex < fullCommand.length) {
       const timer = setTimeout(() => {
-        setDisplayed(fullCommand.slice(0, charIndex + 1))
-        setCharIndex(charIndex + 1)
-      }, 40)
-      return () => clearTimeout(timer)
+        setDisplayed(fullCommand.slice(0, charIndex + 1));
+        setCharIndex(charIndex + 1);
+      }, 40);
+      return () => clearTimeout(timer);
     } else {
       const pauseTimer = setTimeout(() => {
-        setDisplayed("")
-        setCharIndex(0)
-        setPrefixIndex((prev) => (prev + 1) % PREFIXES.length)
-      }, 3000)
-      timeoutRef.current = pauseTimer
-      return () => clearTimeout(pauseTimer)
+        setDisplayed("");
+        setCharIndex(0);
+        setPrefixIndex((prev) => (prev + 1) % PREFIXES.length);
+      }, 3000);
+      timeoutRef.current = pauseTimer;
+      return () => clearTimeout(pauseTimer);
     }
-  }, [started, charIndex, prefixIndex, fullCommand])
+  }, [started, charIndex, fullCommand]);
 
   useEffect(() => {
     return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current)
-    }
-  }, [])
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
 
   return (
     <div ref={ref} className="flex items-center gap-2">
@@ -76,8 +76,8 @@ const Typewriter = ({ subcommand }: { subcommand: string }) => {
         </motion.span>
       </span>
     </div>
-  )
-}
+  );
+};
 
 const steps = [
   {
@@ -100,7 +100,7 @@ const steps = [
     title: "Browse models",
     desc: "View available AI providers along with their supported models.",
   },
-]
+];
 
 const flags = [
   {
@@ -148,16 +148,16 @@ const flags = [
     applies: "config",
     desc: "Display the current configuration",
   },
-]
+];
 
 export const HowItWorks = () => {
   return (
     <section id="how" className="mx-auto max-w-[1320px] px-4 py-24 sm:px-6">
       <div className="mx-auto max-w-lg text-center">
-        <p className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
+        <p className="font-mono text-muted-foreground text-xs uppercase tracking-widest">
           How it works
         </p>
-        <h2 className="mt-3 text-4xl font-bold tracking-tight sm:text-5xl">
+        <h2 className="mt-3 font-bold text-4xl tracking-tight sm:text-5xl">
           Everything you need to use PushAI.
         </h2>
       </div>
@@ -174,8 +174,8 @@ export const HowItWorks = () => {
             className="flex flex-col gap-6 p-6 md:p-8"
           >
             <div className="flex flex-col gap-2">
-              <h3 className="text-lg font-medium tracking-tight">{s.title}</h3>
-              <p className="text-sm leading-relaxed text-muted-foreground">
+              <h3 className="font-medium text-lg tracking-tight">{s.title}</h3>
+              <p className="text-muted-foreground text-sm leading-relaxed">
                 {s.desc}
               </p>
             </div>
@@ -200,11 +200,11 @@ export const HowItWorks = () => {
       {/* Flags section – same three‑column layout */}
       <div className="mt-14">
         <div className="mx-auto max-w-lg text-center">
-          <h3 className="text-2xl font-semibold tracking-tight">
+          <h3 className="font-semibold text-2xl tracking-tight">
             Command flags and optional arguments
           </h3>
 
-          <p className="mt-2 text-sm text-muted-foreground">
+          <p className="mt-2 text-muted-foreground text-sm">
             Customize how commands run directly from the terminal.
           </p>
         </div>
@@ -221,14 +221,14 @@ export const HowItWorks = () => {
             >
               <div>
                 <div className="flex items-center gap-2">
-                  <code className="rounded bg-background/60 px-2 py-1 font-mono text-[13px] font-medium">
+                  <code className="rounded bg-background/60 px-2 py-1 font-medium font-mono text-[13px]">
                     {f.flag}
                   </code>
                   <span className="rounded-full border px-1.5 py-px font-mono text-[10px]">
                     {f.applies}
                   </span>
                 </div>
-                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                <p className="mt-3 text-muted-foreground text-sm leading-relaxed">
                   {f.desc}
                 </p>
               </div>
@@ -237,7 +237,7 @@ export const HowItWorks = () => {
         </div>
       </div>
 
-      <div className="mt-12 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
+      <div className="mt-12 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-muted-foreground text-xs">
         {[
           "Open source",
           "MIT licensed",
@@ -251,5 +251,5 @@ export const HowItWorks = () => {
         ))}
       </div>
     </section>
-  )
-}
+  );
+};

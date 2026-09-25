@@ -1,4 +1,3 @@
-/* eslint-disable turbo/no-undeclared-env-vars */
 export const siteConfig = {
   name: "PushAI",
   slogan: "Ship commits at the speed of thought.",
@@ -10,4 +9,4 @@ export const siteConfig = {
     process.env.NODE_ENV === "development"
       ? "http://localhost:3000"
       : "https://pushai.vercel.app",
-}
+};

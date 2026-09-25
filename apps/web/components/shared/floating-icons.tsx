@@ -1,17 +1,17 @@
-"use client"
-import { motion } from "motion/react"
+"use client";
 import {
-  GitBranch,
-  Terminal as TerminalIcon,
-  Sparkles,
-  Cloud,
-  GitCommit,
   ArrowUpRight,
-  GitPullRequest,
+  Cloud,
   Code2,
-  Zap,
+  GitBranch,
+  GitCommit,
+  GitPullRequest,
   Hash,
-} from "lucide-react"
+  Sparkles,
+  Terminal as TerminalIcon,
+  Zap,
+} from "lucide-react";
+import { motion } from "motion/react";
 
 const icons = [
   { Icon: GitBranch, top: "8%", left: "6%", delay: 0 },
@@ -24,7 +24,7 @@ const icons = [
   { Icon: Code2, top: "80%", left: "84%", delay: 1.4 },
   { Icon: Zap, top: "42%", left: "94%", delay: 1.6 },
   { Icon: Hash, top: "44%", left: "2%", delay: 0.9 },
-]
+];
 
 export const FloatingIcons = () => {
   return (
@@ -45,5 +45,5 @@ export const FloatingIcons = () => {
         </motion.div>
       ))}
     </div>
-  )
-}
+  );
+};

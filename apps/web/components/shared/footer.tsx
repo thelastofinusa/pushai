@@ -1,41 +1,41 @@
 /* eslint-disable @next/next/no-img-element */
-"use client"
+"use client";
 
-import { siteConfig } from "@/config/site.config"
-import Link from "next/link"
-import { useEffect, useMemo, useState } from "react"
-import { useTheme } from "next-themes"
+import Link from "next/link";
+import { useTheme } from "next-themes";
+import { useEffect, useMemo, useState } from "react";
+import { siteConfig } from "@/config/site.config";
 
 export const Footer = () => {
-  const [version, setVersion] = useState("0.0.0")
-  const [mounted, setMounted] = useState(false)
+  const [version, setVersion] = useState("0.0.0");
+  const [mounted, setMounted] = useState(false);
 
-  const { resolvedTheme } = useTheme()
+  const { resolvedTheme } = useTheme();
 
   useEffect(() => {
-    setMounted(true)
+    setMounted(true);
 
     fetch("/api/version")
       .then((res) => res.json())
       .then((data) => setVersion(data))
-      .catch(() => setVersion("0.0.0"))
-  }, [])
+      .catch(() => setVersion("0.0.0"));
+  }, []);
 
-  const theme = mounted ? resolvedTheme : "light"
+  const theme = mounted ? resolvedTheme : "light";
 
   const badgeSrc = useMemo(() => {
-    return `https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1149282&theme=${theme}`
-  }, [theme])
+    return `https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1149282&theme=${theme}`;
+  }, [theme]);
 
   return (
     <footer className="py-12">
       <div className="mx-auto flex max-w-[1320px] flex-col items-center justify-between gap-6 px-6 md:flex-row md:items-center">
         <div className="flex flex-col items-center gap-2 text-center md:items-start md:text-left">
-          <span className="text-sm text-muted-foreground">
+          <span className="text-muted-foreground text-sm">
             © 2026 {siteConfig.name}. All rights reserved.
           </span>
 
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <div className="flex items-center gap-2 text-muted-foreground text-sm">
             <span>
               {siteConfig.name}{" "}
               <span className="text-foreground">v{version}</span>
@@ -70,5 +70,5 @@ export const Footer = () => {
         </a>
       </div>
     </footer>
-  )
-}
+  );
+};
