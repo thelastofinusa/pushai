@@ -51,8 +51,10 @@ export function createGitService(cwd: string = process.cwd()): GitService {
     await git.add(".");
   };
 
+  // returns the short commit hash (e.g. "a91f2c4") so callers can display it
   const commit = async (message: string) => {
-    await git.commit(message);
+    const result = await git.commit(message);
+    return result.commit.replace(/^\(root-commit\)\s*/, "").slice(0, 7);
   };
 
   const push = async (branch: string, remote = "origin") => {

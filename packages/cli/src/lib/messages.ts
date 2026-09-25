@@ -3,6 +3,48 @@ import chalk from "chalk";
 const command = (value: string) => chalk.cyan(value);
 const muted = (value: string) => chalk.dim(value);
 
+const PREFIX = "  │ ";
+
+function wrap(text: string, width: number): string[] {
+  const words = text.split(" ");
+  const lines: string[] = [];
+  let current = "";
+
+  for (const word of words) {
+    const next = current ? `${current} ${word}` : word;
+
+    if (next.length > width && current) {
+      lines.push(current);
+      current = word;
+    } else {
+      current = next;
+    }
+  }
+
+  if (current) lines.push(current);
+
+  return lines;
+}
+
+export function showCommitMessage(message: string) {
+  const [title, ...body] = message.split("\n").filter(Boolean);
+  const width = Math.max((process.stdout.columns || 80) - PREFIX.length, 20);
+
+  console.log();
+
+  for (const line of wrap(title, width)) {
+    console.log(`  ${command("│")} ${command(line)}`);
+  }
+
+  for (const bodyLine of body) {
+    for (const line of wrap(bodyLine, width)) {
+      console.log(`  ${command("│")} ${muted(line)}`);
+    }
+  }
+
+  console.log();
+}
+
 export function showOllamaNotInstalled(run: string) {
   console.log(`
 ${chalk.yellow("PushAI requires Ollama for local AI.")}
@@ -30,12 +72,4 @@ ${muted("Then install it with:")}
 
 ${muted("Once the model is installed, run:")} ${chalk.bold(run)}
 `);
-}
-
-export function showCommitMessage(message: string) {
-  const lines = message.split("\n");
-
-  for (const line of lines) {
-    console.log(`  ${chalk.cyan("│")} ${chalk.bold(line)}`);
-  }
 }

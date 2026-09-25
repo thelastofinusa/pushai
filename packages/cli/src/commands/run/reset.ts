@@ -14,7 +14,6 @@ export async function runReset() {
   });
 
   const config = await getConfig();
-
   if (!config) return;
 
   const choice = await select({
