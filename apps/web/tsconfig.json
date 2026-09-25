@@ -3,7 +3,8 @@
   "compilerOptions": {
     "paths": {
       "@/*": ["./*"],
-      "@pushai/ui/*": ["../../packages/ui/src/*"]
+      "@pushai/ui/*": ["../../packages/ui/src/*"],
+      "@pushai/tsconfig/*": ["../../packages/tsconfig/*"]
     },
     "plugins": [
       {
