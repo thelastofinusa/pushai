@@ -1,6 +1,7 @@
 import type { AIProvider } from "@pushai/types";
 import OpenAI from "openai";
 import { buildCommitPrompt, COMMIT_SYSTEM_PROMPT } from "../git/prompt";
+import { maxTokens } from "../lib/maxTokens";
 
 export const openaiProvider: AIProvider = {
   id: "openai",
@@ -21,7 +22,7 @@ export const openaiProvider: AIProvider = {
 
     const completion = await client.chat.completions.create({
       model,
-      max_tokens: 500,
+      max_tokens: maxTokens,
       messages: [
         { role: "system", content: COMMIT_SYSTEM_PROMPT },
         { role: "user", content: buildCommitPrompt(diff, regenerate) },

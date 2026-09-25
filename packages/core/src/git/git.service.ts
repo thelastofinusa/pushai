@@ -51,6 +51,10 @@ export function createGitService(cwd: string = process.cwd()): GitService {
     await git.add(".");
   };
 
+  const unstageAll = async () => {
+    await git.reset();
+  };
+
   // returns the short commit hash (e.g. "a91f2c4") so callers can display it
   const commit = async (message: string) => {
     const result = await git.commit(message);
@@ -75,6 +79,7 @@ export function createGitService(cwd: string = process.cwd()): GitService {
     hasUpstream,
     getDiff,
     stageAll,
+    unstageAll,
     add,
     commit,
     push,

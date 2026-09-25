@@ -1,9 +1,11 @@
 import { cancellation } from "@pushai/utils";
 import type { Command } from "commander";
+import { commitAction } from "./commit.action";
 import { peakAction } from "./peak.action";
 import { resetAction } from "./reset.action";
 import { setupAction } from "./setup.action";
 import { switchAction } from "./switch.action";
+import { updateAction } from "./update.action";
 
 export const actions = {
   commit: {
@@ -13,7 +15,16 @@ export const actions = {
         .description("create an ai-generated git commit")
         .option("-p, --push", "automatically push the commit")
         .option("--dry-run", "preview without creating a commit")
-        .option("-m, --message <message>", "use a custom commit message");
+        .option("-m, --message <message>", "use a custom commit message")
+        .action(
+          cancellation((options) =>
+            commitAction("commit", {
+              autoPush: options.push,
+              dryRun: options.dryRun,
+              customMessage: options.message,
+            }),
+          ),
+        );
     },
   },
   peak: {
@@ -57,7 +68,8 @@ export const actions = {
     register(program: Command) {
       program
         .command("update")
-        .description("check for a newer version of pushai");
+        .description("check for a newer version of pushai")
+        .action(cancellation(() => updateAction("update")));
     },
   },
 };

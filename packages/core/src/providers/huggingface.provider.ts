@@ -2,6 +2,7 @@ import { InferenceClient } from "@huggingface/inference";
 import type { AIProvider } from "@pushai/types";
 import { hosts } from "@pushai/utils";
 import { buildCommitPrompt, COMMIT_SYSTEM_PROMPT } from "../git/prompt";
+import { maxTokens } from "../lib/maxTokens";
 
 export const huggingfaceProvider: AIProvider = {
   id: "huggingface",
@@ -37,7 +38,7 @@ export const huggingfaceProvider: AIProvider = {
         { role: "system", content: COMMIT_SYSTEM_PROMPT },
         { role: "user", content: buildCommitPrompt(diff, regenerate) },
       ],
-      max_tokens: 500,
+      max_tokens: maxTokens,
     });
 
     const text = result.choices?.[0]?.message?.content;

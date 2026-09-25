@@ -8,7 +8,6 @@ export const geminiProvider: AIProvider = {
   name: "Google Gemini",
 
   async getModels(apiKey) {
-    const _genAI = new GoogleGenerativeAI(apiKey);
     const response = await fetch(`${hosts.gemini}/v1beta/models?key=${apiKey}`);
 
     if (!response.ok) {

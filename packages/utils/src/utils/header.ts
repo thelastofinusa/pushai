@@ -51,6 +51,10 @@ interface ShowHeaderProps {
   symbol?: SymbolType;
   color?: ChalkInstance;
   exitType?: 0 | 1;
+  margin?: {
+    top?: boolean;
+    bottom?: boolean;
+  };
 }
 
 export function showHeader({
@@ -59,12 +63,21 @@ export function showHeader({
   color = chalk.cyan,
   type = "intro",
   exitType = 0,
+  margin = {},
 }: ShowHeaderProps) {
+  const resolvedMargin = {
+    top: true,
+    bottom: true,
+    ...margin,
+  };
+
   const resolvedSymbol = symbol ?? (type === "intro" ? "chevron" : "sparkle");
+
   const heading = color(`${headerIcons[resolvedSymbol]} ${title}`);
 
-  console.log();
+  if (resolvedMargin.top) console.log();
   console.log(heading);
-  console.log();
+  if (resolvedMargin.bottom) console.log();
+
   if (type === "outro") process.exit(exitType);
 }

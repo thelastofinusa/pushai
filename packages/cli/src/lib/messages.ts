@@ -30,19 +30,15 @@ export function showCommitMessage(message: string) {
   const [title, ...body] = message.split("\n").filter(Boolean);
   const width = Math.max((process.stdout.columns || 80) - PREFIX.length, 20);
 
-  console.log();
-
   for (const line of wrap(title, width)) {
-    console.log(`  ${command("│")} ${command(line)}`);
+    console.log(`  ${muted("│")} ${command(line)}`);
   }
 
   for (const bodyLine of body) {
     for (const line of wrap(bodyLine, width)) {
-      console.log(`  ${command("│")} ${muted(line)}`);
+      console.log(`  ${muted("│")} ${muted(line)}`);
     }
   }
-
-  console.log();
 }
 
 export function showOllamaNotInstalled(run: string) {

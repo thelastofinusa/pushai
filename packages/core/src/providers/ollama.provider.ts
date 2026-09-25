@@ -3,6 +3,7 @@ import { promisify } from "node:util";
 import { hosts } from "@pushai/utils";
 import { Ollama } from "ollama";
 import { buildCommitPrompt, COMMIT_SYSTEM_PROMPT } from "../git/prompt";
+import { maxTokens } from "../lib/maxTokens";
 
 const execFileAsync = promisify(execFile);
 
@@ -171,7 +172,7 @@ export async function generateCommitMessageLocal(
     ],
     options: {
       temperature: 0.3,
-      num_predict: 500,
+      num_predict: maxTokens,
     },
   });
 

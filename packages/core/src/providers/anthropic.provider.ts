@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import type { AIProvider } from "@pushai/types";
 import { buildCommitPrompt, COMMIT_SYSTEM_PROMPT } from "../git/prompt";
+import { maxTokens } from "../lib/maxTokens";
 
 export const anthropicProvider: AIProvider = {
   id: "anthropic",
@@ -36,7 +37,7 @@ export const anthropicProvider: AIProvider = {
 
     const message = await client.messages.create({
       model,
-      max_tokens: 500,
+      max_tokens: maxTokens,
       system: COMMIT_SYSTEM_PROMPT,
       messages: [
         { role: "user", content: buildCommitPrompt(diff, regenerate) },

@@ -1,20 +1,42 @@
-import { input, select } from "@inquirer/prompts";
+import { input, Separator, select } from "@inquirer/prompts";
 import { createGitService, generateCommitMessage } from "@pushai/core";
 import type { CommitFlowOptions, SetupConfig } from "@pushai/types";
-import { showHeader } from "@pushai/utils";
+import {
+  getCliCommand,
+  setSpinnerColor,
+  showHeader,
+  spinner,
+} from "@pushai/utils";
 import chalk from "chalk";
-import { getConfigAndRun } from "../../config/store.config";
-import { formatProvider } from "../../lib/format";
-import { showCommitMessage } from "../../lib/messages";
-import { spinner } from "../../lib/spinner";
+import { pkgConfig } from "../config/config.config";
+import { configStore } from "../config/store.config";
+import { formatProvider } from "../lib/format";
+import { showCommitMessage } from "../lib/messages";
 
-export async function runCommit(options: CommitFlowOptions = {}) {
+export async function commitAction(
+  action: string,
+  options: CommitFlowOptions = {},
+) {
+  const command = getCliCommand();
+
+  const title = [
+    command,
+    action,
+    options.dryRun ? "--dry-run" : undefined,
+    options.autoPush ? "--push" : undefined,
+    options.customMessage ? "--message" : undefined,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   showHeader({
-    title: "pai commit",
+    title: `${title} - v${pkgConfig.version}`,
     color: chalk.cyan,
-    type: "intro",
     symbol: "sparkle",
+    type: "intro",
   });
+
+  setSpinnerColor("cyan");
 
   const git = createGitService();
 
@@ -31,18 +53,23 @@ export async function runCommit(options: CommitFlowOptions = {}) {
     return;
   }
 
-  let config = await getConfigAndRun();
+  let config = await configStore.getStoredConfig();
+  let isLocalProvider = false;
 
-  // a custom message skips provider config entirely
+  // A custom message skips provider configuration entirely.
   if (!message) {
     if (!config) return;
 
-    const active = config.providers.find((p) => p.id === config?.activeId);
+    const active = config.providers.find(
+      (provider) => provider.id === config?.activeId,
+    );
 
     if (!active) {
       spinner.fail("no active provider configured. run `pai setup`.");
       return;
     }
+
+    isLocalProvider = active.mode === "local";
 
     spinner.succeed(`provider ${chalk.cyan(formatProvider(active))}`);
   }
@@ -69,7 +96,9 @@ export async function runCommit(options: CommitFlowOptions = {}) {
   const diff = await git.getDiff();
 
   spinner.succeed(
-    `staged diff read ${chalk.cyan(`${status.changed} file${status.changed === 1 ? "" : "s"}`)}`,
+    `staged diff read ${chalk.cyan(
+      `${status.changed} file${status.changed === 1 ? "" : "s"}`,
+    )}`,
   );
 
   if (!message) {
@@ -77,6 +106,7 @@ export async function runCommit(options: CommitFlowOptions = {}) {
 
     try {
       message = await generateCommitMessage(config as SetupConfig, diff);
+
       spinner.succeed("commit generated");
     } catch (error) {
       spinner.fail(
@@ -84,10 +114,12 @@ export async function runCommit(options: CommitFlowOptions = {}) {
           ? error.message
           : "failed to generate commit message.",
       );
+
       return;
     }
   }
 
+  console.log();
   showCommitMessage(message);
 
   if (options.dryRun) {
@@ -97,59 +129,94 @@ export async function runCommit(options: CommitFlowOptions = {}) {
       symbol: "flag",
       type: "outro",
     });
+
     return;
   }
 
+  console.log();
+
+  let shouldPush = options.autoPush;
+
   while (true) {
-    const action = await select({
-      message: "what should we do with this commit?",
+    const selectedAction = await select({
+      message: "how would you like to proceed?",
+      default: isLocalProvider && options.autoPush ? "push" : "commit",
       choices: [
-        {
-          name: options.autoPush ? "commit & push" : "commit",
-          value: "accept",
-          description: options.autoPush
-            ? "create the commit and push it to the remote"
-            : "create the commit locally",
-        },
+        ...(isLocalProvider
+          ? [
+              new Separator(),
+              {
+                name: "commit locally",
+                value: "commit",
+                description: "Create the commit locally without pushing",
+              },
+              {
+                name: "commit & push",
+                value: "push",
+                description: "Create the commit and push it to the remote",
+              },
+              new Separator(),
+            ]
+          : [
+              {
+                name: options.autoPush ? "commit & push" : "commit",
+                value: "commit",
+                description: options.autoPush
+                  ? "Create the commit and push it to the remote"
+                  : "Create the commit locally",
+              },
+            ]),
         {
           name: "edit message",
           value: "edit",
-          description: "modify the commit message",
+          description: "Modify the commit message",
         },
         {
           name: "regenerate",
           value: "regenerate",
-          description: "generate a new AI commit message",
+          description: "Generate a new AI commit message",
         },
         {
-          name: "cancel",
+          name: "abort process",
           value: "cancel",
-          description: "abort without creating the commit",
+          description: "Abort without creating the commit",
         },
       ],
     });
 
-    if (action === "accept") break;
+    if (selectedAction === "commit" || selectedAction === "push") {
+      shouldPush = isLocalProvider
+        ? selectedAction === "push"
+        : options.autoPush;
 
-    if (action === "edit") {
+      break;
+    }
+
+    if (selectedAction === "edit") {
       message = (
         await input({
           message: "update the commit message:",
-          default: message,
+          default: chalk.dim(message),
+          prefill: "editable",
           validate: (value) =>
             value.trim() ? true : "commit message cannot be empty.",
         })
       ).trim();
 
+      console.log();
       showCommitMessage(message);
+      console.log();
+
       continue;
     }
 
-    if (action === "regenerate") {
-      if (!config) config = await getConfigAndRun();
+    if (selectedAction === "regenerate") {
+      if (!config) config = await configStore.getStoredConfig();
       if (!config) return;
 
-      const active = config.providers.find((p) => p.id === config?.activeId);
+      const active = config.providers.find(
+        (provider) => provider.id === config?.activeId,
+      );
 
       if (!active) {
         spinner.fail("no active provider configured. run `pai setup`.");
@@ -161,7 +228,10 @@ export async function runCommit(options: CommitFlowOptions = {}) {
       try {
         message = await generateCommitMessage(config, diff, true);
         spinner.succeed("new commit message generated");
+
+        console.log();
         showCommitMessage(message);
+        console.log();
       } catch (error) {
         spinner.fail(
           error instanceof Error
@@ -173,27 +243,32 @@ export async function runCommit(options: CommitFlowOptions = {}) {
       continue;
     }
 
-    // cancel
-    showHeader({
-      title: "commit cancelled.",
-      color: chalk.dim,
-      symbol: "info",
-      type: "outro",
-    });
-    return;
+    if (selectedAction === "cancel") {
+      await git.unstageAll();
+
+      showHeader({
+        title: "commit cancelled.",
+        color: chalk.dim,
+        symbol: "info",
+        type: "outro",
+      });
+
+      return;
+    }
   }
 
   const hash = await git.commit(message);
 
   spinner.succeed(`committed ${chalk.green(hash)}`);
 
-  if (!options.autoPush) {
+  if (!shouldPush) {
     showHeader({
       title: `commit created on ${branch}. push when ready with \`git push\`.`,
       color: chalk.green,
       symbol: "success",
       type: "outro",
     });
+
     return;
   }
 
@@ -204,6 +279,7 @@ export async function runCommit(options: CommitFlowOptions = {}) {
       symbol: "warning",
       type: "outro",
     });
+
     return;
   }
 
@@ -223,6 +299,7 @@ export async function runCommit(options: CommitFlowOptions = {}) {
       symbol: "warning",
       type: "outro",
     });
+
     return;
   }
 
