@@ -1,5 +1,11 @@
 # @pushai/types
 
+## 0.1.3
+
+### Patch Changes
+
+- 7a1eeca: Update repository url
+
 ## 0.1.2
 
 ### Patch Changes

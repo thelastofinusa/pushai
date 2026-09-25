@@ -1,5 +1,15 @@
 # pushai
 
+## 3.0.6
+
+### Patch Changes
+
+- 7a1eeca: Update repository url
+- Updated dependencies [7a1eeca]
+  - @pushai/core@0.1.5
+  - @pushai/types@0.1.3
+  - @pushai/utils@0.1.4
+
 ## 3.0.5
 
 ### Patch Changes

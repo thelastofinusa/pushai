@@ -1,5 +1,13 @@
 # @pushai/utils
 
+## 0.1.4
+
+### Patch Changes
+
+- 7a1eeca: Update repository url
+- Updated dependencies [7a1eeca]
+  - @pushai/types@0.1.3
+
 ## 0.1.3
 
 ### Patch Changes
