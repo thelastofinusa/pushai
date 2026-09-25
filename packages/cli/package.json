@@ -37,7 +37,7 @@
   },
   "scripts": {
     "build": "tsdown",
-    "dev": "bun run ./src/index.ts",
+    "start": "bun run ./src/index.ts",
     "lint": "biome check .",
     "clean": "rm -rf .turbo dist node_modules",
     "pack:dry": "bun run build && bun pm pack --dry-run",

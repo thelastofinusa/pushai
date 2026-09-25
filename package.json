@@ -10,7 +10,7 @@
     "build": "turbo run build",
     "build:watch": "turbo run build:watch",
     "dev": "turbo run dev",
-    "dev:cli": "bun run packages/cli/src/index.ts",
+    "start:cli": "bun run packages/cli/src/index.ts",
     "lint": "turbo run lint",
     "clean": "turbo run clean && rm -rf .turbo node_modules && bun install",
     "format": "biome format --write .",
