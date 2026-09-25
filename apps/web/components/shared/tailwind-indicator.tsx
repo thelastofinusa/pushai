@@ -14,6 +14,7 @@ export function TailwindIndicator({
 
   return (
     <button
+      type="button"
       data-tailwind-indicator=""
       className={buttonVariants({
         size: "icon-lg",

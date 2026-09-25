@@ -155,6 +155,7 @@ export function FinalCTA() {
                           </code>
 
                           <button
+                            type="button"
                             onClick={() => {
                               navigator.clipboard.writeText(command);
 

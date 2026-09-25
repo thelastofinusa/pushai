@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/suspicious/noArrayIndexKey: <explanation> */
 "use client";
 import { Cloud, Code2, GitBranch, Lock, Sparkles, Zap } from "lucide-react";
 import { motion } from "motion/react";

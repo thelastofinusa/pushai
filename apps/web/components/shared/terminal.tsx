@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/suspicious/noArrayIndexKey: <explanation> */
 "use client";
 
 import { cn } from "@pushai/ui/lib/utils";
