@@ -1,29 +1,38 @@
 {
   "name": "pushai-monorepo",
-  "description": "AI-powered CLI for effortless git commits and pushes",
   "private": true,
+  "license": "MIT",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "build": "turbo build",
-    "dev": "turbo dev",
-    "lint": "turbo lint",
-    "format": "turbo format",
-    "typecheck": "turbo typecheck",
-    "run:cli": "pnpm --filter pushai dev",
-    "run:web": "pnpm --filter web dev",
-    "pushout": "pnpm --filter pushai pushout",
-    "pushout-inc": "pnpm --filter pushai pushout-inc"
+    "build": "turbo run build",
+    "build:watch": "turbo run build:watch",
+    "dev": "turbo run dev",
+    "dev:cli": "bun run packages/cli/src/index.ts",
+    "lint": "turbo run lint",
+    "clean": "turbo run clean && rm -rf .turbo node_modules && bun install",
+    "format": "biome format --write .",
+    "check": "biome check --write .",
+    "biome:migrate": "bunx biome migrate --write",
+    "pack:dry": "turbo run pack:dry",
+    "changeset": "changeset",
+    "version": "changeset version",
+    "release": "bun run build && bun run scripts/publish-changed.ts"
   },
   "devDependencies": {
-    "@workspace/eslint-config": "workspace:*",
-    "@workspace/typescript-config": "workspace:*",
-    "prettier": "^3.8.1",
-    "prettier-plugin-tailwindcss": "^0.7.2",
-    "turbo": "^2.8.17",
-    "typescript": "5.9.3"
+    "@biomejs/biome": "^2.5.14",
+    "@changesets/cli": "^3.0.3",
+    "@pushai/tsconfig": "workspace:*",
+    "@types/bun": "^1.4.2",
+    "@types/node": "^26.6.2",
+    "turbo": "^2.11.2",
+    "typescript": "^7.0.2"
   },
-  "packageManager": "pnpm@9.15.9",
-  "engines": {
-    "node": ">=20"
-  },
-  "version": ""
+  "devEngines": {
+    "packageManager": {
+      "name": "bun",
+      "version": "^1.3.13"
+    }
+  }
 }

@@ -35,4 +35,9 @@ npm-debug.log*
 .DS_Store
 *.pem
 
-structure.txt
+!.env.example
+*.log
+
+bun.lock
+
+pack.md
