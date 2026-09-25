@@ -19,7 +19,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/thelastofinusa/pushai-monorepo.git",
+    "url": "git+https://github.com/thelastofinusa/pushai.git",
     "directory": "packages/cli"
   },
   "keywords": [

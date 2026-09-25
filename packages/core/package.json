@@ -12,6 +12,18 @@
       "import": "./dist/index.mjs"
     }
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thelastofinusa/pushai.git",
+    "directory": "packages/core"
+  },
+  "keywords": [
+    "git",
+    "ai",
+    "core",
+    "commit",
+    "conventional-commits"
+  ],
   "files": [
     "dist"
   ],
