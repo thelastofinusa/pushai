@@ -1,0 +1,50 @@
+{
+  "name": "@pushai/core",
+  "version": "0.1.4",
+  "type": "module",
+  "license": "MIT",
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "build:watch": "tsdown --watch",
+    "lint": "biome check .",
+    "clean": "rm -rf .turbo dist node_modules",
+    "pack:dry": "bun run build && bun pm pack --dry-run",
+    "prepublishOnly": "bun run build"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.127.0",
+    "@google/generative-ai": "^0.24.1",
+    "@huggingface/inference": "^4.13.30",
+    "@pushai/types": "workspace:*",
+    "@pushai/utils": "workspace:*",
+    "ollama": "^0.6.3",
+    "openai": "^7.21.0",
+    "simple-git": "^3.36.0"
+  },
+  "optionalDependencies": {
+    "keytar": "^7.9.0"
+  },
+  "devDependencies": {
+    "@pushai/tsconfig": "workspace:*",
+    "@types/node": "^22.20.2",
+    "tsdown": "0.22.14"
+  }
+}
