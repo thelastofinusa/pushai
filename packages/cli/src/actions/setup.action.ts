@@ -1,24 +1,36 @@
 import { select } from "@inquirer/prompts";
 import type { ProviderConfig, SetupMode } from "@pushai/types";
-import { getPackageManager, showHeader } from "@pushai/utils";
+import {
+  getCliCommand,
+  getPackageManager,
+  setSpinnerColor,
+  showHeader,
+  sleep,
+  spinner,
+} from "@pushai/utils";
 import chalk from "chalk";
-import { configStore } from "../../config/store.config";
-import { handleByokMode } from "../../handlers/byok.handler";
-import { handleLocalMode } from "../../handlers/local.handler";
-import { formatProvider } from "../../lib/format";
-import { spinner } from "../../lib/spinner";
+import { pkgConfig } from "../config/config.config";
+import { configStore } from "../config/store.config";
+import { handleByokMode } from "../handlers/byok.handler";
+import { handleLocalMode } from "../handlers/local.handler";
+import { formatProvider } from "../lib/format";
 
-export async function runSetup() {
+export async function setupAction(action: string) {
+  const command = getCliCommand();
+
   showHeader({
-    title: "run PushAI setup wizard",
+    title: `${command} ${action} - v${pkgConfig.version}`,
     color: chalk.magenta,
-    symbol: "sparkle",
-    type: "intro",
   });
 
+  setSpinnerColor("magenta");
+  spinner.start("retrieving configuration");
+
   const existing = await configStore.getStoredConfig();
+  await sleep(400);
 
   if (existing) {
+    spinner.succeed("configuration retrieved");
     return manageExisting(existing);
   }
 
@@ -26,7 +38,7 @@ export async function runSetup() {
 
   if (!provider) return;
 
-  await saveProvider(provider, "Setup wizard completed successfully.");
+  await saveProvider(provider, "setup wizard completed successfully.");
 }
 
 /* -------------------------------------------------------------------------- */
@@ -37,20 +49,18 @@ async function manageExisting(existing: {
   activeId: string;
   providers: ProviderConfig[];
 }) {
-  console.log(chalk.dim("Configured providers:"));
+  console.log();
 
   for (const p of existing.providers) {
     const isActive = p.id === existing.activeId;
 
-    const marker = isActive ? chalk.green("◆") : chalk.dim("◇");
-
     const label = isActive
-      ? chalk.green(formatProvider(p))
-      : chalk.white(formatProvider(p));
+      ? chalk.bgMagenta(formatProvider(p))
+      : formatProvider(p);
 
-    const tag = isActive ? chalk.green(" (active)") : "";
+    const tag = isActive ? chalk.dim(" (active)") : "";
 
-    console.log(`  ${marker} ${label}${tag}`);
+    console.log(`  ${label}${tag}`);
   }
 
   console.log();
@@ -58,22 +68,22 @@ async function manageExisting(existing: {
   const active = existing.providers.find((p) => p.id === existing.activeId);
 
   const action = await select({
-    message: "What would you like to do?",
+    message: "what would you like to do?",
     choices: [
       {
-        name: "Add a new provider",
+        name: "add a new provider",
         value: "add",
         description: "Keep existing providers and configure another one",
       },
       {
-        name: "Replace the active provider",
+        name: "replace active provider",
         value: "replace",
         description: active
           ? `Replace "${formatProvider(active)}"`
           : "Replace the active provider",
       },
       {
-        name: "Cancel",
+        name: "cancel",
         value: "cancel",
         description: "Leave the configuration as-is",
       },
@@ -82,7 +92,7 @@ async function manageExisting(existing: {
 
   if (action === "cancel") {
     showHeader({
-      title: "Setup cancelled.",
+      title: "setup cancelled.",
       color: chalk.dim,
       symbol: "info",
       type: "outro",
@@ -99,7 +109,7 @@ async function manageExisting(existing: {
     await configStore.addProvider(provider, false);
 
     showHeader({
-      title: `Added "${formatProvider(provider)}" to your providers.`,
+      title: `added "${formatProvider(provider)}" to your providers.`,
       color: chalk.green,
       symbol: "success",
       type: "outro",
@@ -117,7 +127,7 @@ async function manageExisting(existing: {
   }
 
   showHeader({
-    title: `Active provider is now "${formatProvider(provider)}".`,
+    title: `active provider is now "${formatProvider(provider)}".`,
     color: chalk.green,
     symbol: "success",
     type: "outro",
@@ -129,25 +139,31 @@ async function manageExisting(existing: {
 /* -------------------------------------------------------------------------- */
 
 async function runWizard(): Promise<ProviderConfig | undefined> {
+  spinner.stop();
   const pm = getPackageManager();
 
-  const mode = await select<SetupMode>({
-    message: "How would you like to generate commits?",
+  const mode = await select<SetupMode | "cancel">({
+    message: "how should pushai generate commits?",
     choices: [
       {
-        name: "PushAI Managed AI",
+        name: "use pushai cloud",
         value: "cloud",
-        description: "Use PushAI's managed AI — authentication required",
+        description: "Use PushAI's managed AI — no API key required",
       },
       {
-        name: "Bring Your Own API Key",
+        name: "use your own api key",
         value: "byok",
-        description: "Connect your own API key from supported providers",
+        description: "Connect an API key from a supported AI provider",
       },
       {
-        name: "Run AI Locally",
+        name: "run ai locally",
         value: "local",
-        description: "Run AI on your machine — Ollama required",
+        description: "Run AI on your machine using Ollama",
+      },
+      {
+        name: "cancel",
+        value: "cancel",
+        description: "Leave your configuration unchanged",
       },
     ],
   });
@@ -178,9 +194,20 @@ async function runWizard(): Promise<ProviderConfig | undefined> {
     };
   }
 
+  if (mode === "cancel") {
+    showHeader({
+      title: "setup cancelled.",
+      color: chalk.dim,
+      symbol: "info",
+      type: "outro",
+    });
+
+    return;
+  }
+
   showHeader({
-    title: "Feature coming soon",
-    color: chalk.yellow,
+    title: `${mode} feature coming soon`,
+    color: chalk.blueBright,
     symbol: "info",
     type: "outro",
   });
@@ -189,7 +216,7 @@ async function runWizard(): Promise<ProviderConfig | undefined> {
 }
 
 async function saveProvider(provider: ProviderConfig, successTitle: string) {
-  spinner.start("Saving configuration..");
+  spinner.start("saving configuration..");
 
   try {
     await configStore.addProvider(provider, true);
@@ -206,7 +233,7 @@ async function saveProvider(provider: ProviderConfig, successTitle: string) {
     spinner.stop();
 
     const errMsg =
-      error instanceof Error ? error.message : "Failed to save configuration.";
+      error instanceof Error ? error.message : "failed to save configuration.";
 
     showHeader({
       title: errMsg,

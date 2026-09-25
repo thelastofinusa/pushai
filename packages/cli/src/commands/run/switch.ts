@@ -1,7 +1,6 @@
 import { select } from "@inquirer/prompts";
 import { showHeader } from "@pushai/utils";
 import chalk from "chalk";
-import { getConfig } from "../../config/store.config";
 import { formatProvider } from "../../lib/format";
 import { configStore } from "../../lib/store";
 
@@ -13,7 +12,7 @@ export async function runSwitch(targetId?: string) {
     type: "intro",
   });
 
-  const config = await getConfig();
+  const config = await getConfigAndRun();
 
   if (!config) return;
 

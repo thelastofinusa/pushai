@@ -1,6 +1,5 @@
 import { getPackageManager, showHeader } from "@pushai/utils";
 import chalk from "chalk";
-import { getConfig } from "../../config/store.config";
 import { formatProvider } from "../../lib/format";
 
 export async function runPeak(withApiKey = false, run: string) {
@@ -12,7 +11,7 @@ export async function runPeak(withApiKey = false, run: string) {
   });
 
   const pm = getPackageManager();
-  const config = await getConfig();
+  const config = await getConfigAndRun();
 
   if (!config) return;
 

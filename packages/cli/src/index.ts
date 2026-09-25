@@ -1,7 +1,7 @@
 import { checkForUpdate } from "@pushai/utils";
 import chalk from "chalk";
 import { Command } from "commander";
-import { commands } from "./commands";
+import { actions } from "./actions";
 import { pkgConfig } from "./config/config.config";
 
 const program = new Command();
@@ -9,13 +9,13 @@ const program = new Command();
 program
   .name(pkgConfig.name)
   .description(pkgConfig.description)
-  .version(pkgConfig.version);
+  .version(pkgConfig.version, "-v, --version");
 
-Object.values(commands).forEach((command) => {
-  command.register(program);
+Object.values(actions).forEach((action) => {
+  action.register(program);
 });
 
-program.parse();
+program.parse(process.argv);
 
 void (async () => {
   await Promise.race([

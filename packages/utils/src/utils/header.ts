@@ -2,7 +2,7 @@ import chalk, { type ChalkInstance } from "chalk";
 
 type HeaderType = "intro" | "outro";
 
-const icons = {
+export const headerIcons = {
   // Status
   success: "✔",
   error: "✖",
@@ -43,30 +43,28 @@ const icons = {
   flag: "⚑",
 } as const;
 
-export type SymbolType = keyof typeof icons;
+export type SymbolType = keyof typeof headerIcons;
 
 interface ShowHeaderProps {
   type?: HeaderType;
   title?: string;
   symbol?: SymbolType;
   color?: ChalkInstance;
+  exitType?: 0 | 1;
 }
 
 export function showHeader({
   title = "PushAI",
-  symbol = "diamond",
+  symbol,
   color = chalk.cyan,
   type = "intro",
+  exitType = 0,
 }: ShowHeaderProps) {
-  const heading = color(`${icons[symbol]} ${title}`);
+  const resolvedSymbol = symbol ?? (type === "intro" ? "chevron" : "sparkle");
+  const heading = color(`${headerIcons[resolvedSymbol]} ${title}`);
 
   console.log();
-
-  if (type === "intro") {
-    console.log(heading);
-  } else {
-    console.log(heading);
-  }
-
+  console.log(heading);
   console.log();
+  if (type === "outro") process.exit(exitType);
 }

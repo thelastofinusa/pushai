@@ -1,75 +1,9 @@
-// import { select } from "@inquirer/prompts";
-// import type { CommitFlowOptions } from "@pushai/types";
-// import { showHeader, sleep } from "@pushai/utils";
-// import chalk from "chalk";
-// import { showCommitMessage } from "../../lib/messages";
-// import { spinner } from "../../lib/spinner";
-
-// export async function runCommit(_options: CommitFlowOptions = {}) {
-//   showHeader({
-//     title: "pai commit - v3.0.5",
-//     color: chalk.cyan,
-//     type: "intro",
-//     symbol: "sparkle",
-//   });
-
-//   spinner.succeed(`provider ${chalk.cyan("openai:gpt-5-mini")}`);
-//   spinner.start(`reading staged diff ${chalk.cyan("3 files")}`);
-//   await sleep();
-//   spinner.succeed(`staged diff read ${chalk.cyan("3 files")}`);
-//   spinner.start(`generating commit..`);
-//   await sleep();
-//   spinner.succeed("commit generated");
-
-//   showCommitMessage(
-//     `feat(auth): rotate refresh tokens on session\nStore a hashed refresh token per session and issue a new
-// one on every renewal. Adds coverage for reuse detection.`,
-//   );
-
-//   const action = await select({
-//     message: "what should we do with this commit?",
-//     choices: [
-//       {
-//         name: "commit & push",
-//         value: "accept",
-//         description: "create the commit and push it to the remote",
-//       },
-//       {
-//         name: "edit message",
-//         value: "edit",
-//         description: "modify the commit message",
-//       },
-//       {
-//         name: "regenerate",
-//         value: "regenerate",
-//         description: "generate a new AI commit message",
-//       },
-//       {
-//         name: "cancel",
-//         value: "cancel",
-//         description: "abort without creating the commit",
-//       },
-//     ],
-//   });
-
-//   if (action === "accept") {
-//     spinner.succeed(`committed ${chalk.green("a91f2c4")}`);
-//   }
-
-//   showHeader({
-//     title: `commit created and pushed to origin/main.`,
-//     color: chalk.green,
-//     symbol: "success",
-//     type: "outro",
-//   });
-// }
-
 import { input, select } from "@inquirer/prompts";
 import { createGitService, generateCommitMessage } from "@pushai/core";
 import type { CommitFlowOptions, SetupConfig } from "@pushai/types";
 import { showHeader } from "@pushai/utils";
 import chalk from "chalk";
-import { getConfig } from "../../config/store.config";
+import { getConfigAndRun } from "../../config/store.config";
 import { formatProvider } from "../../lib/format";
 import { showCommitMessage } from "../../lib/messages";
 import { spinner } from "../../lib/spinner";
@@ -97,7 +31,7 @@ export async function runCommit(options: CommitFlowOptions = {}) {
     return;
   }
 
-  let config = await getConfig();
+  let config = await getConfigAndRun();
 
   // a custom message skips provider config entirely
   if (!message) {
@@ -121,7 +55,7 @@ export async function runCommit(options: CommitFlowOptions = {}) {
     spinner.fail(`${status.conflicted.length} file(s) have merge conflicts.`);
 
     for (const file of status.conflicted) {
-      console.log(`  ${chalk.red("×")} ${file}`);
+      console.log(`  ${chalk.red("✖")} ${file}`);
     }
 
     return;
@@ -212,7 +146,7 @@ export async function runCommit(options: CommitFlowOptions = {}) {
     }
 
     if (action === "regenerate") {
-      if (!config) config = await getConfig();
+      if (!config) config = await getConfigAndRun();
       if (!config) return;
 
       const active = config.providers.find((p) => p.id === config?.activeId);
@@ -273,11 +207,11 @@ export async function runCommit(options: CommitFlowOptions = {}) {
     return;
   }
 
-  spinner.start("pushing..");
+  spinner.start("pushing changes..");
 
   try {
     await git.push(branch);
-    spinner.succeed("pushed");
+    spinner.succeed("successfully pushed changes");
   } catch (error) {
     spinner.fail(
       error instanceof Error ? error.message : "failed to push commit.",
@@ -293,7 +227,7 @@ export async function runCommit(options: CommitFlowOptions = {}) {
   }
 
   showHeader({
-    title: `commit created and pushed to origin/${branch}.`,
+    title: `commit created and pushed to ${branch}.`,
     color: chalk.green,
     symbol: "success",
     type: "outro",

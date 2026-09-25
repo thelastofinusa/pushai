@@ -33,3 +33,16 @@ export function getPackageManager() {
       };
   }
 }
+
+export function getCliCommand() {
+  const executable = process.argv[1] ?? "";
+
+  // Installed globally/locally and exposed through the `pai` bin.
+  if (executable.endsWith("/pai") || executable.endsWith("\\pai")) {
+    return "pai";
+  }
+
+  const { runner } = getPackageManager();
+
+  return `${runner} pushai`;
+}

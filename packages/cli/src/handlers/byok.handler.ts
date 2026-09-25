@@ -9,7 +9,7 @@ export async function handleByokMode(): Promise<
   { provider: string; apiKey: string; model: string } | undefined
 > {
   const providerId = await select({
-    message: "Which AI provider would you like to use?",
+    message: "which provider would you like to use?",
     choices: providers.map((provider) => ({
       name: provider.name,
       value: provider.id,
@@ -19,7 +19,7 @@ export async function handleByokMode(): Promise<
   const provider = providers.find((provider) => provider.id === providerId);
 
   if (!provider) {
-    throw new Error("Invalid provider");
+    throw new Error("invalid provider");
   }
 
   let apiKey: string;
@@ -27,18 +27,16 @@ export async function handleByokMode(): Promise<
 
   while (true) {
     apiKey = await password({
-      message: `Your ${provider.name} key:`,
+      message: `your ${provider.name} key:`,
       mask: "•",
     });
 
-    spinner.start(`Validating ${chalk.green(provider.name)} API key..`);
+    spinner.start(`validating ${chalk.green(provider.name)} api key..`);
 
     try {
       models = await provider.getModels(apiKey);
 
-      spinner.succeed(
-        `Successfully validated ${chalk.green(provider.name)} API key`,
-      );
+      spinner.succeed("validated successfully");
       break;
     } catch (error) {
       if (error instanceof Error) {
@@ -47,15 +45,15 @@ export async function handleByokMode(): Promise<
       }
 
       const retry = await confirm({
-        message: "Would you like to try another API key?",
+        message: "would you like to try another api key?",
         default: true,
       });
 
       if (!retry) {
         showHeader({
-          title: "BYOK setup cancelled. No API key was configured.",
-          symbol: "warning",
-          color: chalk.yellow,
+          title: "setup cancelled.",
+          color: chalk.dim,
+          symbol: "info",
           type: "outro",
         });
 
@@ -65,7 +63,7 @@ export async function handleByokMode(): Promise<
   }
 
   if (models.length === 0) {
-    throw new Error(`No models available for ${provider.name}`);
+    throw new Error(`no models available for ${provider.name}`);
   }
 
   const modelName = models[0].name;
@@ -73,7 +71,7 @@ export async function handleByokMode(): Promise<
 
   if (models.length > 1) {
     const answer = await search({
-      message: "Search and select a model",
+      message: "search and select a model",
       source: async (input = "") => {
         const query = input.toLowerCase();
 
@@ -88,7 +86,7 @@ export async function handleByokMode(): Promise<
     spinner.succeed(`${chalk.green(answer)} selected and ready.`);
     modelId = answer;
   } else {
-    spinner.succeed(`Using ${modelName}'s ${chalk.green(modelId)} model`);
+    spinner.succeed(`using ${modelName}'s ${chalk.green(modelId)} model`);
   }
 
   return {
