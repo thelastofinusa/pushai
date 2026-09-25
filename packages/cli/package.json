@@ -1,0 +1,62 @@
+{
+  "name": "pushai",
+  "version": "3.0.5",
+  "description": "An AI Git assistant for your terminal",
+  "type": "module",
+  "license": "MIT",
+  "author": "Holiday",
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs"
+    }
+  },
+  "bin": {
+    "pai": "./dist/index.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thelastofinusa/pushai-monorepo.git",
+    "directory": "packages/cli"
+  },
+  "keywords": [
+    "git",
+    "cli",
+    "ai",
+    "commit",
+    "conventional-commits"
+  ],
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "dev": "bun run ./src/index.ts",
+    "lint": "biome check .",
+    "clean": "rm -rf .turbo dist node_modules",
+    "pack:dry": "bun run build && bun pm pack --dry-run",
+    "prepublishOnly": "bun run build"
+  },
+  "dependencies": {
+    "@inquirer/prompts": "^8.7.2",
+    "@pushai/core": "workspace:*",
+    "@pushai/types": "workspace:*",
+    "@pushai/utils": "workspace:*",
+    "chalk": "^6.0.0",
+    "commander": "^15.0.0",
+    "ollama": "^0.6.3",
+    "ora": "^9.4.1"
+  },
+  "devDependencies": {
+    "@pushai/tsconfig": "workspace:*",
+    "@types/bun": "latest",
+    "@types/node": "^22.20.2",
+    "tsdown": "0.22.14"
+  }
+}

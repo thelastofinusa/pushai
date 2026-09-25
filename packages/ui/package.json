@@ -1,12 +1,11 @@
 {
-  "name": "@workspace/ui",
+  "name": "@pushai/ui",
   "version": "0.0.0",
   "type": "module",
   "private": true,
   "scripts": {
-    "lint": "eslint",
-    "format": "prettier --write \"**/*.{ts,tsx}\"",
-    "typecheck": "tsc --noEmit"
+    "lint": "biome check .",
+    "clean": "rm -rf .turbo dist node_modules"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",
@@ -30,7 +29,7 @@
     "@types/node": "^25.1.0",
     "@types/react": "^19.2.10",
     "@types/react-dom": "^19.2.3",
-    "@workspace/typescript-config": "workspace:*",
+    "@pushai/tsconfig": "workspace:*",
     "eslint": "^9.39.2",
     "tailwindcss": "^4.1.18",
     "typescript": "^5.9.3"

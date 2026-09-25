@@ -1,5 +1,5 @@
 {
-  "name": "web",
+  "name": "@pushai/web",
   "version": "0.0.1",
   "type": "module",
   "private": true,
@@ -7,14 +7,13 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint",
-    "format": "prettier --write \"**/*.{ts,tsx}\"",
-    "typecheck": "tsc --noEmit"
+    "lint": "biome check .",
+    "clean": "rm -rf .turbo dist node_modules"
   },
   "dependencies": {
     "@typest/nextjs": "^1.0.4",
     "@vercel/analytics": "^2.0.1",
-    "@workspace/ui": "workspace:*",
+    "@pushai/ui": "workspace:*",
     "lenis": "^1.3.23",
     "lucide-react": "^1.14.0",
     "motion": "^12.38.0",
@@ -30,7 +29,7 @@
     "@types/node": "^25.1.0",
     "@types/react": "^19.2.10",
     "@types/react-dom": "^19.2.3",
-    "@workspace/typescript-config": "workspace:*",
+    "@pushai/tsconfig": "workspace:*",
     "eslint": "^9.39.2",
     "typescript": "^5.9.3"
   }
