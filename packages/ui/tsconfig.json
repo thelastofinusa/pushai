@@ -2,7 +2,7 @@
   "extends": "@pushai/tsconfig/react-library.json",
   "compilerOptions": {
     "paths": {
-      "@workspace/ui/*": ["./src/*"]
+      "@pushai/ui/*": ["./src/*"]
     }
   },
   "include": ["."],

@@ -2,7 +2,7 @@ import { withTypedAssets } from "@typest/nextjs/plugin"
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  transpilePackages: ["@workspace/ui"],
+  transpilePackages: ["@pushai/ui"],
   typedRoutes: true,
   experimental: {
     typedEnv: true,

@@ -8,9 +8,9 @@ import {
   TabsContent,
   TabsList,
   TabsTrigger,
-} from "@workspace/ui/components/tabs"
+} from "@pushai/ui/components/tabs"
 import { SiBun, SiNpm, SiPnpm, SiYarn } from "react-icons/si"
-import { Separator } from "@workspace/ui/components/separator"
+import { Separator } from "@pushai/ui/components/separator"
 
 const TypewriterCommand = ({ text }: { text: string }) => {
   const [displayed, setDisplayed] = useState("")

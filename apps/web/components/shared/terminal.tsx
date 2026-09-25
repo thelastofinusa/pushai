@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from "react"
 import { motion, AnimatePresence } from "motion/react"
-import { cn } from "@workspace/ui/lib/utils"
+import { cn } from "@pushai/ui/lib/utils"
 
 const TREE = new Set(["┌", "│", "└", "├", "╮", "╯", "╭", "╰", "─"])
 

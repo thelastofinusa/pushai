@@ -2,10 +2,10 @@
 import { useEffect, useMemo, useState } from "react"
 import { motion } from "motion/react"
 import { ArrowRight } from "lucide-react"
-import { Button } from "@workspace/ui/components/button"
+import { Button } from "@pushai/ui/components/button"
 import { Terminal } from "@/components/shared/terminal"
 import { siteConfig } from "@/config/site.config"
-import { Separator } from "@workspace/ui/components/separator"
+import { Separator } from "@pushai/ui/components/separator"
 
 const demos = [
   {

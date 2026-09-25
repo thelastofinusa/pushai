@@ -1,9 +1,9 @@
 "use client"
 
-import { Separator } from "@workspace/ui/components/separator"
+import { Separator } from "@pushai/ui/components/separator"
 import { siteConfig } from "@/config/site.config"
 import { imagePath } from "@typest/nextjs"
-import { Button, buttonVariants } from "@workspace/ui/components/button"
+import { Button, buttonVariants } from "@pushai/ui/components/button"
 import { Route } from "next"
 import { useTheme } from "next-themes"
 import Image from "next/image"

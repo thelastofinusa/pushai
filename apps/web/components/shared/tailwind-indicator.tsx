@@ -1,4 +1,4 @@
-import { buttonVariants } from "@workspace/ui/components/button"
+import { buttonVariants } from "@pushai/ui/components/button"
 
 const SHOW = true
 

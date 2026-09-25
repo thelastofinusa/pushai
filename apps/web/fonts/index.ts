@@ -1,4 +1,4 @@
-import { cn } from "@workspace/ui/lib/utils"
+import { cn } from "@pushai/ui/lib/utils"
 import localFont from "next/font/local"
 
 const fontSans = localFont({

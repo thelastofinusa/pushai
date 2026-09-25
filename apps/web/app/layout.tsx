@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import { assetPath, imagePath } from "@typest/nextjs"
 
-import "@workspace/ui/globals.css"
+import "@pushai/ui/globals.css"
 import { fontVariable } from "@/fonts"
 import { siteConfig } from "@/config/site.config"
 import Provider from "@/components/providers/lenis.provider"
