@@ -1,5 +1,11 @@
 # @pushai/utils
 
+## 0.2.2
+
+### Patch Changes
+
+- cdd5c0e: update versions
+
 ## 0.2.1
 
 ### Patch Changes

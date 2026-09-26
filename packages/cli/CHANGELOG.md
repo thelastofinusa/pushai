@@ -1,5 +1,14 @@
 # pushai
 
+## 3.1.8
+
+### Patch Changes
+
+- cdd5c0e: update versions
+- Updated dependencies [cdd5c0e]
+  - @pushai/utils@0.2.2
+  - @pushai/core@0.2.3
+
 ## 3.1.7
 
 ### Patch Changes
