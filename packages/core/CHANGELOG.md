@@ -1,5 +1,11 @@
 # @pushai/core
 
+## 0.2.2
+
+### Patch Changes
+
+- 52fd3e2: added getUnpushedCount function to git service
+
 ## 0.2.1
 
 ### Patch Changes
