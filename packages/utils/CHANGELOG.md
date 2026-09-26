@@ -1,5 +1,13 @@
 # @pushai/utils
 
+## 0.2.1
+
+### Patch Changes
+
+- e4fd690: enhance version update logic
+- Updated dependencies [e4fd690]
+  - @pushai/types@0.2.1
+
 ## 0.2.0
 
 ### Minor Changes

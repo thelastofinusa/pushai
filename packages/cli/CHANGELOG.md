@@ -1,5 +1,15 @@
 # pushai
 
+## 3.1.3
+
+### Patch Changes
+
+- e4fd690: enhance version update logic
+- Updated dependencies [e4fd690]
+  - @pushai/types@0.2.1
+  - @pushai/utils@0.2.1
+  - @pushai/core@0.2.1
+
 ## 3.1.2
 
 ### Patch Changes
