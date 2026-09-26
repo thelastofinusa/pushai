@@ -77,6 +77,7 @@ export interface GitService {
   hasUpstream(branch: string): Promise<boolean>;
   stageAll(): Promise<void>;
   unstageAll(): Promise<void>;
+  getUnpushedCount(branch: string): Promise<number | null>;
   add(path: string | string[]): Promise<void>;
   commit: (message: string) => Promise<string>;
   push(branch: string, remote?: string): Promise<void>;

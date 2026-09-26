@@ -39,6 +39,22 @@ export function createGitService(cwd: string = process.cwd()): GitService {
     }
   };
 
+  // number of local commits not yet on the branch's upstream, or `null` if
+  // the branch has no upstream configured yet (i.e. it's never been pushed)
+  const getUnpushedCount = async (branch: string): Promise<number | null> => {
+    if (!(await hasUpstream(branch))) {
+      return null;
+    }
+
+    const output = await git.raw([
+      "rev-list",
+      "--count",
+      `${branch}@{upstream}..${branch}`,
+    ]);
+
+    return Number.parseInt(output.trim(), 10);
+  };
+
   const add = async (path: string | string[]) => {
     await git.add(path);
   };
@@ -77,6 +93,7 @@ export function createGitService(cwd: string = process.cwd()): GitService {
     getStatus,
     hasRemote,
     hasUpstream,
+    getUnpushedCount,
     getDiff,
     stageAll,
     unstageAll,

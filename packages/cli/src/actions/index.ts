@@ -2,6 +2,7 @@ import { cancellation } from "@pushai/utils";
 import type { Command } from "commander";
 import { commitAction } from "./commit.action";
 import { peakAction } from "./peak.action";
+import { pushAction } from "./push.action";
 import { resetAction } from "./reset.action";
 import { setupAction } from "./setup.action";
 import { switchAction } from "./switch.action";
@@ -25,6 +26,14 @@ export const actions = {
             }),
           ),
         );
+    },
+  },
+  push: {
+    register(program: Command) {
+      program
+        .command("push")
+        .description("push local commits to the remote")
+        .action(cancellation(() => pushAction("push")));
     },
   },
   peak: {
