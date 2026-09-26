@@ -88,7 +88,7 @@ export async function commitAction(
     return;
   }
 
-  if (status.changed === 0) {
+  if (status.changed > 0) {
     spinner.info("no changes to commit.");
     return;
   }
