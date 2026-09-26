@@ -1,5 +1,11 @@
 # pushai
 
+## 3.1.4
+
+### Patch Changes
+
+- f7636c0: bump version
+
 ## 3.1.3
 
 ### Patch Changes
