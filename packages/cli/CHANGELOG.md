@@ -1,5 +1,11 @@
 # pushai
 
+## 3.1.2
+
+### Patch Changes
+
+- 0b91f88: bump cli version
+
 ## 3.1.1
 
 ### Patch Changes
