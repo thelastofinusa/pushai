@@ -1,5 +1,11 @@
 # pushai
 
+## 3.1.1
+
+### Patch Changes
+
+- 479ddcb: fix stale workspace dependency versions in the published package
+
 ## 3.1.0
 
 ### Minor Changes
