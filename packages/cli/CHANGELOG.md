@@ -1,5 +1,18 @@
 # pushai
 
+## 3.1.0
+
+### Minor Changes
+
+- 7d152ef: major update
+
+### Patch Changes
+
+- Updated dependencies [7d152ef]
+  - @pushai/core@0.2.0
+  - @pushai/types@0.2.0
+  - @pushai/utils@0.2.0
+
 ## 3.0.6
 
 ### Patch Changes

@@ -1,5 +1,17 @@
 # @pushai/core
 
+## 0.2.0
+
+### Minor Changes
+
+- 7d152ef: major update
+
+### Patch Changes
+
+- Updated dependencies [7d152ef]
+  - @pushai/types@0.2.0
+  - @pushai/utils@0.2.0
+
 ## 0.1.5
 
 ### Patch Changes
