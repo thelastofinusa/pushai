@@ -1,5 +1,11 @@
 # pushai
 
+## 3.1.7
+
+### Patch Changes
+
+- 2c306d0: fix stale workspace dependency resolution in publish script
+
 ## 3.1.6
 
 ### Patch Changes
