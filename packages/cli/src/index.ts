@@ -1,35 +1,51 @@
-import { checkForUpdate } from "@pushai/utils";
+import { checkForUpdate, getCliCommand, spinner } from "@pushai/utils";
 import chalk from "chalk";
 import { Command } from "commander";
 import { actions } from "./actions";
 import { pkgConfig } from "./config/config.config";
 
-const program = new Command();
+const invoked = process.argv[2];
+const SKIP_PASSIVE_CHECK = new Set([
+  "update",
+  "-v",
+  "--version",
+  "-h",
+  "--help",
+]);
 
-program
-  .name(pkgConfig.name)
-  .description(pkgConfig.description)
-  .version(pkgConfig.version, "-v, --version");
+async function main() {
+  if (!SKIP_PASSIVE_CHECK.has(invoked)) {
+    await Promise.race([
+      (async () => {
+        const command = getCliCommand();
+        const info = await checkForUpdate(pkgConfig.name, pkgConfig.version);
 
-Object.values(actions).forEach((action) => {
-  action.register(program);
-});
+        if (info.outdated) {
+          console.log();
 
-program.parse(process.argv);
+          spinner.warn(
+            chalk.dim(
+              `PushAI v${info.latest} is available (you have v${info.current}).\n  Run \`${command} update\`.`,
+            ),
+          );
+        }
+      })(),
+      new Promise((resolve) => setTimeout(resolve, 1500)),
+    ]);
+  }
 
-void (async () => {
-  await Promise.race([
-    (async () => {
-      const info = await checkForUpdate(pkgConfig.name, pkgConfig.version);
+  const program = new Command();
 
-      if (info.outdated) {
-        console.log(
-          `\n ${chalk.yellow("⚠")} ${chalk.dim(
-            `PushAI ${info.latest} is available (you have ${info.current}). Run \`${pkgConfig.name} update\`.`,
-          )}\n`,
-        );
-      }
-    })(),
-    new Promise((resolve) => setTimeout(resolve, 1500)),
-  ]);
-})();
+  program
+    .name(pkgConfig.name)
+    .description(pkgConfig.description)
+    .version(pkgConfig.version, "-v, --version");
+
+  Object.values(actions).forEach((action) => {
+    action.register(program);
+  });
+
+  program.parse(process.argv);
+}
+
+void main();

@@ -36,4 +36,5 @@ declare module "@typest/nextjs" {
   };
   type GenericKey = keyof typeof genericAssets;
   export function assetPath(key: GenericKey): string;
+
 }

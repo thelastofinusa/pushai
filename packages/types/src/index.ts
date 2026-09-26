@@ -81,3 +81,9 @@ export interface GitService {
   commit: (message: string) => Promise<string>;
   push(branch: string, remote?: string): Promise<void>;
 }
+
+export interface PackageManagerInfo {
+  name: string;
+  installer: string;
+  runner: string;
+}

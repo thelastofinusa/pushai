@@ -1,11 +1,12 @@
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
+import { confirm } from "@inquirer/prompts";
 import {
   checkForUpdateFresh,
   getCliCommand,
   getPackageManager,
+  headerIcons,
   showHeader,
-  sleep,
   spinner,
 } from "@pushai/utils";
 import chalk from "chalk";
@@ -50,7 +51,9 @@ export async function updateAction(action: string) {
     return;
   }
 
-  spinner.succeed(`update available: ${info.current} → ${info.latest}`);
+  spinner.succeed(
+    `update available: ${info.current} ${headerIcons.chevron} ${info.latest}`,
+  );
 
   console.log();
   console.log(
@@ -61,8 +64,23 @@ export async function updateAction(action: string) {
   );
   console.log();
 
-  spinner.start(`updating ${pkgConfig.name}..`);
-  await sleep();
+  const shouldUpdate = await confirm({
+    message: `update ${pkgConfig.name} to v${info.latest} now?`,
+    default: true,
+  });
+
+  if (!shouldUpdate) {
+    showHeader({
+      title: "update skipped.",
+      color: chalk.dim,
+      symbol: "info",
+      type: "outro",
+    });
+
+    return;
+  }
+
+  spinner.start(`installing ${pkgConfig.name}@${info.latest}..`);
 
   try {
     const [executable, ...args] = pm.installer.split(" ");
