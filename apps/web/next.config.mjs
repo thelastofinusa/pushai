@@ -1,4 +1,4 @@
-import { withTypedAssets } from "@typest/nextjs/plugin"
+import { withTypedAssets } from "@typest/nextjs/plugin";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -7,8 +7,8 @@ const nextConfig = {
   experimental: {
     typedEnv: true,
   },
-}
+};
 
 export default withTypedAssets({
   sources: [{ dir: "public" }],
-})(nextConfig)
+})(nextConfig);

@@ -13,6 +13,12 @@ async function isPublished(name: string, version: string): Promise<boolean> {
   return res.ok; // 200 = this exact version exists, 404 = it doesn't
 }
 
+// re-resolve the lockfile against whatever `changeset version` just wrote to
+// each package.json — otherwise `bun publish` rewrites workspace:* using
+// stale resolved versions from the last time install ran, not what's on disk
+console.log("🔄 refreshing lockfile before publish..");
+await $`bun install`;
+
 for (const dir of PUBLISH_ORDER) {
   const pkgPath = path.join(PACKAGES_DIR, dir, "package.json");
   if (!fs.existsSync(pkgPath)) continue;
