@@ -14,7 +14,7 @@ export async function pushAction(action: string) {
   showHeader({
     title: `${command} ${action} - v${pkgConfig.version}`,
     color: chalk.cyan,
-    symbol: "sparkle",
+    symbol: "flag",
     type: "intro",
   });
 
@@ -36,6 +36,7 @@ export async function pushAction(action: string) {
       color: chalk.green,
       symbol: "success",
       type: "outro",
+      margin: { top: false },
     });
 
     return;

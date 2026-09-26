@@ -53,7 +53,10 @@ interface CacheEntry {
   info: UpdateInfo;
 }
 
-function readCache(serviceName: string): CacheEntry | null {
+function readCache(
+  serviceName: string,
+  currentVersion: string,
+): CacheEntry | null {
   try {
     const file = cachePath(serviceName);
     if (!fs.existsSync(file)) return null;
@@ -61,6 +64,12 @@ function readCache(serviceName: string): CacheEntry | null {
     const entry = JSON.parse(fs.readFileSync(file, "utf8")) as CacheEntry;
 
     if (Date.now() - entry.checkedAt > CACHE_TTL_MS) return null;
+
+    // The cache is only valid for the version it was recorded against. If
+    // the running binary's version has changed since (e.g. the user just
+    // ran `pai update`), the cached current/outdated fields are stale even
+    // though the timestamp hasn't expired — treat it as a miss.
+    if (entry.info.current !== currentVersion) return null;
 
     return entry;
   } catch {
@@ -83,14 +92,16 @@ function writeCache(serviceName: string, info: UpdateInfo): void {
 
 /**
  * Check whether the running package is outdated. Results are cached for
- * 24h under ~/.config/<serviceName>/.update-check.json. Never throws.
+ * 24h under ~/.config/<serviceName>/.update-check.json, but the cache is
+ * invalidated early if the running version no longer matches what was
+ * cached (e.g. right after `pai update`). Never throws.
  */
 export async function checkForUpdate(
   packageName: string,
   currentVersion: string,
   serviceName: string = packageName,
 ): Promise<UpdateInfo> {
-  const cached = readCache(serviceName);
+  const cached = readCache(serviceName, currentVersion);
   if (cached) return cached.info;
 
   const latest = await fetchLatestVersion(packageName);

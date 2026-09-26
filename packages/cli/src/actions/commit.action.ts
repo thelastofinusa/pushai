@@ -263,7 +263,7 @@ export async function commitAction(
 
   if (!shouldPush) {
     showHeader({
-      title: `commit created on ${branch}. push when ready with \`git push\`.`,
+      title: `commit created on ${branch}. push when ready with \`pai push\`.`,
       color: chalk.green,
       symbol: "success",
       type: "outro",
