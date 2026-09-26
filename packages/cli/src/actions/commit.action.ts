@@ -88,8 +88,14 @@ export async function commitAction(
     return;
   }
 
-  if (status.changed > 0) {
-    spinner.info("no changes to commit.");
+  if (status.changed === 0) {
+    showHeader({
+      title: "no changes to commit.",
+      color: chalk.blue,
+      symbol: "info",
+      type: "outro",
+    });
+
     return;
   }
 
