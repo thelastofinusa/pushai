@@ -1,5 +1,11 @@
 # pushai
 
+## 3.1.6
+
+### Patch Changes
+
+- 1a4df09: bump versions
+
 ## 3.1.5
 
 ### Patch Changes
