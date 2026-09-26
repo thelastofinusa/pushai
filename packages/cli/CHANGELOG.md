@@ -1,5 +1,11 @@
 # pushai
 
+## 3.1.9
+
+### Patch Changes
+
+- df6cd2a: update no commit hang
+
 ## 3.1.8
 
 ### Patch Changes
