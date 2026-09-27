@@ -1,4 +1,4 @@
-import { Button } from "@/components/reusable/shadcn/button";
+import { Button } from "@/components/ui/shadcn/button";
 
 const variants = [
   "default",

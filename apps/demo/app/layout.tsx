@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Navbar } from "@/components/navbar";
+import { SoundFxProvider } from "@/components/providers/sound.provider";
 import { ThemeProvider } from "@/components/providers/theme.provider";
+import { Navbar } from "@/components/shared/navbar";
 import { fontVariable } from "@/lib/fonts";
 
 export const metadata: Metadata = {
@@ -17,10 +18,12 @@ export default function RootLayout(props: LayoutProps<"/">) {
       className={fontVariable("h-full font-sans antialiased")}
     >
       <body className="flex min-h-full flex-col">
-        <ThemeProvider>
-          <Navbar />
-          {props.children}
-        </ThemeProvider>
+        <SoundFxProvider>
+          <ThemeProvider>
+            <Navbar />
+            {props.children}
+          </ThemeProvider>
+        </SoundFxProvider>
       </body>
     </html>
   );
