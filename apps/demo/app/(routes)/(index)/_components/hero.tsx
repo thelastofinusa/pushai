@@ -72,43 +72,46 @@ export const HomeHero = () => {
               ✦ npx pushai commit - v{version}
             </p>
             <p className="text-muted-foreground">
-              <span className="font-medium text-term-green">✔</span> provider{" "}
-              <span className="font-medium text-term-green">
-                local · llama3.2:latest
-              </span>
+              <span className="text-term-green">✔</span> provider{" "}
+              <span className="text-term-green">local · llama3.2:latest</span>
             </p>
             <p className="text-muted-foreground">
-              <span className="font-medium text-term-green">✔</span> staged diff
-              read <span className="font-medium text-term-green">12 files</span>
+              <span className="text-term-green">✔</span> staged diff read{" "}
+              <span className="text-term-green">1 file</span>
             </p>
             <p className="text-muted-foreground">
-              <span className="font-medium text-term-green">✔</span> commit
-              generated
+              <span className="text-term-green">✔</span> commit generated
             </p>
             <div className="ml-4 border-l border-l-cyan-600 pl-3">
               <p className="mt-3 text-cyan-600">
-                feat(api): add request rate limiting
+                feat(ui): improve terminal output spacing
               </p>
               <p className="mt-1 text-muted-foreground">
-                Protect API routes with configurable request limits
+                Improve spacing between terminal elements to make the output
+                easier to read.
               </p>
             </div>
             <p className="mt-3 text-muted-foreground">
-              <span className="font-medium text-term-green">✔</span> how would
-              you like to proceed?{" "}
-              <span className="font-medium text-cyan-600">commit & push</span>
+              <span className="text-term-green">✔</span> how would you like to
+              proceed? <span className="text-cyan-600">commit & push</span>
             </p>
             <p className="text-muted-foreground">
-              <span className="font-medium text-term-green">✔</span> committed{" "}
-              <span className="font-medium text-term-green">fea765e</span>
+              <span className="text-term-green">✔</span> committed{" "}
+              <a
+                href="https://github.com/thelastofinusa/pushai/commit/5640ffd920b792922c4d44281e2dde373d3e83f1"
+                target="_blank"
+                rel="noreferrer"
+                className="text-term-green hover:underline"
+              >
+                <span>5640ffd</span>
+              </a>
             </p>
             <p className="text-muted-foreground">
-              <span className="font-medium text-term-green">✔</span>{" "}
-              successfully pushed changes
+              <span className="text-term-green">✔</span> successfully pushed
+              changes
             </p>
             <p className="mt-4 text-term-green">
-              <span className="font-medium">✔</span> commit created and pushed
-              to main.
+              <span className="">✔</span> commit created and pushed to main.
             </p>
           </TerminalWindow>
         </div>
@@ -116,20 +119,3 @@ export const HomeHero = () => {
     </div>
   );
 };
-
-// # pai commit
-
-// ✦ npx pushai commit - v3.1.9
-
-// ✔ provider local · llama3.2:latest
-// ✔ staged diff read 12 files
-// ✔ commit generated
-
-//   │ feat(ui): improve terminal output spacing
-//   │ Improve spacing between terminal elements to make the output easier to read.
-
-// ✔ how would you like to proceed? commit & push
-// ✔ committed fea765e
-// ✔ successfully pushed changes
-
-// ✔ commit created and pushed to codex/revamp.

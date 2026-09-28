@@ -137,7 +137,7 @@ export function TerminalWindow({
             {title}
           </span>
         </div>
-        <div className="px-4 py-3 font-mono text-[11px] text-terminal-foreground leading-relaxed md:text-xs">
+        <div className="px-4 py-3 font-mono text-[11px] text-muted-foreground leading-relaxed md:text-xs">
           {children}
         </div>
       </div>
