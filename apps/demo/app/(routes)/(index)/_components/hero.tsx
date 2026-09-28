@@ -192,7 +192,7 @@ export const HomeHero = () => {
 
           <TerminalWindow className="shadow-panel" title="~/repo pai commit">
             <p className="mb-4 text-cyan-600">
-              ✦ npx pushai commit - v{version}
+              ✦ {selectedManager.runner} pushai commit - v{version}
             </p>
             <p className="text-muted-foreground">
               <span className="text-term-green">✔</span> provider{" "}

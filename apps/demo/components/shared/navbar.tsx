@@ -1,19 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+// import { useState } from "react";
 import { SiNpm } from "react-icons/si";
-import { TbMenu, TbX } from "react-icons/tb";
+// import { TbMenu, TbX } from "react-icons/tb";
 import { VscGithubInverted } from "react-icons/vsc";
 import { siteConfig } from "@/config/site.config";
-import { IconSwap, IconSwapItem } from "../ui/chanhdai/icon-swap";
+// import { IconSwap, IconSwapItem } from "../ui/chanhdai/icon-swap";
 import { Button, buttonVariants } from "../ui/shadcn/button";
 import { Separator } from "../ui/shadcn/separator";
 import { Container } from "./container";
 import { ThemeToggle } from "./theme-toggle";
 
 export const Navbar = () => {
-  const [openMenu, setOpenMenu] = useState(false);
+  // const [openMenu, setOpenMenu] = useState(false);
 
   return (
     <header className="sticky top-0 left-0 z-50 w-full bg-background/60 backdrop-blur-md">
@@ -32,7 +32,7 @@ export const Navbar = () => {
           </div>
 
           <div className="-mr-3.5 hidden items-center gap-px md:flex">
-            <div className="mr-6 flex h-9 items-center rounded-full px-0.5">
+            <div className="mr-6 hidden h-9 items-center rounded-full px-0.5">
               <Button variant="ghost" size="sm">
                 <span>Docs</span>
               </Button>
@@ -45,10 +45,32 @@ export const Navbar = () => {
             </div>
 
             <div className="flex h-9 items-center rounded-full px-0.5">
-              <Button variant="ghost" size="icon-sm">
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                nativeButton={false}
+                render={
+                  <a
+                    href="https://github.com/thelastofinusa/pushai"
+                    target="_blank"
+                    rel="noopener"
+                  />
+                }
+              >
                 <VscGithubInverted />
               </Button>
-              <Button variant="ghost" size="icon-sm">
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                nativeButton={false}
+                render={
+                  <a
+                    href="https://www.npmjs.com/package/pushai"
+                    target="_blank"
+                    rel="noopener"
+                  />
+                }
+              >
                 <SiNpm className="size-3.5!" />
               </Button>
             </div>
@@ -66,10 +88,35 @@ export const Navbar = () => {
             </div>
 
             <div className="flex h-9 items-center rounded-full bg-secondary/60 px-0.5 dark:bg-secondary/20">
-              <Button variant="ghost" size="icon-sm">
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                nativeButton={false}
+                render={
+                  <a
+                    href="https://github.com/thelastofinusa/pushai"
+                    target="_blank"
+                    rel="noopener"
+                  />
+                }
+              >
                 <VscGithubInverted />
               </Button>
               <Button
+                variant="ghost"
+                size="icon-sm"
+                nativeButton={false}
+                render={
+                  <a
+                    href="https://www.npmjs.com/package/pushai"
+                    target="_blank"
+                    rel="noopener"
+                  />
+                }
+              >
+                <SiNpm className="size-3.5!" />
+              </Button>
+              {/* <Button
                 variant="ghost"
                 size="icon-sm"
                 onClick={() => setOpenMenu((prev) => !prev)}
@@ -83,7 +130,7 @@ export const Navbar = () => {
                     )}
                   </IconSwapItem>
                 </IconSwap>
-              </Button>
+              </Button> */}
             </div>
           </div>
         </nav>
