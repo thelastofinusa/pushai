@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { FiTerminal } from "react-icons/fi";
 import { Copy3 } from "reicon-react";
 import { Container } from "@/components/shared/container";
-import { Prompt, TerminalWindow } from "@/components/shared/primitives";
+import { TerminalWindow } from "@/components/shared/primitives";
 import { Button } from "@/components/ui/shadcn/button";
 import { Separator } from "@/components/ui/shadcn/separator";
 import { siteConfig } from "@/config/site.config";
@@ -67,21 +67,26 @@ export const HomeHero = () => {
             </Button>
           </div>
 
-          <TerminalWindow className="shadow-panel">
-            <Prompt>pai commit</Prompt>
-            <p className="my-4 text-primary">» pai commit - v{version}</p>
-            <p className="text-muted-foreground">
-              ⠿ reading staged diff{" "}
-              <span className="font-medium text-term-green">3 files</span>
+          <TerminalWindow className="shadow-panel" title="~/repo pai commit">
+            <p className="mb-4 text-cyan-600">
+              ✦ npx pushai commit - v{version}
             </p>
             <p className="text-muted-foreground">
-              ⠿ provider{" "}
+              <span className="font-medium text-term-green">✔</span> provider{" "}
               <span className="font-medium text-term-green">
-                openai:gpt-5-mini
+                local · llama3.2:latest
               </span>
             </p>
-            <div className="ml-4 border-l-2 border-l-primary pl-4">
-              <p className="mt-3 text-primary">
+            <p className="text-muted-foreground">
+              <span className="font-medium text-term-green">✔</span> staged diff
+              read <span className="font-medium text-term-green">12 files</span>
+            </p>
+            <p className="text-muted-foreground">
+              <span className="font-medium text-term-green">✔</span> commit
+              generated
+            </p>
+            <div className="ml-4 border-l border-l-cyan-600 pl-3">
+              <p className="mt-3 text-cyan-600">
                 feat(api): add request rate limiting
               </p>
               <p className="mt-1 text-muted-foreground">
@@ -89,16 +94,21 @@ export const HomeHero = () => {
               </p>
             </div>
             <p className="mt-3 text-muted-foreground">
-              <span className="font-medium text-term-green">✔</span> committed{" "}
-              <span className="font-medium text-term-green">a91f2c4</span>
+              <span className="font-medium text-term-green">✔</span> how would
+              you like to proceed?{" "}
+              <span className="font-medium text-cyan-600">commit & push</span>
             </p>
             <p className="text-muted-foreground">
-              <span className="font-medium text-term-green">✔</span> pushed
-              changes
+              <span className="font-medium text-term-green">✔</span> committed{" "}
+              <span className="font-medium text-term-green">fea765e</span>
             </p>
-            <p className="mt-4 text-muted-foreground">
-              <span className="font-medium text-term-green">✔</span> commit
-              message generated successfully
+            <p className="text-muted-foreground">
+              <span className="font-medium text-term-green">✔</span>{" "}
+              successfully pushed changes
+            </p>
+            <p className="mt-4 text-term-green">
+              <span className="font-medium">✔</span> commit created and pushed
+              to main.
             </p>
           </TerminalWindow>
         </div>
@@ -106,3 +116,20 @@ export const HomeHero = () => {
     </div>
   );
 };
+
+// # pai commit
+
+// ✦ npx pushai commit - v3.1.9
+
+// ✔ provider local · llama3.2:latest
+// ✔ staged diff read 12 files
+// ✔ commit generated
+
+//   │ feat(ui): improve terminal output spacing
+//   │ Improve spacing between terminal elements to make the output easier to read.
+
+// ✔ how would you like to proceed? commit & push
+// ✔ committed fea765e
+// ✔ successfully pushed changes
+
+// ✔ commit created and pushed to codex/revamp.
