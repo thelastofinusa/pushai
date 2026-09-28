@@ -6,7 +6,6 @@ import {
 } from "@teispace/next-themes";
 import React from "react";
 import { useHotkeys } from "react-hotkeys-hook";
-import { useSoundFx } from "./sound.provider";
 
 type Theme = "dark" | "light" | "system";
 type ResolvedTheme = "dark" | "light";
@@ -63,7 +62,6 @@ function ThemeController({
     setTheme: setNextTheme,
   } = useNextTheme();
 
-  const { play } = useSoundFx();
   const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
@@ -79,7 +77,6 @@ function ThemeController({
     (nextTheme: Theme) => {
       const updateTheme = () => {
         setNextTheme(nextTheme);
-        play("add-to-cart");
       };
 
       if (typeof document.startViewTransition !== "function") {
@@ -89,7 +86,7 @@ function ThemeController({
 
       document.startViewTransition(updateTheme);
     },
-    [setNextTheme, play],
+    [setNextTheme],
   );
 
   const toggleTheme = React.useCallback(() => {

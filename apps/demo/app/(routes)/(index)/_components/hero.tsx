@@ -1,17 +1,65 @@
 "use client";
 
-import Link from "next/link";
+import type { PackageManagerInfo } from "@pushai/types";
 import { useEffect, useState } from "react";
-import { FiTerminal } from "react-icons/fi";
+import type { IconType } from "react-icons";
+import { FiCheck, FiChevronDown } from "react-icons/fi";
+import { SiBun, SiNpm, SiPnpm, SiYarn } from "react-icons/si";
 import { Copy3 } from "reicon-react";
 import { Container } from "@/components/shared/container";
 import { TerminalWindow } from "@/components/shared/primitives";
+import { IconSwap, IconSwapItem } from "@/components/ui/chanhdai/icon-swap";
+import { Frame, FramePanel } from "@/components/ui/reui/frame";
 import { Button } from "@/components/ui/shadcn/button";
 import { Separator } from "@/components/ui/shadcn/separator";
 import { siteConfig } from "@/config/site.config";
 
+const MANAGERS: Record<string, PackageManagerInfo & { icon: IconType }> = {
+  npm: { name: "npm", installer: "npm install", runner: "npx", icon: SiNpm },
+  pnpm: {
+    name: "pnpm",
+    installer: "pnpm add",
+    runner: "pnpm dlx",
+    icon: SiPnpm,
+  },
+  yarn: {
+    name: "yarn",
+    installer: "yarn add",
+    runner: "yarn dlx",
+    icon: SiYarn,
+  },
+  bun: { name: "bun", installer: "bun add", runner: "bunx", icon: SiBun },
+} as const;
+
 export const HomeHero = () => {
   const [version, setVersion] = useState("0.0.0");
+  const [pm, setPm] = useState<keyof typeof MANAGERS>("npm");
+  const [installMethod, setInstallMethod] = useState<"instant" | "global">(
+    "global",
+  );
+  const [copied, setCopied] = useState(false);
+
+  // Dynamically generate the commands based on the selected package manager
+  const selectedManager = MANAGERS[pm];
+  const SelectedIcon = selectedManager.icon;
+
+  const installOptions = {
+    instant: {
+      label: "Run Instantly",
+      command: `${selectedManager.runner} pushai setup`,
+      next: null,
+    },
+    global: {
+      label: "Install Globally",
+      command:
+        pm === "yarn"
+          ? "yarn global add pushai"
+          : `${selectedManager.installer} -g pushai`,
+      next: "pai setup",
+    },
+  };
+
+  const selected = installOptions[installMethod];
 
   useEffect(() => {
     fetch("/api/version")
@@ -19,6 +67,16 @@ export const HomeHero = () => {
       .then((data) => setVersion(data))
       .catch(() => setVersion("0.0.0"));
   }, []);
+
+  const copyCommand = async () => {
+    await navigator.clipboard.writeText(
+      selected.next
+        ? `${selected.command} && ${selected.next}`
+        : selected.command,
+    );
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   return (
     <div className="flex-1">
@@ -40,32 +98,97 @@ export const HomeHero = () => {
             Your Git workflow, <br />
             <span className="text-primary">quietly smarter.</span>
           </h1>
-          <p className="mb-4 max-w-lg font-normal text-base text-muted-foreground md:text-lg">
+          <p className="mb-2 max-w-xl font-normal text-base text-muted-foreground md:text-lg">
             {siteConfig.description}
           </p>
 
-          <div className="mb-4 flex flex-wrap items-center gap-2 md:gap-3">
-            <Button
-              size="lg"
-              variant="secondary"
-              className="h-13 flex-1 px-5 sm:h-11 sm:flex-none dark:bg-card"
+          {/* Wrapper layout for Frame and Select */}
+          <div className="mb-6 flex w-full flex-col-reverse gap-3 sm:w-max sm:flex-row sm:items-stretch">
+            <Frame
+              variant="inverse"
+              className="flex flex-col items-stretch rounded-xl bg-card sm:flex-row sm:items-center md:rounded-full"
             >
-              <FiTerminal className="text-primary" />
-              <p className="mr-auto font-mono text-xs sm:mr-0">
-                npx pushai setup
-              </p>
-              <Copy3 className="ml-2" />
-            </Button>
-            <Button
-              size="lg"
-              variant="ghost"
-              nativeButton={false}
-              render={<Link href="/button-variants" />}
-              className="hidden sm:inline-flex"
-            >
-              <span>Get Started</span>
-            </Button>
+              <FramePanel className="flex items-center rounded-lg p-0.5 shadow-none md:rounded-full">
+                {(
+                  Object.keys(installOptions) as Array<
+                    keyof typeof installOptions
+                  >
+                ).map((method) => (
+                  <Button
+                    key={method}
+                    size="sm"
+                    onClick={() => setInstallMethod(method)}
+                    variant={installMethod === method ? "default" : "ghost"}
+                    className="flex-1 rounded-lg sm:h-7 md:rounded-full"
+                  >
+                    <span>{installOptions[method].label}</span>
+                  </Button>
+                ))}
+              </FramePanel>
+
+              <Separator
+                orientation="vertical"
+                className="mx-2 my-auto hidden h-4 md:block"
+              />
+
+              <div className="flex flex-1 items-center gap-2 rounded-lg border pr-2 pl-3 sm:rounded-full sm:border-none sm:px-0 md:rounded-xl">
+                <div className="scrollbar-hide mask-image:linear-gradient(to_right,white_80%,transparent_100%)] flex flex-1 items-center gap-2 overflow-x-auto text-xs">
+                  <span className="select-none text-primary">$</span>
+                  <code className="whitespace-nowrap font-medium font-mono text-foreground">
+                    {selected.command}
+                  </code>
+
+                  {selected.next && (
+                    <div className="fade-in slide-in-from-left-2 flex animate-in items-center gap-2 duration-300">
+                      <span className="select-none font-mono text-muted-foreground/40">
+                        &&
+                      </span>
+                      <code className="whitespace-nowrap font-mono text-muted-foreground">
+                        {selected.next}
+                      </code>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex shrink-0 items-center gap-1">
+                  <Button
+                    onClick={copyCommand}
+                    variant="ghost"
+                    size="icon-sm"
+                    className="shrink-0"
+                  >
+                    <IconSwap>
+                      <IconSwapItem key={String(copied)}>
+                        {copied ? <FiCheck /> : <Copy3 />}
+                      </IconSwapItem>
+                    </IconSwap>
+                    <span className="sr-only">Copy command</span>
+                  </Button>
+                </div>
+              </div>
+            </Frame>
+
+            {/* External Package Manager Switcher */}
+            <div className="relative flex items-center gap-2 px-2 sm:px-0">
+              <SelectedIcon className="size-3.5 shrink-0" />
+              <span className="font-mono text-sm">{pm}</span>
+              <FiChevronDown className="size-4 opacity-50" />
+
+              <select
+                className="absolute inset-0 h-full w-full cursor-pointer appearance-none bg-transparent opacity-0"
+                value={pm}
+                onChange={(e) => setPm(e.target.value as keyof typeof MANAGERS)}
+                title="Switch package manager"
+              >
+                {Object.keys(MANAGERS).map((key) => (
+                  <option key={key} value={key}>
+                    {MANAGERS[key].name}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
+          {/* End Layout Wrapper */}
 
           <TerminalWindow className="shadow-panel" title="~/repo pai commit">
             <p className="mb-4 text-cyan-600">

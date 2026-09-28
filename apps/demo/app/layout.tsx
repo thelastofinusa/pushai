@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { SoundFxProvider } from "@/components/providers/sound.provider";
 import { ThemeProvider } from "@/components/providers/theme.provider";
 import { Navbar } from "@/components/shared/navbar";
 import { fontVariable } from "@/lib/fonts";
@@ -18,12 +17,10 @@ export default function RootLayout(props: LayoutProps<"/">) {
       className={fontVariable("h-full font-sans antialiased")}
     >
       <body className="flex min-h-full flex-col">
-        <SoundFxProvider>
-          <ThemeProvider>
-            <Navbar />
-            {props.children}
-          </ThemeProvider>
-        </SoundFxProvider>
+        <ThemeProvider>
+          <Navbar />
+          {props.children}
+        </ThemeProvider>
       </body>
     </html>
   );
