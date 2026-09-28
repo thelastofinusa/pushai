@@ -1,5 +1,11 @@
 # @pushai/types
 
+## 0.2.2
+
+### Patch Changes
+
+- 730da11: upgrade
+
 ## 0.2.1
 
 ### Patch Changes

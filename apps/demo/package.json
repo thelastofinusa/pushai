@@ -10,6 +10,7 @@
     "format": "biome format --write"
   },
   "dependencies": {
+    "@pushai/types": "workspace:*",
     "@base-ui/react": "^1.8.0",
     "@shadcn/react": "^0.3.1",
     "@teispace/next-themes": "^3.0.2",

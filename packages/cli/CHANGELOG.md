@@ -1,5 +1,15 @@
 # pushai
 
+## 3.1.10
+
+### Patch Changes
+
+- 730da11: upgrade
+- Updated dependencies [730da11]
+  - @pushai/core@0.2.4
+  - @pushai/types@0.2.2
+  - @pushai/utils@0.2.3
+
 ## 3.1.9
 
 ### Patch Changes

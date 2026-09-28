@@ -1,5 +1,13 @@
 # @pushai/utils
 
+## 0.2.3
+
+### Patch Changes
+
+- 730da11: upgrade
+- Updated dependencies [730da11]
+  - @pushai/types@0.2.2
+
 ## 0.2.2
 
 ### Patch Changes
