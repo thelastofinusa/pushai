@@ -103,10 +103,10 @@ export const HomeHero = () => {
           </p>
 
           {/* Wrapper layout for Frame and Select */}
-          <div className="mb-6 flex w-full flex-col-reverse gap-3 sm:w-max sm:flex-row sm:items-stretch">
+          <div className="mb-6 flex w-full flex-col-reverse items-end gap-3 sm:w-max sm:flex-row sm:items-center sm:gap-4">
             <Frame
               variant="inverse"
-              className="flex flex-col items-stretch rounded-xl bg-card sm:flex-row sm:items-center md:rounded-full"
+              className="flex w-full flex-col items-stretch rounded-xl bg-card sm:w-auto sm:flex-row sm:items-center md:rounded-full"
             >
               <FramePanel className="flex items-center rounded-lg p-0.5 shadow-none md:rounded-full">
                 {(
@@ -169,10 +169,10 @@ export const HomeHero = () => {
             </Frame>
 
             {/* External Package Manager Switcher */}
-            <div className="relative flex items-center gap-2 px-2 sm:px-0">
+            <div className="group relative flex cursor-pointer items-center gap-2 rounded-full border bg-card px-3 py-1.5 text-muted-foreground shadow-xs transition-colors hover:bg-muted/50 hover:text-foreground sm:border-transparent sm:bg-transparent sm:py-1 sm:pr-1 sm:shadow-none">
               <SelectedIcon className="size-3.5 shrink-0" />
               <span className="font-mono text-sm">{pm}</span>
-              <FiChevronDown className="size-4 opacity-50" />
+              <FiChevronDown className="size-4 opacity-50 transition-transform group-hover:translate-y-px" />
 
               <select
                 className="absolute inset-0 h-full w-full cursor-pointer appearance-none bg-transparent opacity-0"
