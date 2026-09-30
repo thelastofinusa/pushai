@@ -1,20 +1,15 @@
 "use client";
 
 import Link from "next/link";
-// import { useState } from "react";
 import { SiNpm } from "react-icons/si";
-// import { TbMenu, TbX } from "react-icons/tb";
 import { VscGithubInverted } from "react-icons/vsc";
 import { siteConfig } from "@/config/site.config";
-// import { IconSwap, IconSwapItem } from "../ui/chanhdai/icon-swap";
 import { Button, buttonVariants } from "../ui/shadcn/button";
 import { Separator } from "../ui/shadcn/separator";
 import { Container } from "./container";
 import { ThemeToggle } from "./theme-toggle";
 
 export const Navbar = () => {
-  // const [openMenu, setOpenMenu] = useState(false);
-
   return (
     <header className="sticky top-0 left-0 z-50 w-full bg-background/60 backdrop-blur-md">
       <Container className="py-4">

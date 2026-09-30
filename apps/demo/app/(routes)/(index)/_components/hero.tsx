@@ -106,9 +106,9 @@ export const HomeHero = () => {
           <div className="mb-6 flex w-full flex-col-reverse items-end gap-3 sm:w-max sm:flex-row sm:items-center sm:gap-4">
             <Frame
               variant="inverse"
-              className="flex w-full flex-col items-stretch rounded-xl bg-card sm:w-auto sm:flex-row sm:items-center md:rounded-full"
+              className="flex h-max w-full flex-col items-stretch rounded-xl bg-card sm:w-auto sm:flex-row sm:items-center md:rounded-full"
             >
-              <FramePanel className="flex items-center rounded-lg p-0.5 shadow-none md:rounded-full">
+              <FramePanel className="flex items-center rounded-lg border-0 p-0! shadow-none md:rounded-full">
                 {(
                   Object.keys(installOptions) as Array<
                     keyof typeof installOptions
@@ -119,7 +119,7 @@ export const HomeHero = () => {
                     size="sm"
                     onClick={() => setInstallMethod(method)}
                     variant={installMethod === method ? "default" : "ghost"}
-                    className="flex-1 rounded-lg sm:h-7 md:rounded-full"
+                    className="flex-1 rounded-lg md:rounded-full"
                   >
                     <span>{installOptions[method].label}</span>
                   </Button>
