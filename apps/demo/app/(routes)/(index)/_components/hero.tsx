@@ -102,7 +102,6 @@ export const HomeHero = () => {
             {siteConfig.description}
           </p>
 
-          {/* Wrapper layout for Frame and Select */}
           <div className="mb-6 flex w-full flex-col-reverse items-end gap-3 sm:w-max sm:flex-row sm:items-center sm:gap-4">
             <Frame
               variant="inverse"
@@ -168,7 +167,6 @@ export const HomeHero = () => {
               </div>
             </Frame>
 
-            {/* External Package Manager Switcher */}
             <div className="group relative flex cursor-pointer items-center gap-2 rounded-full border bg-card px-3 py-1.5 text-muted-foreground shadow-xs transition-colors hover:bg-muted/50 hover:text-foreground sm:border-transparent sm:bg-transparent sm:py-1 sm:pr-1 sm:shadow-none">
               <SelectedIcon className="size-3.5 shrink-0" />
               <span className="font-mono text-sm">{pm}</span>
@@ -188,7 +186,6 @@ export const HomeHero = () => {
               </select>
             </div>
           </div>
-          {/* End Layout Wrapper */}
 
           <TerminalWindow className="shadow-panel" title="~/repo pai commit">
             <p className="mb-4 text-cyan-600">
