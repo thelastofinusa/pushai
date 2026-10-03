@@ -1,5 +1,11 @@
 # pushai
 
+## 3.1.13
+
+### Patch Changes
+
+- cb80f39: Add automatic repository initialization prompts, update documentation for the push command, and improve command title formatting.
+
 ## 3.1.12
 
 ### Patch Changes
