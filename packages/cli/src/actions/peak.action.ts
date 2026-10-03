@@ -1,25 +1,15 @@
 import { confirm } from "@inquirer/prompts";
-import {
-  getCliCommand,
-  setSpinnerColor,
-  showHeader,
-  sleep,
-  spinner,
-} from "@pushai/utils";
+import { setSpinnerColor, showHeader, sleep, spinner } from "@pushai/utils";
 import chalk from "chalk";
-import { pkgConfig } from "../config/config.config";
 import { configStore } from "../config/store.config";
+import { getCommandTitle } from "../lib/command-title";
 import { formatProvider } from "../lib/format";
 
-export async function peakAction(
-  action: string,
-  withApiKey = false,
-  key?: string,
-) {
-  const command = getCliCommand();
+export async function peakAction(withApiKey = false) {
+  const { command, title } = getCommandTitle();
 
   showHeader({
-    title: `${command} ${action}${withApiKey ? ` ${key}` : ""} - v${pkgConfig.version}`,
+    title: title,
     color: chalk.cyan,
   });
 
@@ -88,7 +78,7 @@ export async function peakAction(
 
     console.log(
       ` ${chalk.dim("Use")} ${chalk.cyan(
-        `${command} ${action} ${key}`,
+        `${command} --key`,
       )} ${chalk.dim("to show the configured API keys.")}`,
     );
   }

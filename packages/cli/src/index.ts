@@ -1,17 +1,16 @@
-import { checkForUpdate, getCliCommand, spinner } from "@pushai/utils";
+import {
+  checkForUpdate,
+  getCliCommand,
+  headerIcons,
+  spinner,
+} from "@pushai/utils";
 import chalk from "chalk";
 import { Command } from "commander";
 import { actions } from "./actions";
 import { pkgConfig } from "./config/config.config";
 
 const invoked = process.argv[2];
-const SKIP_PASSIVE_CHECK = new Set([
-  "update",
-  "-v",
-  "--version",
-  "-h",
-  "--help",
-]);
+const SKIP_PASSIVE_CHECK = new Set(["update", "--version", "-h", "--help"]);
 
 async function main() {
   if (!SKIP_PASSIVE_CHECK.has(invoked)) {
@@ -39,7 +38,23 @@ async function main() {
   program
     .name(pkgConfig.name)
     .description(pkgConfig.description)
-    .version(pkgConfig.version, "-v, --version");
+    .version(pkgConfig.version, "-v, --version", "show version");
+
+  program.configureOutput({
+    writeOut: (str) => {
+      if (str.trim() === pkgConfig.version) {
+        const nodeVersion = process.version;
+
+        process.stdout.write(
+          `v${pkgConfig.version}\n${`${headerIcons.chevron} node ${nodeVersion} (from PATH)`}\n`,
+        );
+
+        return;
+      }
+
+      process.stdout.write(str);
+    },
+  });
 
   Object.values(actions).forEach((action) => {
     action.register(program);

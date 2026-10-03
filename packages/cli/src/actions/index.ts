@@ -19,7 +19,7 @@ export const actions = {
         .option("-m, --message <message>", "use a custom commit message")
         .action(
           cancellation((options) =>
-            commitAction("commit", {
+            commitAction({
               autoPush: options.push,
               dryRun: options.dryRun,
               customMessage: options.message,
@@ -33,7 +33,7 @@ export const actions = {
       program
         .command("push")
         .description("push local commits to the remote")
-        .action(cancellation(() => pushAction("push")));
+        .action(cancellation(() => pushAction()));
     },
   },
   peak: {
@@ -44,7 +44,7 @@ export const actions = {
         .option("-k, --key", "show the configured API key")
         .action(
           cancellation((options: { key?: boolean }) =>
-            peakAction("peak", options.key ?? false, "--key"),
+            peakAction(options.key ?? false),
           ),
         );
     },
@@ -54,7 +54,7 @@ export const actions = {
       program
         .command("reset")
         .description("delete local configuration")
-        .action(cancellation(() => resetAction("reset")));
+        .action(cancellation(() => resetAction()));
     },
   },
   switch: {
@@ -62,7 +62,7 @@ export const actions = {
       program
         .command("switch")
         .description("switch the active ai provider")
-        .action(cancellation(() => switchAction("switch")));
+        .action(cancellation(() => switchAction()));
     },
   },
   setup: {
@@ -70,7 +70,7 @@ export const actions = {
       program
         .command("setup")
         .description("run pushai setup wizard")
-        .action(cancellation(() => setupAction("setup")));
+        .action(cancellation(() => setupAction()));
     },
   },
   update: {
@@ -78,7 +78,7 @@ export const actions = {
       program
         .command("update")
         .description("check for a newer version of pushai")
-        .action(cancellation(() => updateAction("update")));
+        .action(cancellation(() => updateAction()));
     },
   },
 };

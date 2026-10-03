@@ -1,18 +1,13 @@
 import { createGitService } from "@pushai/core";
-import {
-  getCliCommand,
-  setSpinnerColor,
-  showHeader,
-  spinner,
-} from "@pushai/utils";
+import { setSpinnerColor, showHeader, spinner } from "@pushai/utils";
 import chalk from "chalk";
-import { pkgConfig } from "../config/config.config";
+import { getCommandTitle } from "../lib/command-title";
 
-export async function pushAction(action: string) {
-  const command = getCliCommand();
+export async function pushAction() {
+  const { title } = getCommandTitle();
 
   showHeader({
-    title: `${command} ${action} - v${pkgConfig.version}`,
+    title: title,
     color: chalk.cyan,
     symbol: "flag",
     type: "intro",

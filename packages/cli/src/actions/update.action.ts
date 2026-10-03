@@ -3,27 +3,29 @@ import { promisify } from "node:util";
 import { confirm } from "@inquirer/prompts";
 import {
   checkForUpdateFresh,
-  getCliCommand,
   getPackageManager,
   headerIcons,
+  setSpinnerColor,
   showHeader,
   spinner,
 } from "@pushai/utils";
 import chalk from "chalk";
 import { pkgConfig } from "../config/config.config";
+import { getCommandTitle } from "../lib/command-title";
 
 const execFileAsync = promisify(execFile);
 
-export async function updateAction(action: string) {
+export async function updateAction() {
   const pm = getPackageManager();
-  const command = getCliCommand();
+  const { title } = getCommandTitle();
 
   showHeader({
-    title: `${command} ${action} - v${pkgConfig.version}`,
-    color: chalk.cyan,
+    title: title,
+    color: chalk.yellow,
     symbol: "gear",
   });
 
+  setSpinnerColor("yellow");
   spinner.start("checking npm registry..");
 
   const info = await checkForUpdateFresh(pkgConfig.name, pkgConfig.version);

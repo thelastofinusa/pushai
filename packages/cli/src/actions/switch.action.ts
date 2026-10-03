@@ -1,21 +1,15 @@
 import { confirm, Separator, select } from "@inquirer/prompts";
-import {
-  getCliCommand,
-  setSpinnerColor,
-  showHeader,
-  sleep,
-  spinner,
-} from "@pushai/utils";
+import { setSpinnerColor, showHeader, sleep, spinner } from "@pushai/utils";
 import chalk from "chalk";
-import { pkgConfig } from "../config/config.config";
 import { configStore } from "../config/store.config";
+import { getCommandTitle } from "../lib/command-title";
 import { formatProvider } from "../lib/format";
 
-export async function switchAction(action: string) {
-  const command = getCliCommand();
+export async function switchAction() {
+  const { title } = getCommandTitle();
 
   showHeader({
-    title: `${command} ${action} - v${pkgConfig.version}`,
+    title: title,
     color: chalk.green,
   });
 

@@ -1,36 +1,22 @@
-import { input, Separator, select } from "@inquirer/prompts";
+import { execSync } from "node:child_process";
+import fs from "node:fs/promises";
+import path from "node:path";
+import { confirm, input, Separator, select } from "@inquirer/prompts";
 import { createGitService, generateCommitMessage } from "@pushai/core";
 import type { CommitFlowOptions, SetupConfig } from "@pushai/types";
-import {
-  getCliCommand,
-  setSpinnerColor,
-  showHeader,
-  spinner,
-} from "@pushai/utils";
+import { setSpinnerColor, showHeader, spinner } from "@pushai/utils";
 import chalk from "chalk";
 import { pkgConfig } from "../config/config.config";
 import { configStore } from "../config/store.config";
+import { getCommandTitle } from "../lib/command-title";
 import { formatProvider } from "../lib/format";
 import { showCommitMessage } from "../lib/messages";
 
-export async function commitAction(
-  action: string,
-  options: CommitFlowOptions = {},
-) {
-  const command = getCliCommand();
-
-  const title = [
-    command,
-    action,
-    options.dryRun ? "--dry-run" : undefined,
-    options.autoPush ? "--push" : undefined,
-    options.customMessage ? "--message" : undefined,
-  ]
-    .filter(Boolean)
-    .join(" ");
+export async function commitAction(options: CommitFlowOptions = {}) {
+  const { title, command } = getCommandTitle();
 
   showHeader({
-    title: `${title} - v${pkgConfig.version}`,
+    title: title,
     color: chalk.cyan,
     symbol: "sparkle",
     type: "intro",
@@ -40,9 +26,63 @@ export async function commitAction(
 
   const git = createGitService();
 
+  // Check if current directory is a git repository
   if (!(await git.isRepo())) {
     spinner.fail("no git repository found in this directory.");
-    return;
+
+    const shouldInit = await confirm({
+      message: "would you like to initialize a new git repository?",
+      default: true,
+    });
+
+    if (!shouldInit) {
+      return;
+    }
+
+    spinner.start("initializing git repository..");
+    try {
+      await git.init();
+      spinner.succeed("initialized empty git repository");
+    } catch (error) {
+      spinner.fail(
+        error instanceof Error
+          ? error.message
+          : "failed to initialize git repository.",
+      );
+      return;
+    }
+
+    // Check if current working directory is empty (excluding .git folder)
+    const files = await fs.readdir(process.cwd());
+    const visibleFiles = files.filter((file) => file !== ".git");
+
+    if (visibleFiles.length === 0) {
+      const shouldCreateReadme = await confirm({
+        message:
+          "directory is empty. would you like to create a standard README file?",
+        default: true,
+      });
+
+      if (shouldCreateReadme) {
+        const folderName = path.basename(process.cwd());
+        const readmeContent = `# ${folderName}
+
+Project initialized with ${command}.
+
+Powered by [${pkgConfig.name}](${pkgConfig.homepage}).`;
+
+        spinner.start("creating README.md..");
+        try {
+          // Execute echo via shell child_process
+          execSync(`echo ${JSON.stringify(readmeContent)} > README.md`);
+          spinner.succeed("created README.md");
+        } catch (_error) {
+          // Fallback to Node fs if shell echo fails
+          await fs.writeFile("README.md", readmeContent, "utf-8");
+          spinner.succeed("created README.md");
+        }
+      }
+    }
   }
 
   const branch = await git.getCurrentBranch();
@@ -94,6 +134,7 @@ export async function commitAction(
       color: chalk.blue,
       symbol: "info",
       type: "outro",
+      exitType: 1,
     });
 
     return;
@@ -120,6 +161,14 @@ export async function commitAction(
           ? error.message
           : "failed to generate commit message.",
       );
+
+      showHeader({
+        title: "please try again.",
+        color: chalk.red,
+        symbol: "error",
+        type: "outro",
+        exitType: 1,
+      });
 
       return;
     }

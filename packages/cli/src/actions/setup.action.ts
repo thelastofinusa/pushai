@@ -1,7 +1,6 @@
 import { select } from "@inquirer/prompts";
 import type { ProviderConfig, SetupMode } from "@pushai/types";
 import {
-  getCliCommand,
   getPackageManager,
   setSpinnerColor,
   showHeader,
@@ -9,17 +8,17 @@ import {
   spinner,
 } from "@pushai/utils";
 import chalk from "chalk";
-import { pkgConfig } from "../config/config.config";
 import { configStore } from "../config/store.config";
 import { handleByokMode } from "../handlers/byok.handler";
 import { handleLocalMode } from "../handlers/local.handler";
+import { getCommandTitle } from "../lib/command-title";
 import { formatProvider } from "../lib/format";
 
-export async function setupAction(action: string) {
-  const command = getCliCommand();
+export async function setupAction() {
+  const { title } = getCommandTitle();
 
   showHeader({
-    title: `${command} ${action} - v${pkgConfig.version}`,
+    title: title,
     color: chalk.magenta,
   });
 
