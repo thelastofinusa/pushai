@@ -1,5 +1,11 @@
 # pushai
 
+## 3.1.12
+
+### Patch Changes
+
+- 282e797: Update version to match utils current version
+
 ## 3.1.11
 
 ### Patch Changes
