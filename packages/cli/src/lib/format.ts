@@ -1,10 +1,15 @@
 import type { ProviderConfig } from "@pushai/types";
 import { headerIcons } from "@pushai/utils";
 
-export function formatProvider(p: ProviderConfig): string {
-  if (p.mode === "byok") return `${p.provider} ${headerIcons.dot} ${p.model}`;
-  if (p.mode === "local") return `local ${headerIcons.dot} ${p.model}`;
-  return `cloud ${headerIcons.dot} ${p.model}`;
+export function formatProvider(
+  p: ProviderConfig,
+  withBracket: boolean = false,
+): string {
+  const model = withBracket ? `[${p.model}]` : `${headerIcons.dot} ${p.model}`;
+
+  if (p.mode === "byok") return `${p.provider} ${model}`;
+  if (p.mode === "local") return `local ${model}`;
+  return `cloud ${model}`;
 }
 
 export function providerModeLabel(p: ProviderConfig): string {

@@ -37,6 +37,7 @@
     "byok",
     "huggingface",
     "keytar",
+    "nubx",
     "ollama",
     "openrouter",
     "pushai"

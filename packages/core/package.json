@@ -1,22 +1,41 @@
 {
   "name": "@pushai/core",
   "version": "0.2.4",
-  "type": "module",
-  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thelastofinusa/pushai.git",
+    "directory": "packages/core"
+  },
   "main": "./dist/index.mjs",
   "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.127.0",
+    "@google/generative-ai": "^0.24.1",
+    "@huggingface/inference": "^4.13.30",
+    "@napi-rs/keyring": "^2.1.0",
+    "@pushai/types": "workspace:*",
+    "@pushai/utils": "workspace:*",
+    "ollama": "^0.6.3",
+    "openai": "^7.21.0",
+    "simple-git": "^3.36.0"
+  },
+  "devDependencies": {
+    "@pushai/tsconfig": "workspace:*",
+    "@types/node": "^22.20.2",
+    "tsdown": "0.22.14"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs"
     }
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/thelastofinusa/pushai.git",
-    "directory": "packages/core"
+  "engines": {
+    "node": ">=18"
   },
+  "files": [
+    "dist"
+  ],
   "keywords": [
     "git",
     "ai",
@@ -24,14 +43,9 @@
     "commit",
     "conventional-commits"
   ],
-  "files": [
-    "dist"
-  ],
+  "license": "MIT",
   "publishConfig": {
     "access": "public"
-  },
-  "engines": {
-    "node": ">=18"
   },
   "scripts": {
     "build": "tsdown",
@@ -41,22 +55,6 @@
     "pack:dry": "bun run build && bun pm pack --dry-run",
     "prepublishOnly": "bun run build"
   },
-  "dependencies": {
-    "@anthropic-ai/sdk": "^0.127.0",
-    "@google/generative-ai": "^0.24.1",
-    "@huggingface/inference": "^4.13.30",
-    "@pushai/types": "workspace:*",
-    "@pushai/utils": "workspace:*",
-    "ollama": "^0.6.3",
-    "openai": "^7.21.0",
-    "simple-git": "^3.36.0"
-  },
-  "optionalDependencies": {
-    "keytar": "^7.9.0"
-  },
-  "devDependencies": {
-    "@pushai/tsconfig": "workspace:*",
-    "@types/node": "^22.20.2",
-    "tsdown": "0.22.14"
-  }
+  "type": "module",
+  "types": "./dist/index.d.ts"
 }

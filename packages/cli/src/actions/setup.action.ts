@@ -8,17 +8,18 @@ import {
   spinner,
 } from "@pushai/utils";
 import chalk from "chalk";
+import type { Command } from "commander";
 import { configStore } from "../config/store.config";
 import { handleByokMode } from "../handlers/byok.handler";
 import { handleLocalMode } from "../handlers/local.handler";
 import { getCommandTitle } from "../lib/command-title";
 import { formatProvider } from "../lib/format";
 
-export async function setupAction() {
-  const { title } = getCommandTitle();
+export async function setupAction(command?: Command) {
+  const { commandTitle } = getCommandTitle(command);
 
   showHeader({
-    title: title,
+    title: commandTitle,
     color: chalk.magenta,
   });
 

@@ -3,14 +3,36 @@ import type { PackageManagerInfo } from "@pushai/types";
 import { whichPMRuns } from "which-pm-runs";
 
 export const MANAGERS: Record<string, PackageManagerInfo> = {
-  npm: { name: "npm", installer: "npm install", runner: "npx" },
-  pnpm: { name: "pnpm", installer: "pnpm add", runner: "pnpm dlx" },
-  yarn: { name: "yarn", installer: "yarn add", runner: "yarn dlx" },
-  bun: { name: "bun", installer: "bun add", runner: "bunx" },
+  npm: {
+    name: "npm",
+    installer: "npm install",
+    runner: "npx",
+  },
+  pnpm: {
+    name: "pnpm",
+    installer: "pnpm add",
+    runner: "pnpm dlx",
+  },
+  yarn: {
+    name: "yarn",
+    installer: "yarn add",
+    runner: "yarn dlx",
+  },
+  bun: {
+    name: "bun",
+    installer: "bun add",
+    runner: "bunx",
+  },
+  nub: {
+    name: "nub",
+    installer: "nub install",
+    runner: "nubx",
+  },
 };
 
 function detectRunnerFromPath(executable: string): PackageManagerInfo | null {
   if (/[\\/]bunx-/.test(executable)) return MANAGERS.bun;
+  if (/[\\/]nubx-/.test(executable)) return MANAGERS.nub;
   if (/[\\/]_npx[\\/]/.test(executable)) return MANAGERS.npm;
   if (/[\\/]\.pnpm[\\/]dlx|[\\/]pnpm-dlx/.test(executable))
     return MANAGERS.pnpm;

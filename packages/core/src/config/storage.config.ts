@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { Entry } from "@napi-rs/keyring";
 import type {
   ByokProviderConfig,
   CloudProviderConfig,
@@ -8,27 +9,25 @@ import type {
   ProviderConfig,
   SetupConfig,
 } from "@pushai/types";
-import keytar from "keytar";
 
-let _keytarUsable: boolean | null = null;
+let _keyringUsable: boolean | null = null;
 
-async function isKeytarUsable(): Promise<boolean> {
-  if (_keytarUsable !== null) return _keytarUsable;
+async function isKeyringUsable(): Promise<boolean> {
+  if (_keyringUsable !== null) return _keyringUsable;
 
   try {
-    await keytar.findCredentials("__pushai_probe__");
-    _keytarUsable = true;
+    const probe = new Entry("__pushai_probe__", "probe");
+    probe.getPassword(); // Just checking if we can access the keyring
+    _keyringUsable = true;
   } catch (error) {
-    _keytarUsable = false;
-
+    _keyringUsable = false;
     console.warn(
       "⚠️ System keychain unavailable. API keys will be stored in a local fallback file.",
     );
-
     if (process.env.DEBUG) console.warn(error);
   }
 
-  return _keytarUsable;
+  return _keyringUsable;
 }
 
 function readJsonFile<T>(filePath: string): T | null {
@@ -82,9 +81,10 @@ export function createConfigStore({
   const getStoredApiKey = async (
     providerId: string,
   ): Promise<string | null> => {
-    if (await isKeytarUsable()) {
+    if (await isKeyringUsable()) {
       try {
-        return await keytar.getPassword(serviceName, accountFor(providerId));
+        const entry = new Entry(serviceName, accountFor(providerId));
+        return entry.getPassword();
       } catch (error) {
         console.warn("Unable to read API key from the system keychain.");
         if (process.env.DEBUG) console.warn(error);
@@ -101,8 +101,9 @@ export function createConfigStore({
     providerId: string,
     apiKey: string,
   ): Promise<void> => {
-    if (await isKeytarUsable()) {
-      await keytar.setPassword(serviceName, accountFor(providerId), apiKey);
+    if (await isKeyringUsable()) {
+      const entry = new Entry(serviceName, accountFor(providerId));
+      entry.setPassword(apiKey);
       return;
     }
 
@@ -124,9 +125,10 @@ export function createConfigStore({
   const deleteStoredApiKey = async (providerId: string): Promise<boolean> => {
     let deleted = false;
 
-    if (await isKeytarUsable()) {
+    if (await isKeyringUsable()) {
       try {
-        if (await keytar.deletePassword(serviceName, accountFor(providerId))) {
+        const entry = new Entry(serviceName, accountFor(providerId));
+        if (entry.deletePassword()) {
           deleted = true;
         }
       } catch (error) {
@@ -251,20 +253,25 @@ export function createConfigStore({
     let anythingDeleted = false;
 
     try {
+      const existingConfig = readJsonFile<PersistedConfig>(configPath());
+
       if (fs.existsSync(configDir())) {
         fs.rmSync(configDir(), { recursive: true, force: true });
         anythingDeleted = true;
       }
 
-      if (await isKeytarUsable()) {
-        try {
-          const creds = await keytar.findCredentials(serviceName);
-          for (const c of creds) {
-            await keytar.deletePassword(serviceName, c.account);
-            anythingDeleted = true;
+      if ((await isKeyringUsable()) && existingConfig?.providers) {
+        for (const provider of existingConfig.providers) {
+          if (provider.mode === "byok") {
+            try {
+              const entry = new Entry(serviceName, accountFor(provider.id));
+              if (entry.deletePassword()) {
+                anythingDeleted = true;
+              }
+            } catch (error) {
+              if (process.env.DEBUG) console.warn(error);
+            }
           }
-        } catch (error) {
-          if (process.env.DEBUG) console.warn(error);
         }
       }
 

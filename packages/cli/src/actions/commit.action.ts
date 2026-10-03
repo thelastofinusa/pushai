@@ -6,17 +6,21 @@ import { createGitService, generateCommitMessage } from "@pushai/core";
 import type { CommitFlowOptions, SetupConfig } from "@pushai/types";
 import { setSpinnerColor, showHeader, spinner } from "@pushai/utils";
 import chalk from "chalk";
+import type { Command } from "commander";
 import { pkgConfig } from "../config/config.config";
 import { configStore } from "../config/store.config";
 import { getCommandTitle } from "../lib/command-title";
 import { formatProvider } from "../lib/format";
 import { showCommitMessage } from "../lib/messages";
 
-export async function commitAction(options: CommitFlowOptions = {}) {
-  const { title, command } = getCommandTitle();
+export async function commitAction(
+  options: CommitFlowOptions = {},
+  command?: Command,
+) {
+  const { commandTitle, baseCommand } = getCommandTitle(command);
 
   showHeader({
-    title: title,
+    title: commandTitle,
     color: chalk.cyan,
     symbol: "sparkle",
     type: "intro",
@@ -67,7 +71,7 @@ export async function commitAction(options: CommitFlowOptions = {}) {
         const folderName = path.basename(process.cwd());
         const readmeContent = `# ${folderName}
 
-Project initialized with ${command}.
+Project initialized with ${baseCommand}.
 
 Powered by [${pkgConfig.name}](${pkgConfig.homepage}).`;
 
@@ -86,6 +90,11 @@ Powered by [${pkgConfig.name}](${pkgConfig.homepage}).`;
   }
 
   const branch = await git.getCurrentBranch();
+
+  if (branch) {
+    spinner.succeed(`committing to ${chalk.cyan(branch)}`);
+  }
+
   let message = options.customMessage?.trim();
 
   if (options.customMessage !== undefined && !message) {
@@ -111,7 +120,7 @@ Powered by [${pkgConfig.name}](${pkgConfig.homepage}).`;
 
     isLocalProvider = active.mode === "local";
 
-    spinner.succeed(`provider ${chalk.cyan(formatProvider(active))}`);
+    spinner.succeed(`provider ${chalk.cyan(formatProvider(active, true))}`);
   }
 
   await git.stageAll();

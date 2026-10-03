@@ -1,10 +1,10 @@
 "use client";
 
-import { MANAGERS } from "@pushai/utils";
+import type { PackageManagerInfo } from "@pushai/types";
 import { useEffect, useState } from "react";
 import type { IconType } from "react-icons";
 import { FiCheck, FiChevronDown } from "react-icons/fi";
-import { SiBun, SiNpm, SiPnpm, SiYarn } from "react-icons/si";
+import { SiBun, SiGnubash, SiNpm, SiPnpm, SiYarn } from "react-icons/si";
 import { Copy3 } from "reicon-react";
 import { Container } from "@/components/shared/container";
 import { TerminalWindow } from "@/components/shared/primitives";
@@ -14,13 +14,28 @@ import { Button } from "@/components/ui/shadcn/button";
 import { Separator } from "@/components/ui/shadcn/separator";
 import { siteConfig } from "@/config/site.config";
 
-const MANAGER_ICONS: Record<string, IconType> = {
-  npm: SiNpm,
-  pnpm: SiPnpm,
-  yarn: SiYarn,
-  bun: SiBun,
-  nub: SiBun,
-};
+const MANAGERS: Record<string, PackageManagerInfo & { icon: IconType }> = {
+  npm: { name: "npm", installer: "npm install", runner: "npx", icon: SiNpm },
+  pnpm: {
+    name: "pnpm",
+    installer: "pnpm add",
+    runner: "pnpm dlx",
+    icon: SiPnpm,
+  },
+  yarn: {
+    name: "yarn",
+    installer: "yarn add",
+    runner: "yarn dlx",
+    icon: SiYarn,
+  },
+  bun: { name: "bun", installer: "bun add", runner: "bunx", icon: SiBun },
+  nub: {
+    name: "nub",
+    installer: "nub install",
+    runner: "nubx",
+    icon: SiGnubash,
+  },
+} as const;
 
 export const HomeHero = () => {
   const [version, setVersion] = useState("0.0.0");
@@ -32,7 +47,7 @@ export const HomeHero = () => {
 
   // Dynamically generate the commands based on the selected package manager
   const selectedManager = MANAGERS[pm];
-  const SelectedIcon = MANAGER_ICONS[pm];
+  const SelectedIcon = selectedManager.icon;
 
   const installOptions = {
     instant: {
@@ -68,10 +83,6 @@ export const HomeHero = () => {
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
-
-  const _HERO_MANAGERS = Object.keys(MANAGERS).filter(
-    (key) => key !== "nub",
-  ) as Array<keyof typeof installOptions>;
 
   return (
     <div className="flex-1">

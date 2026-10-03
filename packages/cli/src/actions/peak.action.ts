@@ -1,15 +1,16 @@
 import { confirm } from "@inquirer/prompts";
 import { setSpinnerColor, showHeader, sleep, spinner } from "@pushai/utils";
 import chalk from "chalk";
+import type { Command } from "commander";
 import { configStore } from "../config/store.config";
 import { getCommandTitle } from "../lib/command-title";
 import { formatProvider } from "../lib/format";
 
-export async function peakAction(withApiKey = false) {
-  const { command, title } = getCommandTitle();
+export async function peakAction(withApiKey = false, command?: Command) {
+  const { baseCommand, commandTitle } = getCommandTitle(command);
 
   showHeader({
-    title: title,
+    title: commandTitle,
     color: chalk.cyan,
   });
 
@@ -39,7 +40,7 @@ export async function peakAction(withApiKey = false) {
     }
 
     const { setupAction } = await import("./setup.action");
-    await setupAction("setup");
+    await setupAction();
 
     return true;
   }
@@ -78,7 +79,7 @@ export async function peakAction(withApiKey = false) {
 
     console.log(
       ` ${chalk.dim("Use")} ${chalk.cyan(
-        `${command} --key`,
+        `${baseCommand} --key`,
       )} ${chalk.dim("to show the configured API keys.")}`,
     );
   }

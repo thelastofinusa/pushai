@@ -1,31 +1,53 @@
 import { getCliCommand, headerIcons } from "@pushai/utils";
+import type { Command } from "commander";
 import { pkgConfig } from "../config/config.config";
 
 export interface CommandContext {
-  title: string;
-  command: string;
+  commandTitle: string;
+  baseCommand: string;
+  fullCommand: string;
 }
 
-export function getCommandTitle(): CommandContext {
+export function getCommandTitle(command?: Command): CommandContext {
   const cliCommand = getCliCommand(); // e.g., "pai"
-
-  // Strip 'node' and the script path
   const args = process.argv.slice(2);
-
-  // The first argument that doesn't start with a hyphen is the action (e.g., "commit")
   const action = args.find((arg) => !arg.startsWith("-")) || "";
 
-  // Any arguments starting with a hyphen are flags (e.g., "-p", "--dry-run")
-  const flags = args.filter((arg) => arg.startsWith("-"));
+  // Get raw user flags
+  const rawFlags = args.filter((arg) => arg.startsWith("-"));
+  let flags: string[] = [];
 
-  // The base command without flags (e.g., "pai peak")
+  if (command) {
+    rawFlags.forEach((flag) => {
+      // Handle grouped short flags (e.g., "-pk" -> "--push --key")
+      if (flag.startsWith("-") && !flag.startsWith("--") && flag.length > 2) {
+        const chars = flag.slice(1).split("");
+        chars.forEach((char) => {
+          const shortFlag = `-${char}`;
+          const optDef = command.options.find((opt) => opt.short === shortFlag);
+          flags.push(optDef?.long || shortFlag);
+        });
+      } else {
+        // Handle standard flags (e.g., "-k" or "--key")
+        const optDef = command.options.find(
+          (opt) => opt.short === flag || opt.long === flag,
+        );
+        flags.push(optDef?.long || flag);
+      }
+    });
+  } else {
+    flags = rawFlags; // Fallback if command isn't passed
+  }
+
+  // Deduplicate flags (in case of overlaps)
+  flags = [...new Set(flags)];
+
   const baseCommand = [cliCommand, action].filter(Boolean).join(" ");
-
-  // The full command with flags (e.g., "pai peak -k")
   const fullCommand = [baseCommand, ...flags].filter(Boolean).join(" ");
 
   return {
-    title: `${fullCommand} ${headerIcons.dot} v${pkgConfig.version}`,
-    command: baseCommand,
+    commandTitle: `${fullCommand} ${headerIcons.bullet} v${pkgConfig.version}`,
+    baseCommand: baseCommand,
+    fullCommand: fullCommand,
   };
 }

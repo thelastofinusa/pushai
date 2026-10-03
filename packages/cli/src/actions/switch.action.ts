@@ -1,15 +1,16 @@
 import { confirm, Separator, select } from "@inquirer/prompts";
 import { setSpinnerColor, showHeader, sleep, spinner } from "@pushai/utils";
 import chalk from "chalk";
+import type { Command } from "commander";
 import { configStore } from "../config/store.config";
 import { getCommandTitle } from "../lib/command-title";
 import { formatProvider } from "../lib/format";
 
-export async function switchAction() {
-  const { title } = getCommandTitle();
+export async function switchAction(command?: Command) {
+  const { commandTitle } = getCommandTitle(command);
 
   showHeader({
-    title: title,
+    title: commandTitle,
     color: chalk.green,
   });
 
@@ -39,7 +40,7 @@ export async function switchAction() {
     }
 
     const { setupAction } = await import("./setup.action");
-    await setupAction("setup");
+    await setupAction();
 
     return true;
   }

@@ -10,17 +10,19 @@ import {
   spinner,
 } from "@pushai/utils";
 import chalk from "chalk";
+import type { Command } from "commander";
 import { pkgConfig } from "../config/config.config";
 import { getCommandTitle } from "../lib/command-title";
 
 const execFileAsync = promisify(execFile);
 
-export async function updateAction() {
+export async function updateAction(command?: Command) {
   const pm = getPackageManager();
-  const { title } = getCommandTitle();
+
+  const { commandTitle } = getCommandTitle(command);
 
   showHeader({
-    title: title,
+    title: commandTitle,
     color: chalk.yellow,
     symbol: "gear",
   });

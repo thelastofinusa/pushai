@@ -12,7 +12,7 @@
     "dev": "turbo run dev",
     "start:cli": "bun run packages/cli/src/index.ts",
     "lint": "turbo run lint",
-    "clean": "turbo run clean && rm -rf .turbo node_modules && bun install",
+    "clean": "turbo run clean && rm -rf .turbo node_modules",
     "format": "biome format --write .",
     "check": "biome check --write .",
     "biome:migrate": "bunx biome migrate --write",
@@ -24,7 +24,6 @@
   "devDependencies": {
     "@biomejs/biome": "^2.5.14",
     "@changesets/cli": "^3.0.3",
-    "@pushai/tsconfig": "workspace:*",
     "@types/bun": "^1.4.2",
     "@types/node": "^26.6.2",
     "turbo": "^2.11.2",

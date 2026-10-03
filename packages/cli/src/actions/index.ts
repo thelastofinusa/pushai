@@ -15,15 +15,18 @@ export const actions = {
         .command("commit")
         .description("create an ai-generated git commit")
         .option("-p, --push", "automatically push the commit")
-        .option("--dry-run", "preview without creating a commit")
+        .option("-d, --dry-run", "preview without creating a commit")
         .option("-m, --message <message>", "use a custom commit message")
         .action(
-          cancellation((options) =>
-            commitAction({
-              autoPush: options.push,
-              dryRun: options.dryRun,
-              customMessage: options.message,
-            }),
+          cancellation((options, command: Command) =>
+            commitAction(
+              {
+                autoPush: options.push,
+                dryRun: options.dryRun,
+                customMessage: options.message,
+              },
+              command,
+            ),
           ),
         );
     },
@@ -33,7 +36,7 @@ export const actions = {
       program
         .command("push")
         .description("push local commits to the remote")
-        .action(cancellation(() => pushAction()));
+        .action(cancellation((command: Command) => pushAction(command)));
     },
   },
   peak: {
@@ -43,8 +46,8 @@ export const actions = {
         .description("peek at current pushai configuration")
         .option("-k, --key", "show the configured API key")
         .action(
-          cancellation((options: { key?: boolean }) =>
-            peakAction(options.key ?? false),
+          cancellation((options: { key?: boolean }, command: Command) =>
+            peakAction(options.key ?? false, command),
           ),
         );
     },
@@ -54,7 +57,7 @@ export const actions = {
       program
         .command("reset")
         .description("delete local configuration")
-        .action(cancellation(() => resetAction()));
+        .action(cancellation((command: Command) => resetAction(command)));
     },
   },
   switch: {
@@ -62,7 +65,7 @@ export const actions = {
       program
         .command("switch")
         .description("switch the active ai provider")
-        .action(cancellation(() => switchAction()));
+        .action(cancellation((command: Command) => switchAction(command)));
     },
   },
   setup: {
@@ -70,7 +73,7 @@ export const actions = {
       program
         .command("setup")
         .description("run pushai setup wizard")
-        .action(cancellation(() => setupAction()));
+        .action(cancellation((command: Command) => setupAction(command)));
     },
   },
   update: {
@@ -78,7 +81,7 @@ export const actions = {
       program
         .command("update")
         .description("check for a newer version of pushai")
-        .action(cancellation(() => updateAction()));
+        .action(cancellation((command: Command) => updateAction(command)));
     },
   },
 };
