@@ -42,5 +42,3 @@ bun run build     # build all packages
 ### License
 
 This project is licensed under the [MIT License](https://github.com/thelastofinusa/pushai-monorepo/blob/main/LICENSE).
-
-
