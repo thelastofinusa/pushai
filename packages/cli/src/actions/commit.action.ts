@@ -141,125 +141,125 @@ export async function commitAction(
 
   console.log();
 
-  let shouldPush = options.autoPush;
+  let shouldPush = Boolean(options.autoPush);
 
-  while (true) {
-    const selectedAction = await select({
-      message: "how would you like to proceed?",
-      default: isLocalProvider && options.autoPush ? "push" : "commit",
-      choices: [
-        ...(isLocalProvider
-          ? [
-              new Separator(),
-              {
-                name: "commit locally",
-                value: "commit",
-                description: "Create the commit locally without pushing",
-              },
-              {
-                name: "commit & push",
-                value: "push",
-                description: "Create the commit and push it to the remote",
-              },
-              new Separator(),
-            ]
-          : [
-              {
-                name: options.autoPush ? "commit & push" : "commit",
-                value: "commit",
-                description: options.autoPush
-                  ? "Create the commit and push it to the remote"
-                  : "Create the commit locally",
-              },
-            ]),
-        {
-          name: "edit message",
-          value: "edit",
-          description: "Modify the commit message",
-        },
-        {
-          name: "regenerate",
-          value: "regenerate",
-          description: "Generate a new AI commit message",
-        },
-        {
-          name: "abort process",
-          value: "cancel",
-          description: "Abort without creating the commit",
-        },
-      ],
-    });
+  // When --push flag is NOT passed, prompt user based on provider mode
+  if (!options.autoPush) {
+    while (true) {
+      const choices = isLocalProvider
+        ? [
+            new Separator(),
+            {
+              name: "commit locally",
+              value: "commit",
+              description: "Create the commit locally without pushing",
+            },
+            {
+              name: "commit & push",
+              value: "push",
+              description: "Create the commit and push it to the remote",
+            },
+            new Separator(),
+          ]
+        : [
+            {
+              name: "commit & push",
+              value: "push",
+              description: "Create the commit and push it to the remote",
+            },
+          ];
 
-    if (selectedAction === "commit" || selectedAction === "push") {
-      shouldPush = isLocalProvider
-        ? selectedAction === "push"
-        : options.autoPush;
+      const selectedAction = await select({
+        message: "how would you like to proceed?",
+        default: isLocalProvider ? "commit" : "push",
+        choices: [
+          ...choices,
+          {
+            name: "edit message",
+            value: "edit",
+            description: "Modify the commit message",
+          },
+          {
+            name: "regenerate",
+            value: "regenerate",
+            description: "Generate a new AI commit message",
+          },
+          {
+            name: "abort process",
+            value: "cancel",
+            description: "Abort without creating the commit",
+          },
+        ],
+      });
 
-      break;
-    }
-
-    if (selectedAction === "edit") {
-      message = (
-        await input({
-          message: "update the commit message:",
-          default: chalk.dim(message),
-          prefill: "editable",
-          validate: (value) =>
-            value.trim() ? true : "commit message cannot be empty.",
-        })
-      ).trim();
-
-      console.log();
-      showCommitMessage(message);
-      console.log();
-
-      continue;
-    }
-
-    if (selectedAction === "regenerate") {
-      if (!config) config = await configStore.getStoredConfig();
-      if (!config) return;
-
-      const active = config.providers.find(
-        (provider) => provider.id === config?.activeId,
-      );
-
-      if (!active) {
-        spinner.fail("no active provider configured. run `pai setup`.");
-        return;
+      if (selectedAction === "commit" || selectedAction === "push") {
+        shouldPush = selectedAction === "push";
+        break;
       }
 
-      spinner.start("regenerating..");
-
-      try {
-        message = await generateCommitMessage(config, diff, true);
-        spinner.succeed("new commit message generated");
+      if (selectedAction === "edit") {
+        message = (
+          await input({
+            message: "update the commit message:",
+            default: chalk.dim(message),
+            prefill: "editable",
+            validate: (value) =>
+              value.trim() ? true : "commit message cannot be empty.",
+          })
+        ).trim();
 
         console.log();
         showCommitMessage(message);
         console.log();
-      } catch (error) {
-        spinner.fail(
-          error instanceof Error
-            ? error.message
-            : "failed to regenerate commit message.",
-        );
+
+        continue;
       }
 
-      continue;
-    }
+      if (selectedAction === "regenerate") {
+        if (!config) config = await configStore.getStoredConfig();
+        if (!config) return;
 
-    if (selectedAction === "cancel") {
-      await git.unstageAll();
+        const active = config.providers.find(
+          (provider) => provider.id === config?.activeId,
+        );
 
-      showHeader({
-        title: "commit cancelled.",
-        color: chalk.dim,
-        symbol: "info",
-        type: "outro",
-      });
+        if (!active) {
+          spinner.fail("no active provider configured. run `pai setup`.");
+          return;
+        }
 
-      return;
+        spinner.start("regenerating..");
+
+        try {
+          message = await generateCommitMessage(config, diff, true);
+          spinner.succeed("new commit message generated");
+
+          console.log();
+          showCommitMessage(message);
+          console.log();
+        } catch (error) {
+          spinner.fail(
+            error instanceof Error
+              ? error.message
+              : "failed to generate commit message.",
+          );
+        }
+
+        continue;
+      }
+
+      if (selectedAction === "cancel") {
+        await git.unstageAll();
+
+        showHeader({
+          title: "commit cancelled.",
+          color: chalk.dim,
+          symbol: "info",
+          type: "outro",
+        });
+
+        return;
+      }
     }
   }
 
