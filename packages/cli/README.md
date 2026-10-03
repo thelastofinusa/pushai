@@ -50,15 +50,13 @@ permission-locked local file per provider otherwise.
 
 Runs the commit flow:
 
-1. Fails immediately if the current directory isn't a git repository.
+1. Checks if the current directory is a git repository. If not, it will prompt you to initialize one and can automatically create a standard `README.md` if the directory is empty.
 2. Stages all changes (`git add .`) and reads the staged diff.
 3. Fails with the conflicting files listed if any are unresolved.
-4. Generates a commit message with your active provider (skipped entirely if
-   `-m` is passed).
+4. Generates a commit message with your active provider (skipped entirely if `-m` is passed).
 5. Lets you accept, edit, or regenerate the message.
 6. Creates the commit and shows the resulting hash.
-7. Pushes automatically if `-p`/`--push` was passed; otherwise tells you to
-   push manually.
+7. Pushes automatically if `-p`/`--push` was passed; otherwise tells you to push manually.
 
 **Options**
 
@@ -66,13 +64,24 @@ Runs the commit flow:
 | ------------------------ | -------------------------------------------------- |
 | `-p, --push`            | Automatically push the commit.                     |
 | `-m, --message <text>`  | Use a custom message instead of generating one.     |
-| `--dry-run`             | Generate and display the message, but don't commit. |
+| `-d, --dry-run`             | Generate and display the message, but don't commit. |
+
+
+**Example:**
 
 ```bash
 pai commit                       # interactive
 pai commit -m "fix: null branch" # skip generation
 pai commit --push                # commit and push
 pai commit --dry-run             # preview only
+```
+
+#### `pai push`
+
+Pushes any local, unpushed commits on your current branch to the remote origin.
+
+```bash
+pai push
 ```
 
 #### `pai switch`

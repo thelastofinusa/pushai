@@ -42,7 +42,7 @@ export function getCommandTitle(command?: Command): CommandContext {
   // Deduplicate flags (in case of overlaps)
   flags = [...new Set(flags)];
 
-  const baseCommand = [cliCommand, action].filter(Boolean).join(" ");
+  const baseCommand = ["running", cliCommand, action].filter(Boolean).join(" ");
   const fullCommand = [baseCommand, ...flags].filter(Boolean).join(" ");
 
   return {

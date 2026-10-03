@@ -5,6 +5,7 @@ import type { Command } from "commander";
 import { configStore } from "../config/store.config";
 import { getCommandTitle } from "../lib/command-title";
 import { formatProvider } from "../lib/format";
+import { setupAction } from "./setup.action";
 
 export async function switchAction(command?: Command) {
   const { commandTitle } = getCommandTitle(command);
@@ -39,7 +40,6 @@ export async function switchAction(command?: Command) {
       return false;
     }
 
-    const { setupAction } = await import("./setup.action");
     await setupAction();
 
     return true;

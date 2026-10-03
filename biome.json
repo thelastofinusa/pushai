@@ -14,8 +14,7 @@
       "!.next",
       "!dist",
       "!build",
-      "!/app/globals.css",
-      "!README.md"
+      "!/app/globals.css"
     ]
   },
   "formatter": {
