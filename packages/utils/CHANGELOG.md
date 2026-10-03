@@ -1,5 +1,11 @@
 # @pushai/utils
 
+## 0.2.4
+
+### Patch Changes
+
+- c990f24: Update demo application and dependencies to support the new nub package manager, including custom manager configurations and icons.
+
 ## 0.2.3
 
 ### Patch Changes
