@@ -98,7 +98,7 @@ export const HomeHero = () => {
             Your Git workflow, <br />
             <span className="text-primary">quietly smarter.</span>
           </h1>
-          <p className="mb-2 max-w-xl font-normal text-base text-muted-foreground md:text-lg">
+          <p className="mb-2 max-w-lg font-normal text-muted-foreground text-sm md:text-base">
             {siteConfig.description}
           </p>
 
