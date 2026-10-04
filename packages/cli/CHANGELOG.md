@@ -1,5 +1,11 @@
 # pushai
 
+## 3.1.19
+
+### Patch Changes
+
+- 9a181e2: bump version
+
 ## 3.1.18
 
 ### Patch Changes
