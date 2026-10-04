@@ -1,5 +1,14 @@
 # pushai
 
+## 3.1.17
+
+### Patch Changes
+
+- 7f248e0: Improve the visual presentation of proposed commit messages using tree-like icons and remove the manual edit option from the commit flow.
+- Updated dependencies [7f248e0]
+  - @pushai/utils@0.2.5
+  - @pushai/core@0.2.6
+
 ## 3.1.16
 
 ### Patch Changes

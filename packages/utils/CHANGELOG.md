@@ -1,5 +1,11 @@
 # @pushai/utils
 
+## 0.2.5
+
+### Patch Changes
+
+- 7f248e0: Improve the visual presentation of proposed commit messages using tree-like icons and remove the manual edit option from the commit flow.
+
 ## 0.2.4
 
 ### Patch Changes

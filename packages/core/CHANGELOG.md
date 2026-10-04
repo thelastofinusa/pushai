@@ -1,5 +1,12 @@
 # @pushai/core
 
+## 0.2.6
+
+### Patch Changes
+
+- Updated dependencies [7f248e0]
+  - @pushai/utils@0.2.5
+
 ## 0.2.5
 
 ### Patch Changes
