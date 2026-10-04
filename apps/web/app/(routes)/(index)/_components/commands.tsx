@@ -33,6 +33,11 @@ const commands = [
     name: "commit",
     description:
       "Stage your changes and review a generated commit message before committing.",
+    flags: [
+      ["-p, --push", "Commit and push"],
+      ["-m, --message <message>", "Use a custom commit message"],
+      ["--dry-run", "Preview without committing"],
+    ],
     lines: [
       ["staged diff read", "3 files"],
       ["message generated", "feat: add search"],
@@ -53,6 +58,7 @@ const commands = [
   {
     name: "peak",
     description: "List your saved providers and see which one is active.",
+    flags: [["-k, --key", "Show the configured API key"]],
     lines: [
       ["active", "ollama"],
       ["available", "anthropic, openai"],
@@ -62,6 +68,9 @@ const commands = [
     name: "reset",
     description:
       "Remove one provider or clear your whole configuration and keys.",
+      flags: [
+      ["-a, --all", "Delete all saved configuration"],
+    ],
     lines: [["removed provider", "anthropic"]],
   },
   {
@@ -81,7 +90,7 @@ export const Commands = () => {
       <Eyebrow>Commands</Eyebrow>
 
       <SectionTitle subtitle="Small enough to remember, useful enough to stay in your workflow.">
-        Six commands. That&apos;s the whole tool.
+        Seven commands. That&apos;s the whole tool.
       </SectionTitle>
 
       {/* Desktop */}
@@ -149,7 +158,7 @@ export const Commands = () => {
               </div>
             </div>
 
-            {selected.name === "commit" && (
+            {selected.flags && selected.flags.length > 0 && (
               <div className="mt-7 overflow-x-auto">
                 <table className="w-full max-w-md text-left text-xs">
                   <caption className="mb-3 text-left font-mono text-[11px] text-muted-foreground uppercase tracking-wider">
@@ -157,11 +166,7 @@ export const Commands = () => {
                   </caption>
 
                   <tbody className="divide-y divide-border border-border border-y">
-                    {[
-                      ["-p, --push", "Commit and push"],
-                      ["-m, --message <text>", "Use your own message"],
-                      ["--dry-run", "Preview without committing"],
-                    ].map(([flag, detail]) => (
+                    {selected.flags.map(([flag, detail]) => (
                       <tr key={flag}>
                         <th
                           scope="row"
@@ -170,7 +175,9 @@ export const Commands = () => {
                           {flag}
                         </th>
 
-                        <td className="py-3 text-muted-foreground">{detail}</td>
+                        <td className="py-3 text-muted-foreground">
+                          {detail}
+                        </td>
                       </tr>
                     ))}
                   </tbody>

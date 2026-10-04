@@ -47,12 +47,7 @@ export const actions = {
         .option("-k, --key", "show the configured API key")
         .action(
           cancellation((options: { key?: boolean }, command: Command) =>
-            peakAction(
-              {
-                withApiKey: options.key ?? false,
-              },
-              command,
-            ),
+            peakAction({ withApiKey: options.key ?? false }, command),
           ),
         );
     },
@@ -62,7 +57,12 @@ export const actions = {
       program
         .command("reset")
         .description("delete local configuration")
-        .action(cancellation((command: Command) => resetAction(command)));
+        .option("-a, --all", "delete all configuration, including the API key")
+        .action(
+          cancellation((options: { all?: boolean }, command: Command) =>
+            resetAction({ all: options.all ?? false }, command),
+          ),
+        );
     },
   },
   switch: {

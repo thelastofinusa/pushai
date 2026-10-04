@@ -7,13 +7,57 @@ import { getCommandTitle } from "../lib/command-title";
 import { formatProvider } from "../lib/format";
 import { setupAction } from "./setup.action";
 
-export async function resetAction(command?: Command) {
+async function resetAll() {
+  const proceed = await confirm({
+    message: "are you sure you want to delete all?",
+    default: false,
+  });
+
+  if (!proceed) {
+    showHeader({
+      title: "reset cancelled.",
+      color: chalk.dim,
+      symbol: "arrow",
+      type: "outro",
+    });
+    return;
+  }
+
+  const deleted = await configStore.resetStoredConfig();
+
+  showHeader({
+    title: deleted ? "pushai configuration deleted." : "nothing to delete.",
+    color: deleted ? chalk.green : chalk.yellow,
+    symbol: deleted ? "success" : "warning",
+    type: "outro",
+  });
+}
+
+function cancelReset() {
+  showHeader({
+    title: "reset cancelled.",
+    color: chalk.dim,
+    symbol: "arrow",
+    type: "outro",
+  });
+}
+
+export async function resetAction(
+  options: { all?: boolean },
+  command?: Command,
+) {
   const { commandTitle } = getCommandTitle(command);
 
   showHeader({
     title: commandTitle,
     color: chalk.redBright,
   });
+
+  // --all skips the configuration check and selection menu.
+  if (options.all) {
+    await resetAll();
+    return;
+  }
 
   setSpinnerColor("red");
   spinner.start("checking existing configuration");
@@ -25,6 +69,7 @@ export async function resetAction(command?: Command) {
     spinner.warn("no existing configuration");
 
     console.log();
+
     const proceed = await confirm({
       message: "would you like to start the setup wizard?",
       default: true,
@@ -76,40 +121,12 @@ export async function resetAction(command?: Command) {
   });
 
   if (choice === "cancel") {
-    showHeader({
-      title: "reset cancelled.",
-      color: chalk.dim,
-      symbol: "arrow",
-      type: "outro",
-    });
+    cancelReset();
     return;
   }
 
   if (choice === "all") {
-    const proceed = await confirm({
-      message: "are you sure you want to delete all?",
-      default: false,
-    });
-
-    if (!proceed) {
-      showHeader({
-        title: "reset cancelled.",
-        color: chalk.dim,
-        symbol: "arrow",
-        type: "outro",
-      });
-      return;
-    }
-
-    const deleted = await configStore.resetStoredConfig();
-
-    showHeader({
-      title: deleted ? "pushai configuration deleted." : "nothing to delete.",
-      color: deleted ? chalk.green : chalk.yellow,
-      symbol: deleted ? "success" : "warning",
-      type: "outro",
-    });
-
+    await resetAll();
     return;
   }
 
@@ -124,12 +141,7 @@ export async function resetAction(command?: Command) {
   });
 
   if (!proceed) {
-    showHeader({
-      title: "reset cancelled.",
-      color: chalk.dim,
-      symbol: "arrow",
-      type: "outro",
-    });
+    cancelReset();
     return;
   }
 

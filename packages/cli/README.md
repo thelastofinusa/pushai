@@ -96,22 +96,27 @@ pai switch
 
 #### `pai peak`
 
-Lists all of your saved providers, marking which one is active. Pass
-`-k`/`--key` to also reveal stored BYOK API keys in plaintext.
+Lists all of your saved providers, marking which one is active.
 
 ```bash
 pai peak
 pai peak --key
 ```
 
+> Pass `-k`/`--key` to also reveal stored BYOK API keys in plaintext.
+
 #### `pai reset`
 
-Lets you remove a single saved provider (and its stored key), or delete every
-provider and your entire configuration at once.
+Lets you remove a single saved provider interactively, or delete all saved
+providers and your entire configuration at once
+
 
 ```bash
 pai reset
+pai reset --all
 ```
+
+> Use `--all` to skip the interactive selection and go directly to the confirmation prompt.
 
 #### `pai update`
 
