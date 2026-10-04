@@ -1,5 +1,11 @@
 # pushai
 
+## 3.1.14
+
+### Patch Changes
+
+- ab64541: refactor(cli): prepend running prefix to command title output
+
 ## 3.1.13
 
 ### Patch Changes
