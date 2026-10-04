@@ -1,5 +1,11 @@
 import { confirm } from "@inquirer/prompts";
-import { setSpinnerColor, showHeader, sleep, spinner } from "@pushai/utils";
+import {
+  headerIcons,
+  setSpinnerColor,
+  showHeader,
+  sleep,
+  spinner,
+} from "@pushai/utils";
 import chalk from "chalk";
 import type { Command } from "commander";
 import { configStore } from "../config/store.config";
@@ -7,7 +13,10 @@ import { getCommandTitle } from "../lib/command-title";
 import { formatProvider } from "../lib/format";
 import { setupAction } from "./setup.action";
 
-export async function peakAction(withApiKey = false, command?: Command) {
+export async function peakAction(
+  options: { withApiKey?: boolean },
+  command?: Command,
+) {
   const { baseCommand, commandTitle } = getCommandTitle(command);
 
   showHeader({
@@ -52,29 +61,23 @@ export async function peakAction(withApiKey = false, command?: Command) {
 
   for (const p of savedConfig.providers) {
     const isActive = p.id === savedConfig.activeId;
+    const tag = isActive ? chalk.dim(` ${headerIcons.dot} active`) : "";
 
-    const label = isActive
-      ? chalk.bgMagenta(formatProvider(p))
-      : formatProvider(p);
-
-    const tag = isActive ? chalk.dim(" (active)") : "";
-
-    console.log(`  ${label}${tag}`);
+    console.log(`  ${formatProvider(p, true)}${tag}`);
 
     if (p.mode === "byok") {
       hasByok = true;
 
-      const keyDisplay = withApiKey
-        ? chalk.cyan(p.apiKey)
-        : chalk.dim(
-            `${chalk.dim("api key -")} ${p.apiKey.slice(0, 4)}...${p.apiKey.slice(-4)}`,
-          );
-
-      console.log(`    ${keyDisplay}`);
+      if (options.withApiKey) {
+        console.log(`    ${chalk.dim("api key")}`);
+        console.log(`      ${chalk.cyan(p.apiKey)}`);
+      } else {
+        console.log(`    ${chalk.dim("api key configured")}`);
+      }
     }
   }
 
-  if (hasByok && !withApiKey) {
+  if (hasByok && !options.withApiKey) {
     console.log();
 
     console.log(
@@ -85,7 +88,9 @@ export async function peakAction(withApiKey = false, command?: Command) {
   }
 
   showHeader({
-    title: "configuration loaded successfully.",
+    title: options.withApiKey
+      ? "configuration and api keys loaded."
+      : "configuration loaded successfully.",
     color: chalk.green,
     type: "outro",
     exitType: 0,

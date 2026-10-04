@@ -37,10 +37,10 @@ export async function updateAction(command?: Command) {
 
     console.log();
     console.log(
-      `   ${chalk.dim("current".padEnd(12))} ${chalk.white(info.current)}`,
+      `   ${chalk.dim("installed".padEnd(12))} ${chalk.white(`v${info.current}`)}`,
     );
     console.log(
-      `   ${chalk.dim("latest".padEnd(12))} ${chalk.white(info.latest)}`,
+      `   ${chalk.dim("available".padEnd(12))} ${chalk.white(`v${info.latest}`)}`,
     );
     console.log();
 
@@ -55,21 +55,19 @@ export async function updateAction(command?: Command) {
     return;
   }
 
-  spinner.succeed(
-    `update available: ${info.current} ${headerIcons.chevron} ${info.latest}`,
-  );
+  spinner.succeed(`new version found ${headerIcons.chevron} v${info.latest}`);
 
   console.log();
   console.log(
-    `   ${chalk.dim("current".padEnd(12))} ${chalk.white(info.current)}`,
+    `   ${chalk.dim("installed".padEnd(12))} ${chalk.white(`v${info.current}`)}`,
   );
   console.log(
-    `   ${chalk.dim("latest".padEnd(12))} ${chalk.white(info.latest)}`,
+    `   ${chalk.dim("available".padEnd(12))} ${chalk.white(`v${info.latest}`)}`,
   );
   console.log();
 
   const shouldUpdate = await confirm({
-    message: `update ${pkgConfig.name} to v${info.latest} now?`,
+    message: `upgrade to the latest version (v${info.latest})?`,
     default: true,
   });
 

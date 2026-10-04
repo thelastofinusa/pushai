@@ -64,7 +64,7 @@ Runs the commit flow:
 | ------------------------ | -------------------------------------------------- |
 | `-p, --push`            | Automatically push the commit.                     |
 | `-m, --message <text>`  | Use a custom message instead of generating one.     |
-| `-d, --dry-run`             | Generate and display the message, but don't commit. |
+| `--dry-run`             | Generate and display the message, but don't commit. |
 
 
 **Example:**

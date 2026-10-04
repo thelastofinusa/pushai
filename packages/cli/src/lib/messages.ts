@@ -40,32 +40,3 @@ export function showCommitMessage(message: string) {
     }
   }
 }
-
-export function showOllamaNotInstalled(run: string) {
-  console.log(`
-${chalk.yellow("PushAI requires Ollama for local AI.")}
-
-${muted("Install it, then come back and run:")}
-
-  ${chalk.bold(run)}
-
-${muted("macOS / Linux")}  ${command("curl -fsSL https://ollama.com/install.sh | sh")}
-${muted("Windows")}        ${command("irm https://ollama.com/install.ps1 | iex")}
-
-${muted("Download:")} ${command("https://ollama.com/download")}
-`);
-}
-
-export function showNoModels(run: string) {
-  console.log(`
-${muted("Ollama is installed, but no models are available.")}
-
-${muted("Browse and choose a model:")}
-  ${command("https://ollama.com/search")}
-
-${muted("Then install it with:")}
-  ${command("ollama pull <model>")}
-
-${muted("Once the model is installed, run:")} ${chalk.bold(run)}
-`);
-}

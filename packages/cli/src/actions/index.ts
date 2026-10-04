@@ -14,8 +14,8 @@ export const actions = {
       program
         .command("commit")
         .description("create an ai-generated git commit")
+        .option("--dry-run", "preview without creating a commit")
         .option("-p, --push", "automatically push the commit")
-        .option("-d, --dry-run", "preview without creating a commit")
         .option("-m, --message <message>", "use a custom commit message")
         .action(
           cancellation((options, command: Command) =>
@@ -47,7 +47,12 @@ export const actions = {
         .option("-k, --key", "show the configured API key")
         .action(
           cancellation((options: { key?: boolean }, command: Command) =>
-            peakAction(options.key ?? false, command),
+            peakAction(
+              {
+                withApiKey: options.key ?? false,
+              },
+              command,
+            ),
           ),
         );
     },

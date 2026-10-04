@@ -1,5 +1,11 @@
 import { confirm, Separator, select } from "@inquirer/prompts";
-import { setSpinnerColor, showHeader, sleep, spinner } from "@pushai/utils";
+import {
+  headerIcons,
+  setSpinnerColor,
+  showHeader,
+  sleep,
+  spinner,
+} from "@pushai/utils";
 import chalk from "chalk";
 import type { Command } from "commander";
 import { configStore } from "../config/store.config";
@@ -54,8 +60,10 @@ export async function switchAction(command?: Command) {
       ...existingConfig.providers.map((p) => {
         const isActive = p.id === existingConfig.activeId;
 
+        const tag = isActive ? chalk.dim(` ${headerIcons.dot} active`) : "";
+
         return {
-          name: `${formatProvider(p)}${isActive ? chalk.dim(" (active)") : ""}`,
+          name: `${formatProvider(p, true)}${tag}`,
           value: p.id,
           description: isActive
             ? "Currently selected"

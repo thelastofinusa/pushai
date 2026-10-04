@@ -10,7 +10,7 @@ import { actions } from "./actions";
 import { pkgConfig } from "./config/config.config";
 
 const invoked = process.argv[2];
-const SKIP_PASSIVE_CHECK = new Set(["update", "--version", "-h", "--help"]);
+const SKIP_PASSIVE_CHECK = new Set(["update", "-h", "--help"]);
 
 async function main() {
   if (!SKIP_PASSIVE_CHECK.has(invoked)) {
@@ -24,7 +24,7 @@ async function main() {
 
           spinner.warn(
             chalk.dim(
-              `PushAI v${info.latest} is available (you have v${info.current}).\n  Run \`${command} update\`.`,
+              `update available: ${pkgConfig.name} v${info.latest} (current: v${info.current}). Run \`${command} update\`.`,
             ),
           );
         }

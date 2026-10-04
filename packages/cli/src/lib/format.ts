@@ -11,8 +11,3 @@ export function formatProvider(
   if (p.mode === "local") return `local ${model}`;
   return `cloud ${model}`;
 }
-
-export function providerModeLabel(p: ProviderConfig): string {
-  if (p.mode === "byok") return p.provider;
-  return p.mode;
-}

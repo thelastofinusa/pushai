@@ -91,10 +91,6 @@ Powered by [${pkgConfig.name}](${pkgConfig.homepage}).`;
 
   const branch = await git.getCurrentBranch();
 
-  if (branch) {
-    spinner.succeed(`committing to ${chalk.cyan(branch)}`);
-  }
-
   let message = options.customMessage?.trim();
 
   if (options.customMessage !== undefined && !message) {
@@ -120,6 +116,7 @@ Powered by [${pkgConfig.name}](${pkgConfig.homepage}).`;
 
     isLocalProvider = active.mode === "local";
 
+    spinner.succeed(`selected mode ${chalk.cyan(active.mode)}`);
     spinner.succeed(`provider ${chalk.cyan(formatProvider(active, true))}`);
   }
 
@@ -157,6 +154,10 @@ Powered by [${pkgConfig.name}](${pkgConfig.homepage}).`;
     )}`,
   );
 
+  if (branch) {
+    spinner.succeed(`committing to ${chalk.cyan(branch)}`);
+  }
+
   if (!message) {
     spinner.start("generating commit..");
 
@@ -165,14 +166,13 @@ Powered by [${pkgConfig.name}](${pkgConfig.homepage}).`;
 
       spinner.succeed("commit generated");
     } catch (error) {
-      spinner.fail(
+      const errorMessage =
         error instanceof Error
           ? error.message
-          : "failed to generate commit message.",
-      );
+          : "failed to generate commit message.";
 
       showHeader({
-        title: "please try again.",
+        title: errorMessage,
         color: chalk.red,
         symbol: "error",
         type: "outro",
@@ -208,9 +208,10 @@ Powered by [${pkgConfig.name}](${pkgConfig.homepage}).`;
         ? [
             new Separator(),
             {
-              name: "commit locally",
+              name: "commit offline",
               value: "commit",
-              description: "Create the commit locally without pushing",
+              description:
+                "Create the commit locally without connecting to the remote",
             },
             {
               name: "commit & push",
@@ -296,11 +297,17 @@ Powered by [${pkgConfig.name}](${pkgConfig.homepage}).`;
           showCommitMessage(message);
           console.log();
         } catch (error) {
-          spinner.fail(
+          const errorMessage =
             error instanceof Error
               ? error.message
-              : "failed to generate commit message.",
-          );
+              : "failed to regenerate commit message.";
+
+          showHeader({
+            title: errorMessage,
+            color: chalk.red,
+            symbol: "error",
+            type: "outro",
+          });
         }
 
         continue;

@@ -1,7 +1,7 @@
 import { select } from "@inquirer/prompts";
 import type { ProviderConfig, SetupMode } from "@pushai/types";
 import {
-  getPackageManager,
+  headerIcons,
   setSpinnerColor,
   showHeader,
   sleep,
@@ -54,13 +54,9 @@ async function manageExisting(existing: {
   for (const p of existing.providers) {
     const isActive = p.id === existing.activeId;
 
-    const label = isActive
-      ? chalk.bgMagenta(formatProvider(p))
-      : formatProvider(p);
+    const tag = isActive ? chalk.dim(` ${headerIcons.dot} active`) : "";
 
-    const tag = isActive ? chalk.dim(" (active)") : "";
-
-    console.log(`  ${label}${tag}`);
+    console.log(`  ${formatProvider(p, true)}${tag}`);
   }
 
   console.log();
@@ -140,7 +136,6 @@ async function manageExisting(existing: {
 
 async function runWizard(): Promise<ProviderConfig | undefined> {
   spinner.stop();
-  const pm = getPackageManager();
 
   const mode = await select<SetupMode | "cancel">({
     message: "how should pushai generate commits?",
@@ -169,7 +164,7 @@ async function runWizard(): Promise<ProviderConfig | undefined> {
   });
 
   if (mode === "local") {
-    const model = await handleLocalMode(pm, "setup");
+    const model = await handleLocalMode();
 
     if (!model) return;
 
