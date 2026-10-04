@@ -1,74 +1,48 @@
-/* eslint-disable @next/next/no-img-element */
-"use client";
-
 import Link from "next/link";
-import { useTheme } from "next-themes";
-import { useEffect, useMemo, useState } from "react";
+import { Container } from "@/components/shared/container";
 import { siteConfig } from "@/config/site.config";
+import { LogoSVG } from "./logo-svg";
+
+const links = [
+  ["GitHub", "https://github.com/thelastofinusa/pushai"],
+  ["npm", "https://www.npmjs.com/package/pushai"],
+  ["MIT license", "https://github.com/thelastofinusa/pushai/blob/main/LICENSE"],
+];
 
 export const Footer = () => {
-  const [version, setVersion] = useState("0.0.0");
-  const [mounted, setMounted] = useState(false);
-
-  const { resolvedTheme } = useTheme();
-
-  useEffect(() => {
-    setMounted(true);
-
-    fetch("/api/version")
-      .then((res) => res.json())
-      .then((data) => setVersion(data))
-      .catch(() => setVersion("0.0.0"));
-  }, []);
-
-  const theme = mounted ? resolvedTheme : "light";
-
-  const badgeSrc = useMemo(() => {
-    return `https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1149282&theme=${theme}`;
-  }, [theme]);
-
   return (
-    <footer className="py-12">
-      <div className="mx-auto flex max-w-[1320px] flex-col items-center justify-between gap-6 px-6 md:flex-row md:items-center">
-        <div className="flex flex-col items-center gap-2 text-center md:items-start md:text-left">
-          <span className="text-muted-foreground text-sm">
-            © 2026 {siteConfig.name}. All rights reserved.
-          </span>
-
-          <div className="flex items-center gap-2 text-muted-foreground text-sm">
-            <span>
-              {siteConfig.name}{" "}
-              <span className="text-foreground">v{version}</span>
-            </span>
-
-            <span>•</span>
-
+    <footer className="border-border border-t py-10">
+      <Container>
+        <div className="flex flex-col justify-between gap-7 sm:flex-row sm:items-start">
+          <div>
             <Link
-              target="_blank"
-              href={`https://x.com/${siteConfig.username}`}
-              className="transition-colors hover:text-foreground hover:underline"
+              href="#top"
+              className="font-medium text-base text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
             >
-              {siteConfig.nickname}
+              <LogoSVG className="h-auto! w-12!" />
             </Link>
+            <p className="mt-2 text-muted-foreground text-sm">
+              {siteConfig.title}
+            </p>
           </div>
+          <nav aria-label="Footer" className="flex flex-wrap gap-x-6 gap-y-3">
+            {links.map(([label, href]) => (
+              <a
+                key={label}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-muted-foreground text-sm transition-colors hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
+              >
+                {label}
+              </a>
+            ))}
+          </nav>
         </div>
-
-        <a
-          href="https://www.producthunt.com/products/pushai?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-pushai"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="transition-opacity hover:opacity-90"
-        >
-          <img
-            key={theme}
-            src={badgeSrc}
-            alt="PushAI on Product Hunt"
-            width={200}
-            height={50}
-            className="h-[50px] w-[200px]"
-          />
-        </a>
-      </div>
+        <p className="mt-12 font-mono text-[11px] text-muted-foreground">
+          © {new Date().getFullYear()} {siteConfig.name}. MIT licensed.
+        </p>
+      </Container>
     </footer>
   );
 };

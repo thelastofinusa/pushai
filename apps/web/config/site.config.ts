@@ -1,10 +1,11 @@
 export const siteConfig = {
   name: "PushAI",
-  slogan: "Ship commits at the speed of thought.",
+  title: "Your Git workflow, quietly smarter.",
+  slogan: "AI-powered git workflow",
   username: "thelastofinusa",
   nickname: "Osilama",
   description:
-    "PushAI stages your changes, writes meaningful commit messages with AI, and pushes — all from a single terminal command.",
+    "Generate thoughtful commit messages, switch AI providers, and push your work without leaving the terminal.",
   url:
     process.env.NODE_ENV === "development"
       ? "http://localhost:3000"

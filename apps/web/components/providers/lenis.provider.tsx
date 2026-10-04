@@ -2,7 +2,7 @@
 import { type LenisRef, ReactLenis } from "lenis/react";
 import { useEffect, useRef } from "react";
 
-export default function Provider({ children }: { children: React.ReactNode }) {
+function LenisProvider() {
   const lenisRef = useRef<LenisRef | null>(null);
 
   useEffect(() => {
@@ -18,9 +18,7 @@ export default function Provider({ children }: { children: React.ReactNode }) {
     return () => cancelAnimationFrame(rafId);
   }, []);
 
-  return (
-    <ReactLenis ref={lenisRef} root>
-      {children}
-    </ReactLenis>
-  );
+  return <ReactLenis ref={lenisRef} root />;
 }
+
+export { LenisProvider };

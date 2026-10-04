@@ -1,15 +1,11 @@
-import { assetPath, imagePath } from "@typest/nextjs";
 import type { Metadata } from "next";
-
-import "@pushai/ui/globals.css";
-import { Analytics } from "@vercel/analytics/next";
-import Provider from "@/components/providers/lenis.provider";
+import "./globals.css";
+import { StatsProvider } from "@/components/providers/stats.provider";
 import { ThemeProvider } from "@/components/providers/theme.provider";
 import { Footer } from "@/components/shared/footer";
-import { Header } from "@/components/shared/header";
-import { TailwindIndicator } from "@/components/shared/tailwind-indicator";
+import { Navbar } from "@/components/shared/navbar";
 import { siteConfig } from "@/config/site.config";
-import { fontVariable } from "@/fonts";
+import { fontVariable } from "@/lib/fonts";
 
 export const metadata: Metadata = {
   title: {
@@ -36,7 +32,7 @@ export const metadata: Metadata = {
     siteName: siteConfig.name,
     images: [
       {
-        url: `${siteConfig.url}${imagePath("opengraph.png")}`,
+        url: `${siteConfig.url}/opengraph.png`,
         width: 1200,
         height: 630,
         alt: siteConfig.name,
@@ -50,26 +46,28 @@ export const metadata: Metadata = {
       template: `%s - ${siteConfig.name}`,
     },
     description: siteConfig.description,
-    images: [`${siteConfig.url}${imagePath("opengraph.png")}`],
+    images: [`${siteConfig.url}/"opengraph.png`],
     creator: `@${siteConfig.username}`,
   },
-  icons: imagePath("logo.svg"),
-  manifest: `${siteConfig.url}${assetPath("site.webmanifest")}`,
+  icons: "/favicon.svg",
+  manifest: `${siteConfig.url}/site.webmanifest`,
 };
 
 export default function RootLayout(props: LayoutProps<"/">) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={fontVariable("antialiased")}>
-        <Provider>
-          <ThemeProvider>
-            <Header />
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={fontVariable("h-full font-sans antialiased")}
+    >
+      <body className="flex min-h-full flex-col">
+        <ThemeProvider>
+          <StatsProvider>
+            <Navbar />
             {props.children}
             <Footer />
-            <TailwindIndicator />
-          </ThemeProvider>
-          <Analytics />
-        </Provider>
+          </StatsProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
