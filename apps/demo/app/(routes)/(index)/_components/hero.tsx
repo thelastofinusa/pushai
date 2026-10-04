@@ -1,10 +1,11 @@
 "use client";
 
 import type { PackageManagerInfo } from "@pushai/types";
+import { motion } from "motion/react";
 import { useEffect, useState } from "react";
 import type { IconType } from "react-icons";
-import { FiCheck, FiChevronDown } from "react-icons/fi";
-import { SiBun, SiGnubash, SiNpm, SiPnpm, SiYarn } from "react-icons/si";
+import { FiCheck, FiChevronDown, FiTerminal } from "react-icons/fi";
+import { SiBun, SiNpm, SiPnpm, SiYarn } from "react-icons/si";
 import { Copy3 } from "reicon-react";
 import { Container } from "@/components/shared/container";
 import { TerminalWindow } from "@/components/shared/primitives";
@@ -33,7 +34,7 @@ const MANAGERS: Record<string, PackageManagerInfo & { icon: IconType }> = {
     name: "nub",
     installer: "nub install",
     runner: "nubx",
-    icon: SiGnubash,
+    icon: FiTerminal,
   },
 } as const;
 
@@ -194,51 +195,159 @@ export const HomeHero = () => {
           </div>
 
           <TerminalWindow className="shadow-panel" title="~/repo pai commit">
-            <p className="mb-4 text-cyan-600">
-              ✦ {selectedManager.runner} pushai commit - v{version}
-            </p>
-            <p className="text-muted-foreground">
-              <span className="text-term-green">✔</span> provider{" "}
-              <span className="text-term-green">local · llama3.2:latest</span>
-            </p>
-            <p className="text-muted-foreground">
-              <span className="text-term-green">✔</span> staged diff read{" "}
-              <span className="text-term-green">1 file</span>
-            </p>
-            <p className="text-muted-foreground">
-              <span className="text-term-green">✔</span> commit generated
-            </p>
-            <div className="ml-4 border-l border-l-cyan-600 pl-3">
-              <p className="mt-3 text-cyan-600">
-                feat(ui): improve terminal output spacing
-              </p>
-              <p className="mt-1 text-muted-foreground">
-                Improve spacing between terminal elements to make the output
-                easier to read.
-              </p>
-            </div>
-            <p className="mt-3 text-muted-foreground">
-              <span className="text-term-green">✔</span> how would you like to
-              proceed? <span className="text-cyan-600">commit & push</span>
-            </p>
-            <p className="text-muted-foreground">
-              <span className="text-term-green">✔</span> committed{" "}
-              <a
-                href="https://github.com/thelastofinusa/pushai/commit/5640ffd920b792922c4d44281e2dde373d3e83f1"
-                target="_blank"
-                rel="noreferrer"
-                className="text-term-green hover:underline"
+            <motion.div
+              initial="hidden"
+              animate="visible"
+              variants={{
+                hidden: {},
+                visible: {
+                  transition: {
+                    staggerChildren: 0.12,
+                  },
+                },
+              }}
+            >
+              <motion.p
+                variants={{
+                  hidden: { opacity: 0, y: 4 },
+                  visible: { opacity: 1, y: 0 },
+                }}
+                transition={{ duration: 0.25 }}
+                className="mb-4 text-cyan-600"
               >
-                <span>5640ffd</span>
-              </a>
-            </p>
-            <p className="text-muted-foreground">
-              <span className="text-term-green">✔</span> successfully pushed
-              changes
-            </p>
-            <p className="mt-4 text-term-green">
-              <span className="">✔</span> commit created and pushed to main.
-            </p>
+                ✦ running {selectedManager.runner} pushai commit - v{version}
+              </motion.p>
+
+              <motion.p
+                variants={{
+                  hidden: { opacity: 0, y: 4 },
+                  visible: { opacity: 1, y: 0 },
+                }}
+                transition={{ duration: 0.25 }}
+                className="text-muted-foreground"
+              >
+                <span className="text-term-green">✔</span> selected mode{" "}
+                <span className="text-cyan-600">byok</span>
+              </motion.p>
+
+              <motion.p
+                variants={{
+                  hidden: { opacity: 0, y: 4 },
+                  visible: { opacity: 1, y: 0 },
+                }}
+                transition={{ duration: 0.25 }}
+                className="text-muted-foreground"
+              >
+                <span className="text-term-green">✔</span> provider{" "}
+                <span className="text-cyan-600">gemini [gemini-3.5-flash]</span>
+              </motion.p>
+
+              <motion.p
+                variants={{
+                  hidden: { opacity: 0, y: 4 },
+                  visible: { opacity: 1, y: 0 },
+                }}
+                transition={{ duration: 0.25 }}
+                className="text-muted-foreground"
+              >
+                <span className="text-term-green">✔</span> staged diff read{" "}
+                <span className="text-cyan-600">1 file</span>
+              </motion.p>
+
+              <motion.p
+                variants={{
+                  hidden: { opacity: 0, y: 4 },
+                  visible: { opacity: 1, y: 0 },
+                }}
+                transition={{ duration: 0.25 }}
+                className="text-muted-foreground"
+              >
+                <span className="text-term-green">✔</span> committing to{" "}
+                <span className="text-cyan-600">main</span>
+              </motion.p>
+
+              <motion.p
+                variants={{
+                  hidden: { opacity: 0, y: 4 },
+                  visible: { opacity: 1, y: 0 },
+                }}
+                transition={{ duration: 0.25 }}
+                className="text-muted-foreground"
+              >
+                <span className="text-term-green">✔</span> message generated
+              </motion.p>
+
+              <motion.div
+                variants={{
+                  hidden: { opacity: 0, y: 4 },
+                  visible: { opacity: 1, y: 0 },
+                }}
+                transition={{ duration: 0.25 }}
+                className="ml-4 border-l border-l-cyan-600 pl-3"
+              >
+                <p className="mt-3 text-cyan-600">
+                  feat(ui): improve terminal output spacing
+                </p>
+                <p className="mt-1 text-muted-foreground">
+                  Improve spacing between terminal elements to make the output
+                  easier to read.
+                </p>
+              </motion.div>
+
+              <motion.p
+                variants={{
+                  hidden: { opacity: 0, y: 4 },
+                  visible: { opacity: 1, y: 0 },
+                }}
+                transition={{ duration: 0.25 }}
+                className="mt-3 text-muted-foreground"
+              >
+                <span className="text-term-green">✔</span> how would you like to
+                proceed? <span className="text-cyan-600">commit & push</span>
+              </motion.p>
+
+              <motion.p
+                variants={{
+                  hidden: { opacity: 0, y: 4 },
+                  visible: { opacity: 1, y: 0 },
+                }}
+                transition={{ duration: 0.25 }}
+                className="text-muted-foreground"
+              >
+                <span className="text-term-green">✔</span> committed{" "}
+                <a
+                  href="https://github.com/thelastofinusa/pushai/commit/5640ffd920b792922c4d44281e2dde373d3e83f1"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-term-green hover:underline"
+                >
+                  5640ffd
+                </a>
+              </motion.p>
+
+              <motion.p
+                variants={{
+                  hidden: { opacity: 0, y: 4 },
+                  visible: { opacity: 1, y: 0 },
+                }}
+                transition={{ duration: 0.25 }}
+                className="text-muted-foreground"
+              >
+                <span className="text-term-green">✔</span> successfully pushed
+                changes
+              </motion.p>
+
+              <motion.p
+                variants={{
+                  hidden: { opacity: 0, y: 4 },
+                  visible: { opacity: 1, y: 0 },
+                }}
+                transition={{ duration: 0.25 }}
+                className="mt-4 text-term-green"
+              >
+                ✔ commit created and pushed to main.
+              </motion.p>
+            </motion.div>
           </TerminalWindow>
         </div>
       </Container>
