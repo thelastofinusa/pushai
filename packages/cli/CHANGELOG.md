@@ -1,5 +1,11 @@
 # pushai
 
+## 3.1.16
+
+### Patch Changes
+
+- c7a90f2: Update error reporting to use spinner failure states and provide a generic user-friendly instruction instead of displaying raw error messages in the header.
+
 ## 3.1.15
 
 ### Patch Changes
