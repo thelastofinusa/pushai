@@ -42,11 +42,13 @@ export function getCommandTitle(command?: Command): CommandContext {
   // Deduplicate flags (in case of overlaps)
   flags = [...new Set(flags)];
 
-  const baseCommand = ["running", cliCommand, action].filter(Boolean).join(" ");
+  // Remove "running" from here
+  const baseCommand = [cliCommand, action].filter(Boolean).join(" ");
   const fullCommand = [baseCommand, ...flags].filter(Boolean).join(" ");
 
   return {
-    commandTitle: `${fullCommand} ${headerIcons.bullet} v${pkgConfig.version}`,
+    // Prepend "running " directly to the title here
+    commandTitle: `running ${fullCommand} ${headerIcons.bullet} v${pkgConfig.version}`,
     baseCommand: baseCommand,
     fullCommand: fullCommand,
   };
