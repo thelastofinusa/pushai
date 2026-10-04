@@ -13,7 +13,6 @@ import { TerminalWindow } from "@/components/shared/primitives";
 import { IconSwap, IconSwapItem } from "@/components/ui/chanhdai/icon-swap";
 import { Frame, FramePanel } from "@/components/ui/reui/frame";
 import { Button } from "@/components/ui/shadcn/button";
-import { gooeyToast } from "@/components/ui/shadcn/goey-toaster";
 import {
   Select,
   SelectContent,
@@ -83,9 +82,6 @@ export const HomeHero = () => {
     await navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-    gooeyToast.success("Copied to clipboard!", {
-      description: `"${text}" successfully copied to clipboard`,
-    });
   };
 
   return (
