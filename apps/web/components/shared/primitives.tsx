@@ -53,7 +53,10 @@ export function Section({
   size?: ContainerVariantsType["size"];
 }) {
   return (
-    <section id={id} className={cn("py-16 sm:py-20 md:py-24", className)}>
+    <section
+      id={id}
+      className={cn("border-b py-16 sm:py-20 md:py-24", className)}
+    >
       <Container size={size}>
         <Reveal>{children}</Reveal>
       </Container>

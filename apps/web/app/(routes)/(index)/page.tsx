@@ -11,21 +11,13 @@ export default function Home() {
   return (
     <div className="flex-1 overflow-x-clip">
       <HomeHero />
-      <div className="bg-card">
-        <Stats />
-      </div>
+      <Stats />
       <Workflow />
-      <div className="bg-linear-to-b from-card via-card/60 to-transparent">
-        <Features />
-      </div>
+      <Features />
       <Providers />
-      <div className="bg-linear-to-b from-card via-card/60 to-transparent">
-        <Commands />
-      </div>
+      <Commands />
       <Trust />
-      <div className="bg-linear-to-b from-card via-card/60 to-transparent">
-        <FAQs />
-      </div>
+      <FAQs />
     </div>
   );
 }
