@@ -14,7 +14,7 @@ export default function GlobalProvider(props: { children: React.ReactNode }) {
         <Navbar />
         {props.children}
         <Footer />
-        <GooeyToaster position="top-right" />
+        <GooeyToaster position="top-right" theme="dark" />
       </StatsProvider>
     </ThemeProvider>
   );
