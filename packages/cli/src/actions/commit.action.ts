@@ -166,13 +166,14 @@ Powered by [${pkgConfig.name}](${pkgConfig.homepage}).`;
 
       spinner.succeed("commit generated");
     } catch (error) {
-      const errorMessage =
+      spinner.fail(
         error instanceof Error
           ? error.message
-          : "failed to generate commit message.";
+          : "failed to generate commit message.",
+      );
 
       showHeader({
-        title: errorMessage,
+        title: "please try again or edit the message manually.",
         color: chalk.red,
         symbol: "error",
         type: "outro",
@@ -297,13 +298,14 @@ Powered by [${pkgConfig.name}](${pkgConfig.homepage}).`;
           showCommitMessage(message);
           console.log();
         } catch (error) {
-          const errorMessage =
+          spinner.fail(
             error instanceof Error
               ? error.message
-              : "failed to regenerate commit message.";
+              : "failed to regenerate commit message.",
+          );
 
           showHeader({
-            title: errorMessage,
+            title: "please try again or edit the message manually.",
             color: chalk.red,
             symbol: "error",
             type: "outro",
