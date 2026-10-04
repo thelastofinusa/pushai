@@ -1,5 +1,11 @@
 # pushai
 
+## 3.1.18
+
+### Patch Changes
+
+- 7f9c33d: Introduce a '--all' flag to the 'reset' command to allow users to bypass the interactive selection and delete all configuration and API keys immediately
+
 ## 3.1.17
 
 ### Patch Changes
