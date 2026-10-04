@@ -24,25 +24,43 @@ import {
 import { Separator } from "@/components/ui/shadcn/separator";
 import { siteConfig } from "@/config/site.config";
 
-const MANAGERS: Record<string, PackageManagerInfo & { icon: IconType }> = {
-  npm: { name: "npm", installer: "npm install", runner: "npx", icon: SiNpm },
+const MANAGERS: Record<
+  string,
+  PackageManagerInfo & { icon: IconType; global: string }
+> = {
+  npm: {
+    name: "npm",
+    installer: "npm install",
+    runner: "npx",
+    global: "npm install -g",
+    icon: SiNpm,
+  },
   pnpm: {
     name: "pnpm",
     installer: "pnpm add",
     runner: "pnpm dlx",
+    global: "pnpm add -g",
     icon: SiPnpm,
   },
   yarn: {
     name: "yarn",
     installer: "yarn add",
     runner: "yarn dlx",
+    global: "yarn add global",
     icon: SiYarn,
   },
-  bun: { name: "bun", installer: "bun add", runner: "bunx", icon: SiBun },
+  bun: {
+    name: "bun",
+    installer: "bun add",
+    runner: "bunx",
+    global: "bun add -g",
+    icon: SiBun,
+  },
   nub: {
     name: "nub",
     installer: "nub install",
     runner: "nubx",
+    global: "nub install -g",
     icon: FiTerminal,
   },
 } as const;
@@ -65,10 +83,7 @@ export const HomeHero = () => {
     },
     global: {
       label: "Install Globally",
-      command:
-        pm === "yarn"
-          ? "yarn global add pushai"
-          : `${selectedManager.installer} -g pushai`,
+      command: `${selectedManager.global} pushai`,
       next: "pai setup",
     },
   };
