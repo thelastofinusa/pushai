@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
+
 import "./globals.css";
-import { StatsProvider } from "@/components/providers/stats.provider";
-import { ThemeProvider } from "@/components/providers/theme.provider";
-import { Footer } from "@/components/shared/footer";
-import { Navbar } from "@/components/shared/navbar";
+import GlobalProvider from "@/components/providers";
 import { siteConfig } from "@/config/site.config";
 import { fontVariable } from "@/lib/fonts";
 
@@ -61,13 +59,7 @@ export default function RootLayout(props: LayoutProps<"/">) {
       className={fontVariable("h-full font-sans antialiased")}
     >
       <body className="flex min-h-full flex-col">
-        <ThemeProvider>
-          <StatsProvider>
-            <Navbar />
-            {props.children}
-            <Footer />
-          </StatsProvider>
-        </ThemeProvider>
+        <GlobalProvider>{props.children}</GlobalProvider>
       </body>
     </html>
   );

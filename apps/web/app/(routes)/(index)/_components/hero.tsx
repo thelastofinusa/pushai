@@ -13,6 +13,7 @@ import { TerminalWindow } from "@/components/shared/primitives";
 import { IconSwap, IconSwapItem } from "@/components/ui/chanhdai/icon-swap";
 import { Frame, FramePanel } from "@/components/ui/reui/frame";
 import { Button } from "@/components/ui/shadcn/button";
+import { gooeyToast } from "@/components/ui/shadcn/goey-toaster";
 import {
   Select,
   SelectContent,
@@ -55,9 +56,7 @@ export const HomeHero = () => {
   );
   const [copied, setCopied] = useState(false);
 
-  // Dynamically generate the commands based on the selected package manager
   const selectedManager = MANAGERS[pm];
-  const _SelectedIcon = selectedManager.icon;
 
   const installOptions = {
     instant: {
@@ -78,13 +77,15 @@ export const HomeHero = () => {
   const selected = installOptions[installMethod];
 
   const copyCommand = async () => {
-    await navigator.clipboard.writeText(
-      selected.next
-        ? `${selected.command} && ${selected.next}`
-        : selected.command,
-    );
+    const text = selected.next
+      ? `${selected.command} && ${selected.next}`
+      : selected.command;
+    await navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+    gooeyToast.success("Copied to clipboard!", {
+      description: `"${text}" successfully copied to clipboard`,
+    });
   };
 
   return (
