@@ -20,6 +20,12 @@ export const headerIcons = {
   chevronUp: "⌃",
   chevronDown: "⌄",
 
+  // Tree / branches
+
+  branchFirst: "╭─▶",
+  branch: "├─▶",
+  branchLast: "╰─▶",
+
   // Common UI
   bullet: "•",
   dot: "·",
@@ -41,6 +47,9 @@ export const headerIcons = {
   lightning: "⚡",
   heart: "♥",
   flag: "⚑",
+
+  // Others
+  pipe: "│",
 } as const;
 
 export type SymbolType = keyof typeof headerIcons;

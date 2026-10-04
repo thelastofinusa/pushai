@@ -1,7 +1,7 @@
 import { execSync } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { confirm, input, Separator, select } from "@inquirer/prompts";
+import { confirm, select } from "@inquirer/prompts";
 import { createGitService, generateCommitMessage } from "@pushai/core";
 import type { CommitFlowOptions, SetupConfig } from "@pushai/types";
 import { setSpinnerColor, showHeader, spinner } from "@pushai/utils";
@@ -164,7 +164,7 @@ Powered by [${pkgConfig.name}](${pkgConfig.homepage}).`;
     try {
       message = await generateCommitMessage(config as SetupConfig, diff);
 
-      spinner.succeed("commit generated");
+      spinner.succeed("message generated");
     } catch (error) {
       spinner.fail(
         error instanceof Error
@@ -205,39 +205,24 @@ Powered by [${pkgConfig.name}](${pkgConfig.homepage}).`;
   // When --push flag is NOT passed, prompt user based on provider mode
   if (!options.autoPush) {
     while (true) {
-      const choices = isLocalProvider
-        ? [
-            new Separator(),
-            {
-              name: "commit offline",
-              value: "commit",
-              description:
-                "Create the commit locally without connecting to the remote",
-            },
-            {
-              name: "commit & push",
-              value: "push",
-              description: "Create the commit and push it to the remote",
-            },
-            new Separator(),
-          ]
-        : [
-            {
-              name: "commit & push",
-              value: "push",
-              description: "Create the commit and push it to the remote",
-            },
-          ];
-
       const selectedAction = await select({
         message: "how would you like to proceed?",
         default: isLocalProvider ? "commit" : "push",
         choices: [
-          ...choices,
+          ...(isLocalProvider
+            ? [
+                {
+                  name: "commit offline",
+                  value: "commit",
+                  description:
+                    "Create the commit locally without connecting to the remote",
+                },
+              ]
+            : []),
           {
-            name: "edit message",
-            value: "edit",
-            description: "Modify the commit message",
+            name: "commit & push",
+            value: "push",
+            description: "Create the commit and push it to the remote",
           },
           {
             name: "regenerate",
@@ -255,24 +240,6 @@ Powered by [${pkgConfig.name}](${pkgConfig.homepage}).`;
       if (selectedAction === "commit" || selectedAction === "push") {
         shouldPush = selectedAction === "push";
         break;
-      }
-
-      if (selectedAction === "edit") {
-        message = (
-          await input({
-            message: "update the commit message:",
-            default: chalk.dim(message),
-            prefill: "editable",
-            validate: (value) =>
-              value.trim() ? true : "commit message cannot be empty.",
-          })
-        ).trim();
-
-        console.log();
-        showCommitMessage(message);
-        console.log();
-
-        continue;
       }
 
       if (selectedAction === "regenerate") {

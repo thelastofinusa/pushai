@@ -1,9 +1,5 @@
+import { headerIcons } from "@pushai/utils";
 import chalk from "chalk";
-
-const command = (value: string) => chalk.cyan(value);
-const muted = (value: string) => chalk.dim(value);
-
-const PREFIX = "  │ ";
 
 function wrap(text: string, width: number): string[] {
   const words = text.split(" ");
@@ -27,16 +23,31 @@ function wrap(text: string, width: number): string[] {
 }
 
 export function showCommitMessage(message: string) {
-  const [title, ...body] = message.split("\n").filter(Boolean);
-  const width = Math.max((process.stdout.columns || 80) - PREFIX.length, 20);
+  const [title, description] = message.split("\n").filter(Boolean);
 
-  for (const line of wrap(title, width)) {
-    console.log(`  ${muted("│")} ${command(line)}`);
+  const width = Math.max((process.stdout.columns || 80) - 10, 20);
+
+  console.log(`  ${chalk.cyan(headerIcons.branchFirst)} proposed changes`);
+  console.log(chalk.cyan(`  ${headerIcons.pipe}`));
+
+  const titleLines = wrap(title, width);
+  console.log(
+    `  ${chalk.cyan(headerIcons.branch)} ${chalk.cyan(titleLines[0])}`,
+  );
+
+  for (const line of titleLines.slice(1)) {
+    console.log(`  ${headerIcons.pipe}   ${chalk.cyan(line)}`);
   }
 
-  for (const bodyLine of body) {
-    for (const line of wrap(bodyLine, width)) {
-      console.log(`  ${muted("│")} ${muted(line)}`);
+  if (description) {
+    const descriptionLines = wrap(description, width);
+
+    console.log(
+      `  ${chalk.cyan(headerIcons.branchLast)} ${descriptionLines[0]}`,
+    );
+
+    for (const line of descriptionLines.slice(1)) {
+      console.log(`      ${line}`);
     }
   }
 }
