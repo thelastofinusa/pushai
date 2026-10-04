@@ -1,6 +1,6 @@
 {
   "name": "pushai",
-  "version": "3.1.14",
+  "version": "3.1.15",
   "description": "An AI Git assistant for your terminal",
   "type": "module",
   "license": "MIT",
