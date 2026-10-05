@@ -1,9 +1,8 @@
 import { confirm, password, search, select } from "@inquirer/prompts";
 import { providers } from "@pushai/core";
 import type { AIModel } from "@pushai/types";
-import { showHeader } from "@pushai/utils";
+import { showHeader, spinner } from "@pushai/utils";
 import chalk from "chalk";
-import { spinner } from "../lib/spinner";
 
 export async function handleByokMode(): Promise<
   { provider: string; apiKey: string; model: string } | undefined

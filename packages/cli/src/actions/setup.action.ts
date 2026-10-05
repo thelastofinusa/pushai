@@ -24,13 +24,13 @@ export async function setupAction(command?: Command) {
   });
 
   setSpinnerColor("magenta");
-  spinner.start("retrieving configuration");
+  spinner.start("checking configuration..");
 
   const existing = await configStore.getStoredConfig();
-  await sleep(400);
+  await sleep(500);
 
   if (existing) {
-    spinner.succeed("configuration retrieved");
+    spinner.stop();
     return manageExisting(existing);
   }
 

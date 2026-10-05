@@ -28,7 +28,7 @@ export function showCommitMessage(message: string) {
   const width = Math.max((process.stdout.columns || 80) - 10, 20);
 
   console.log(`  ${chalk.cyan(headerIcons.branchFirst)} proposed changes`);
-  console.log(chalk.cyan(`  ${headerIcons.pipe}`));
+  console.log(`  ${chalk.cyan(headerIcons.pipe)}`);
 
   const titleLines = wrap(title, width);
   console.log(
@@ -36,7 +36,7 @@ export function showCommitMessage(message: string) {
   );
 
   for (const line of titleLines.slice(1)) {
-    console.log(`  ${headerIcons.pipe}   ${chalk.cyan(line)}`);
+    console.log(`  ${chalk.cyan(headerIcons.pipe)}   ${chalk.cyan(line)}`);
   }
 
   if (description) {

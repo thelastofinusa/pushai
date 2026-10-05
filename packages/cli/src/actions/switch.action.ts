@@ -1,17 +1,11 @@
-import { confirm, Separator, select } from "@inquirer/prompts";
-import {
-  headerIcons,
-  setSpinnerColor,
-  showHeader,
-  sleep,
-  spinner,
-} from "@pushai/utils";
+import { Separator, select } from "@inquirer/prompts";
+import { headerIcons, showHeader } from "@pushai/utils";
 import chalk from "chalk";
 import type { Command } from "commander";
 import { configStore } from "../config/store.config";
+import { handleEnsureConfig } from "../handlers/config.helper";
 import { getCommandTitle } from "../lib/command-title";
 import { formatProvider } from "../lib/format";
-import { setupAction } from "./setup.action";
 
 export async function switchAction(command?: Command) {
   const { commandTitle } = getCommandTitle(command);
@@ -21,44 +15,15 @@ export async function switchAction(command?: Command) {
     color: chalk.green,
   });
 
-  setSpinnerColor("green");
-  spinner.start("retrieving configuration");
-
-  const existingConfig = await configStore.getStoredConfig();
-  await sleep(400);
-
-  if (!existingConfig) {
-    spinner.warn("no configuration found");
-
-    console.log();
-    const proceed = await confirm({
-      message: "would you like to start the setup wizard?",
-      default: true,
-    });
-
-    if (!proceed) {
-      showHeader({
-        title: "setup wizard skipped.",
-        symbol: "info",
-        color: chalk.dim,
-        type: "outro",
-      });
-      return false;
-    }
-
-    await setupAction();
-
-    return true;
-  }
-
-  spinner.succeed("configuration retrieved");
+  const config = await handleEnsureConfig("green");
+  if (typeof config === "boolean") return config;
 
   const nextId = await select({
     message: "which provider should become active?",
     choices: [
       new Separator(),
-      ...existingConfig.providers.map((p) => {
-        const isActive = p.id === existingConfig.activeId;
+      ...config.providers.map((p) => {
+        const isActive = p.id === config.activeId;
 
         const tag = isActive ? chalk.dim(` ${headerIcons.dot} active`) : "";
 
@@ -101,7 +66,7 @@ export async function switchAction(command?: Command) {
     return;
   }
 
-  const target = existingConfig.providers.find((p) => p.id === nextId);
+  const target = config.providers.find((p) => p.id === nextId);
 
   showHeader({
     title: `switched to "${target ? formatProvider(target) : nextId}".`,

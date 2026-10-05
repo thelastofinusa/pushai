@@ -4,11 +4,11 @@ import path from "node:path";
 import { confirm, select } from "@inquirer/prompts";
 import { createGitService, generateCommitMessage } from "@pushai/core";
 import type { CommitFlowOptions, SetupConfig } from "@pushai/types";
-import { setSpinnerColor, showHeader, spinner } from "@pushai/utils";
+import { showHeader, spinner } from "@pushai/utils";
 import chalk from "chalk";
 import type { Command } from "commander";
 import { pkgConfig } from "../config/config.config";
-import { configStore } from "../config/store.config";
+import { handleEnsureConfig } from "../handlers/config.helper";
 import { getCommandTitle } from "../lib/command-title";
 import { formatProvider } from "../lib/format";
 import { showCommitMessage } from "../lib/messages";
@@ -26,7 +26,8 @@ export async function commitAction(
     type: "intro",
   });
 
-  setSpinnerColor("cyan");
+  const config = await handleEnsureConfig("cyan");
+  if (typeof config === "boolean") return config;
 
   const git = createGitService();
 
@@ -98,7 +99,6 @@ Powered by [${pkgConfig.name}](${pkgConfig.homepage}).`;
     return;
   }
 
-  let config = await configStore.getStoredConfig();
   let isLocalProvider = false;
 
   // A custom message skips provider configuration entirely.
@@ -106,7 +106,7 @@ Powered by [${pkgConfig.name}](${pkgConfig.homepage}).`;
     if (!config) return;
 
     const active = config.providers.find(
-      (provider) => provider.id === config?.activeId,
+      (provider) => provider.id === config.activeId,
     );
 
     if (!active) {
@@ -243,11 +243,10 @@ Powered by [${pkgConfig.name}](${pkgConfig.homepage}).`;
       }
 
       if (selectedAction === "regenerate") {
-        if (!config) config = await configStore.getStoredConfig();
         if (!config) return;
 
         const active = config.providers.find(
-          (provider) => provider.id === config?.activeId,
+          (provider) => provider.id === config.activeId,
         );
 
         if (!active) {

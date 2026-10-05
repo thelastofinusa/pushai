@@ -1,17 +1,9 @@
-import { confirm } from "@inquirer/prompts";
-import {
-  headerIcons,
-  setSpinnerColor,
-  showHeader,
-  sleep,
-  spinner,
-} from "@pushai/utils";
+import { headerIcons, showHeader } from "@pushai/utils";
 import chalk from "chalk";
 import type { Command } from "commander";
-import { configStore } from "../config/store.config";
+import { handleEnsureConfig } from "../handlers/config.helper";
 import { getCommandTitle } from "../lib/command-title";
 import { formatProvider } from "../lib/format";
-import { setupAction } from "./setup.action";
 
 export async function peakAction(
   options: { withApiKey?: boolean },
@@ -24,43 +16,14 @@ export async function peakAction(
     color: chalk.cyan,
   });
 
-  setSpinnerColor("cyan");
-  spinner.start("loading saved configuration");
-
-  const savedConfig = await configStore.getStoredConfig();
-  await sleep(400);
-
-  if (!savedConfig) {
-    spinner.warn("no saved configuration");
-
-    console.log();
-    const proceed = await confirm({
-      message: "would you like to start the setup wizard?",
-      default: true,
-    });
-
-    if (!proceed) {
-      showHeader({
-        title: "setup wizard skipped.",
-        symbol: "info",
-        color: chalk.dim,
-        type: "outro",
-      });
-      return false;
-    }
-
-    await setupAction();
-
-    return true;
-  }
-
-  spinner.succeed("configuration loaded");
+  const config = await handleEnsureConfig("cyan");
+  if (typeof config === "boolean") return config;
 
   console.log();
   let hasByok = false;
 
-  for (const p of savedConfig.providers) {
-    const isActive = p.id === savedConfig.activeId;
+  for (const p of config.providers) {
+    const isActive = p.id === config.activeId;
     const tag = isActive ? chalk.dim(` ${headerIcons.dot} active`) : "";
 
     console.log(`  ${formatProvider(p, true)}${tag}`);
@@ -96,5 +59,5 @@ export async function peakAction(
     exitType: 0,
   });
 
-  return savedConfig;
+  return config;
 }

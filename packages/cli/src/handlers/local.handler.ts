@@ -2,10 +2,9 @@ import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { confirm, select } from "@inquirer/prompts";
 import { ollamaProvider } from "@pushai/core";
-import { setSpinnerColor, showHeader, sleep } from "@pushai/utils";
+import { setSpinnerColor, showHeader, sleep, spinner } from "@pushai/utils";
 import chalk from "chalk";
 import { getCommandTitle } from "../lib/command-title";
-import { spinner } from "../lib/spinner";
 
 const execFileAsync = promisify(execFile);
 

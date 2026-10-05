@@ -1,11 +1,11 @@
 import { confirm, Separator, select } from "@inquirer/prompts";
-import { setSpinnerColor, showHeader, sleep, spinner } from "@pushai/utils";
+import { showHeader } from "@pushai/utils";
 import chalk from "chalk";
 import type { Command } from "commander";
 import { configStore } from "../config/store.config";
+import { handleEnsureConfig } from "../handlers/config.helper";
 import { getCommandTitle } from "../lib/command-title";
 import { formatProvider } from "../lib/format";
-import { setupAction } from "./setup.action";
 
 async function resetAll() {
   const proceed = await confirm({
@@ -59,46 +59,16 @@ export async function resetAction(
     return;
   }
 
-  setSpinnerColor("red");
-  spinner.start("checking existing configuration");
-
-  const existingConfig = await configStore.getStoredConfig();
-  await sleep(400);
-
-  if (!existingConfig) {
-    spinner.warn("no existing configuration");
-
-    console.log();
-
-    const proceed = await confirm({
-      message: "would you like to start the setup wizard?",
-      default: true,
-    });
-
-    if (!proceed) {
-      showHeader({
-        title: "setup wizard skipped.",
-        symbol: "info",
-        color: chalk.dim,
-        type: "outro",
-      });
-      return false;
-    }
-
-    await setupAction();
-
-    return true;
-  }
-
-  spinner.succeed("configuration retrieved");
+  const config = await handleEnsureConfig("red");
+  if (typeof config === "boolean") return config;
 
   const choice = await select({
     message: "what would you like to reset?",
     choices: [
       new Separator(),
 
-      ...existingConfig.providers.map((p) => {
-        const isActive = p.id === existingConfig.activeId;
+      ...config.providers.map((p) => {
+        const isActive = p.id === config.activeId;
 
         return {
           name: `${formatProvider(p)}${isActive ? chalk.dim(" (active)") : ""}`,
@@ -131,7 +101,7 @@ export async function resetAction(
   }
 
   const id = choice.replace("provider:", "");
-  const provider = existingConfig.providers.find((p) => p.id === id);
+  const provider = config.providers.find((p) => p.id === id);
 
   if (!provider) return;
 

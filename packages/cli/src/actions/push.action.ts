@@ -1,5 +1,5 @@
 import { createGitService } from "@pushai/core";
-import { setSpinnerColor, showHeader, spinner } from "@pushai/utils";
+import { showHeader, spinner } from "@pushai/utils";
 import chalk from "chalk";
 import type { Command } from "commander";
 import { getCommandTitle } from "../lib/command-title";
@@ -13,8 +13,6 @@ export async function pushAction(command?: Command) {
     symbol: "flag",
     type: "intro",
   });
-
-  setSpinnerColor("cyan");
 
   const git = createGitService();
 
