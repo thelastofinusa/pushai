@@ -1,5 +1,11 @@
 # pushai
 
+## 3.1.20
+
+### Patch Changes
+
+- dd9a555: Simplify CLI actions by extracting duplicate configuration loading and setup prompts into a reusable helper function.
+
 ## 3.1.19
 
 ### Patch Changes
