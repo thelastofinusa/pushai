@@ -21,6 +21,16 @@ export async function pushAction(command?: Command) {
     return;
   }
 
+  // Check for uncommitted local changes
+  const status = await git.getStatus();
+  if (status.changed > 0) {
+    spinner.warn(
+      `you have ${chalk.yellow(status.changed)} uncommitted change${
+        status.changed === 1 ? "" : "s"
+      }.`,
+    );
+  }
+
   const branch = await git.getCurrentBranch();
   const unpushed = await git.getUnpushedCount(branch);
 
@@ -30,7 +40,8 @@ export async function pushAction(command?: Command) {
       color: chalk.green,
       symbol: "success",
       type: "outro",
-      margin: { top: false },
+      // biome-ignore lint/complexity/noUselessTernary: ignore this ternary for clarity
+      margin: { top: status.changed > 0 ? true : false },
     });
 
     return;

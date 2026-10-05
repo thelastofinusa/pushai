@@ -11,7 +11,7 @@ import { pkgConfig } from "../config/config.config";
 import { handleEnsureConfig } from "../handlers/config.helper";
 import { getCommandTitle } from "../lib/command-title";
 import { formatProvider } from "../lib/format";
-import { showCommitMessage } from "../lib/messages";
+import { showCommitMessage } from "../lib/show";
 
 export async function commitAction(
   options: CommitFlowOptions = {},
@@ -26,8 +26,36 @@ export async function commitAction(
     type: "intro",
   });
 
-  const config = await handleEnsureConfig("cyan");
-  if (typeof config === "boolean") return config;
+  let message = options.customMessage?.trim();
+
+  if (options.customMessage !== undefined && !message) {
+    spinner.fail("commit message cannot be empty.");
+    return;
+  }
+
+  let config: SetupConfig | undefined;
+  let isLocalProvider = false;
+
+  // A custom message skips provider configuration entirely.
+  if (!message) {
+    const configResult = await handleEnsureConfig("cyan");
+    if (typeof configResult === "boolean") return configResult;
+    config = configResult;
+
+    const active = config.providers.find(
+      (provider) => provider.id === config?.activeId,
+    );
+
+    if (!active) {
+      spinner.fail("no active provider configured. run `pai setup`.");
+      return;
+    }
+
+    isLocalProvider = active.mode === "local";
+
+    spinner.succeed(`selected mode ${chalk.cyan(active.mode)}`);
+    spinner.succeed(`provider ${chalk.cyan(formatProvider(active, true))}`);
+  }
 
   const git = createGitService();
 
@@ -78,11 +106,9 @@ Powered by [${pkgConfig.name}](${pkgConfig.homepage}).`;
 
         spinner.start("creating README.md..");
         try {
-          // Execute echo via shell child_process
           execSync(`echo ${JSON.stringify(readmeContent)} > README.md`);
           spinner.succeed("created README.md");
         } catch (_error) {
-          // Fallback to Node fs if shell echo fails
           await fs.writeFile("README.md", readmeContent, "utf-8");
           spinner.succeed("created README.md");
         }
@@ -91,34 +117,6 @@ Powered by [${pkgConfig.name}](${pkgConfig.homepage}).`;
   }
 
   const branch = await git.getCurrentBranch();
-
-  let message = options.customMessage?.trim();
-
-  if (options.customMessage !== undefined && !message) {
-    spinner.fail("commit message cannot be empty.");
-    return;
-  }
-
-  let isLocalProvider = false;
-
-  // A custom message skips provider configuration entirely.
-  if (!message) {
-    if (!config) return;
-
-    const active = config.providers.find(
-      (provider) => provider.id === config.activeId,
-    );
-
-    if (!active) {
-      spinner.fail("no active provider configured. run `pai setup`.");
-      return;
-    }
-
-    isLocalProvider = active.mode === "local";
-
-    spinner.succeed(`selected mode ${chalk.cyan(active.mode)}`);
-    spinner.succeed(`provider ${chalk.cyan(formatProvider(active, true))}`);
-  }
 
   await git.stageAll();
 
@@ -243,10 +241,14 @@ Powered by [${pkgConfig.name}](${pkgConfig.homepage}).`;
       }
 
       if (selectedAction === "regenerate") {
-        if (!config) return;
+        if (!config) {
+          const configResult = await handleEnsureConfig("cyan");
+          if (typeof configResult === "boolean") return configResult;
+          config = configResult;
+        }
 
         const active = config.providers.find(
-          (provider) => provider.id === config.activeId,
+          (provider) => provider.id === config?.activeId,
         );
 
         if (!active) {

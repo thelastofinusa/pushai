@@ -1,6 +1,6 @@
 import { confirm } from "@inquirer/prompts";
 import type { SetupConfig } from "@pushai/types";
-import { setSpinnerColor, showHeader, sleep, spinner } from "@pushai/utils";
+import { setSpinnerColor, showHeader, spinner } from "@pushai/utils";
 import chalk from "chalk";
 import type { Color } from "ora";
 import { setupAction } from "../actions/setup.action";
@@ -13,7 +13,6 @@ export async function handleEnsureConfig(
   spinner.start("checking configuration..");
 
   const existingConfig = await configStore.getStoredConfig();
-  await sleep(500);
 
   if (!existingConfig) {
     spinner.info("no configuration found");

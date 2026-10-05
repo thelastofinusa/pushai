@@ -1,12 +1,6 @@
 import { select } from "@inquirer/prompts";
 import type { ProviderConfig, SetupMode } from "@pushai/types";
-import {
-  headerIcons,
-  setSpinnerColor,
-  showHeader,
-  sleep,
-  spinner,
-} from "@pushai/utils";
+import { setSpinnerColor, showHeader, spinner } from "@pushai/utils";
 import chalk from "chalk";
 import type { Command } from "commander";
 import { configStore } from "../config/store.config";
@@ -14,6 +8,7 @@ import { handleByokMode } from "../handlers/byok.handler";
 import { handleLocalMode } from "../handlers/local.handler";
 import { getCommandTitle } from "../lib/command-title";
 import { formatProvider } from "../lib/format";
+import { showProviders } from "../lib/show";
 
 export async function setupAction(command?: Command) {
   const { commandTitle } = getCommandTitle(command);
@@ -27,7 +22,6 @@ export async function setupAction(command?: Command) {
   spinner.start("checking configuration..");
 
   const existing = await configStore.getStoredConfig();
-  await sleep(500);
 
   if (existing) {
     spinner.stop();
@@ -49,16 +43,24 @@ async function manageExisting(existing: {
   activeId: string;
   providers: ProviderConfig[];
 }) {
-  console.log();
-
-  for (const p of existing.providers) {
+  const providerList = existing.providers.map((p) => {
     const isActive = p.id === existing.activeId;
+    let apiKeyInfo: string | undefined;
 
-    const tag = isActive ? chalk.dim(` ${headerIcons.dot} active`) : "";
+    if (p.mode === "byok") {
+      apiKeyInfo = "api key configured";
+    }
 
-    console.log(`  ${formatProvider(p, true)}${tag}`);
-  }
+    return {
+      id: p.id,
+      mode: p.mode,
+      label: formatProvider(p, true),
+      isActive,
+      apiKeyInfo,
+    };
+  });
 
+  showProviders(providerList);
   console.log();
 
   const active = existing.providers.find((p) => p.id === existing.activeId);
@@ -75,13 +77,13 @@ async function manageExisting(existing: {
         name: "replace active provider",
         value: "replace",
         description: active
-          ? `Replace "${formatProvider(active)}"`
+          ? `Replace "${formatProvider(active, true)}" with a new provider`
           : "Replace the active provider",
       },
       {
-        name: "cancel",
+        name: "abort setup",
         value: "cancel",
-        description: "Leave the configuration as-is",
+        description: "Abort setup and keep existing configuration",
       },
     ],
   });

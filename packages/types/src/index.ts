@@ -88,3 +88,14 @@ export interface PackageManagerInfo {
   installer: string;
   runner: string;
 }
+
+export interface TreeItem {
+  title: string;
+  description?: string;
+  details?: string[];
+}
+
+export interface ShowTreeOptions {
+  headerTitle: string;
+  items: TreeItem[];
+}
