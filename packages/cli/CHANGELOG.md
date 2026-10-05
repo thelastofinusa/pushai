@@ -1,5 +1,15 @@
 # pushai
 
+## 3.1.21
+
+### Patch Changes
+
+- 91c9416: Improve the handling of commit messages, including validation and display of provider configuration
+- Updated dependencies [91c9416]
+  - @pushai/types@0.2.3
+  - @pushai/core@0.2.7
+  - @pushai/utils@0.2.6
+
 ## 3.1.20
 
 ### Patch Changes

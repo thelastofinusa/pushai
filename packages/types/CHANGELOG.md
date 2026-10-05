@@ -1,5 +1,11 @@
 # @pushai/types
 
+## 0.2.3
+
+### Patch Changes
+
+- 91c9416: Improve the handling of commit messages, including validation and display of provider configuration
+
 ## 0.2.2
 
 ### Patch Changes

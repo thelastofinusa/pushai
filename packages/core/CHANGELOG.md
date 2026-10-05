@@ -1,5 +1,13 @@
 # @pushai/core
 
+## 0.2.7
+
+### Patch Changes
+
+- Updated dependencies [91c9416]
+  - @pushai/types@0.2.3
+  - @pushai/utils@0.2.6
+
 ## 0.2.6
 
 ### Patch Changes
