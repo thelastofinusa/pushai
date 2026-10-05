@@ -99,3 +99,9 @@ export interface ShowTreeOptions {
   headerTitle: string;
   items: TreeItem[];
 }
+
+export interface ShowProvidersOptions {
+  providers: ProviderConfig[];
+  activeId: string;
+  withApiKey?: boolean;
+}

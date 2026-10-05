@@ -267,18 +267,6 @@ export const HomeHero = () => {
                 transition={{ duration: 0.25 }}
                 className="text-muted-foreground"
               >
-                <span className="text-term-green">✔</span> selected mode{" "}
-                <span className="text-cyan-600">byok</span>
-              </motion.p>
-
-              <motion.p
-                variants={{
-                  hidden: { opacity: 0, y: 4 },
-                  visible: { opacity: 1, y: 0 },
-                }}
-                transition={{ duration: 0.25 }}
-                className="text-muted-foreground"
-              >
                 <span className="text-term-green">✔</span> provider{" "}
                 <span className="text-cyan-600">gemini [gemini-3.5-flash]</span>
               </motion.p>

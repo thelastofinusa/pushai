@@ -13,39 +13,48 @@ import chalk from "chalk";
 import type { Command } from "commander";
 import { pkgConfig } from "../config/config.config";
 import { getCommandTitle } from "../lib/command-title";
+import { showTree } from "../lib/show";
 
 const execFileAsync = promisify(execFile);
 
 export async function updateAction(command?: Command) {
   const pm = getPackageManager();
-
   const { commandTitle } = getCommandTitle(command);
 
   showHeader({
     title: commandTitle,
-    color: chalk.yellow,
+    color: chalk.cyan,
     symbol: "gear",
   });
 
-  setSpinnerColor("yellow");
+  setSpinnerColor("cyan");
   spinner.start("checking npm registry..");
 
   const info = await checkForUpdateFresh(pkgConfig.name, pkgConfig.version);
+
+  // Clean tree formatting for version display
+  const renderVersionTree = () => {
+    showTree({
+      headerTitle: "version status",
+      items: [
+        {
+          title: `latest:     v${info.latest}`,
+          description: `installed:  v${info.current}`,
+        },
+      ],
+      color: info.outdated ? chalk.yellow : chalk.cyan,
+    });
+  };
 
   if (!info.outdated) {
     spinner.succeed("already up to date");
 
     console.log();
-    console.log(
-      `   ${chalk.dim("installed".padEnd(12))} ${chalk.white(`v${info.current}`)}`,
-    );
-    console.log(
-      `   ${chalk.dim("available".padEnd(12))} ${chalk.white(`v${info.latest}`)}`,
-    );
+    renderVersionTree();
     console.log();
 
     showHeader({
-      title: `you're on the latest version (${info.current}).`,
+      title: `you're on the latest version (v${info.current}).`,
       color: chalk.green,
       symbol: "success",
       type: "outro",
@@ -58,12 +67,7 @@ export async function updateAction(command?: Command) {
   spinner.succeed(`new version found ${headerIcons.chevron} v${info.latest}`);
 
   console.log();
-  console.log(
-    `   ${chalk.dim("installed".padEnd(12))} ${chalk.white(`v${info.current}`)}`,
-  );
-  console.log(
-    `   ${chalk.dim("available".padEnd(12))} ${chalk.white(`v${info.latest}`)}`,
-  );
+  renderVersionTree();
   console.log();
 
   const shouldUpdate = await confirm({
@@ -93,16 +97,16 @@ export async function updateAction(command?: Command) {
       `${pkgConfig.name}@${info.latest}`,
     ]);
 
-    spinner.succeed(`updated ${pkgConfig.name} to ${info.latest}`);
+    spinner.succeed(`updated ${pkgConfig.name} to v${info.latest}`);
 
     showHeader({
-      title: `successfully updated.`,
+      title: "successfully updated.",
       color: chalk.green,
       symbol: "success",
       type: "outro",
     });
   } catch (error) {
-    spinner.fail("failed to update pushai.");
+    spinner.fail(`failed to update ${pkgConfig.name}.`);
 
     const message =
       error instanceof Error ? error.message : "unknown update error.";

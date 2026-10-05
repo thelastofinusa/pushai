@@ -1,9 +1,8 @@
-import { showHeader } from "@pushai/utils";
+import { showHeader, spinner } from "@pushai/utils";
 import chalk from "chalk";
 import type { Command } from "commander";
 import { handleEnsureConfig } from "../handlers/config.helper";
 import { getCommandTitle } from "../lib/command-title";
-import { formatProvider } from "../lib/format";
 import { showProviders } from "../lib/show";
 
 export async function peakAction(
@@ -14,44 +13,23 @@ export async function peakAction(
 
   showHeader({
     title: commandTitle,
-    color: chalk.cyan,
+    color: chalk.magenta,
   });
 
-  const config = await handleEnsureConfig("cyan");
+  const config = await handleEnsureConfig("magenta");
   if (typeof config === "boolean") return config;
 
-  let hasByok = false;
-
-  const providerList = config.providers.map((p) => {
-    const isActive = p.id === config.activeId;
-    let apiKeyInfo: string | undefined;
-
-    if (p.mode === "byok") {
-      hasByok = true;
-      if (options.withApiKey) {
-        apiKeyInfo = p.apiKey;
-      } else {
-        apiKeyInfo = "api key configured";
-      }
-    }
-
-    return {
-      id: p.id,
-      mode: p.mode,
-      label: formatProvider(p, true),
-      isActive,
-      apiKeyInfo,
-    };
+  const { hasByok } = showProviders({
+    providers: config.providers,
+    activeId: config.activeId,
+    withApiKey: options.withApiKey,
+    color: chalk.magenta,
   });
-
-  showProviders(providerList);
 
   if (hasByok && !options.withApiKey) {
     console.log();
-    console.log(
-      ` ${chalk.dim("Use")} ${chalk.cyan(
-        `${baseCommand} --key`,
-      )} ${chalk.dim("to show the configured API keys.")}`,
+    spinner.info(
+      `Use ${chalk.cyan(`${baseCommand} --key`)} to show the configured API keys`,
     );
   }
 

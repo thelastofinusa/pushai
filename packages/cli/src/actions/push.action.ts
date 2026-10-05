@@ -9,7 +9,7 @@ export async function pushAction(command?: Command) {
 
   showHeader({
     title: commandTitle,
-    color: chalk.cyan,
+    color: chalk.blue,
     symbol: "flag",
     type: "intro",
   });

@@ -1,13 +1,9 @@
-import {
-  checkForUpdate,
-  getCliCommand,
-  headerIcons,
-  spinner,
-} from "@pushai/utils";
+import { checkForUpdate, getCliCommand, headerIcons } from "@pushai/utils";
 import chalk from "chalk";
 import { Command } from "commander";
 import { actions } from "./actions";
 import { pkgConfig } from "./config/config.config";
+import { showTree } from "./lib/show";
 
 const invoked = process.argv[2];
 const SKIP_PASSIVE_CHECK = new Set(["update", "-h", "--help"]);
@@ -22,11 +18,16 @@ async function main() {
         if (info.outdated) {
           console.log();
 
-          spinner.warn(
-            chalk.dim(
-              `update available: ${pkgConfig.name} v${info.latest} (current: v${info.current}). Run \`${command} update\`.`,
-            ),
-          );
+          showTree({
+            headerTitle: "update available",
+            items: [
+              {
+                title: `v${info.latest} is now available (current: v${info.current})`,
+                description: `Run \`${command} update\` to upgrade to the latest version.`,
+              },
+            ],
+            color: chalk.yellow,
+          });
         }
       })(),
       new Promise((resolve) => setTimeout(resolve, 1500)),

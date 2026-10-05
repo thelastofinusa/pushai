@@ -19,7 +19,7 @@ export async function handleEnsureConfig(
     console.log();
 
     const proceed = await confirm({
-      message: "would you like to start the setup wizard?",
+      message: "would you like to configure pushai now?",
       default: true,
     });
 

@@ -1,4 +1,4 @@
-import { select } from "@inquirer/prompts";
+import { confirm, Separator, select } from "@inquirer/prompts";
 import type { ProviderConfig, SetupMode } from "@pushai/types";
 import { setSpinnerColor, showHeader, spinner } from "@pushai/utils";
 import chalk from "chalk";
@@ -43,24 +43,12 @@ async function manageExisting(existing: {
   activeId: string;
   providers: ProviderConfig[];
 }) {
-  const providerList = existing.providers.map((p) => {
-    const isActive = p.id === existing.activeId;
-    let apiKeyInfo: string | undefined;
-
-    if (p.mode === "byok") {
-      apiKeyInfo = "api key configured";
-    }
-
-    return {
-      id: p.id,
-      mode: p.mode,
-      label: formatProvider(p, true),
-      isActive,
-      apiKeyInfo,
-    };
+  showProviders({
+    providers: existing.providers,
+    activeId: existing.activeId,
+    color: chalk.magenta,
   });
 
-  showProviders(providerList);
   console.log();
 
   const active = existing.providers.find((p) => p.id === existing.activeId);
@@ -69,28 +57,28 @@ async function manageExisting(existing: {
     message: "what would you like to do?",
     choices: [
       {
-        name: "add a new provider",
+        name: "add provider",
         value: "add",
-        description: "Keep existing providers and configure another one",
+        description: "Keep existing setup and configure an additional provider",
       },
       {
-        name: "replace active provider",
+        name: "replace active",
         value: "replace",
         description: active
-          ? `Replace "${formatProvider(active, true)}" with a new provider`
-          : "Replace the active provider",
+          ? `Replace ${formatProvider(active, true)} with a new configuration`
+          : "Replace the currently active provider configuration",
       },
       {
-        name: "abort setup",
+        name: "leave setup unchanged",
         value: "cancel",
-        description: "Abort setup and keep existing configuration",
+        description: "Exit wizard without adding or updating provider settings",
       },
     ],
   });
 
   if (action === "cancel") {
     showHeader({
-      title: "setup cancelled.",
+      title: "setup exited. no changes were applied.",
       color: chalk.dim,
       symbol: "info",
       type: "outro",
@@ -104,14 +92,28 @@ async function manageExisting(existing: {
   if (!provider) return;
 
   if (action === "add") {
-    await configStore.addProvider(provider, false);
-
-    showHeader({
-      title: `added "${formatProvider(provider)}" to your providers.`,
-      color: chalk.green,
-      symbol: "success",
-      type: "outro",
+    const shouldSetActive = await confirm({
+      message: `set "${formatProvider(provider, true)}" as the active provider?`,
+      default: true,
     });
+
+    await configStore.addProvider(provider, shouldSetActive);
+
+    if (shouldSetActive) {
+      showHeader({
+        title: `active provider is now "${formatProvider(provider, true)}".`,
+        color: chalk.green,
+        symbol: "success",
+        type: "outro",
+      });
+    } else {
+      showHeader({
+        title: `added "${formatProvider(provider, true)}" to your providers.`,
+        color: chalk.green,
+        symbol: "success",
+        type: "outro",
+      });
+    }
 
     return;
   }
@@ -140,27 +142,30 @@ async function runWizard(): Promise<ProviderConfig | undefined> {
   spinner.stop();
 
   const mode = await select<SetupMode | "cancel">({
-    message: "how should pushai generate commits?",
+    message: "select a commit generation method:",
     choices: [
       {
-        name: "use pushai cloud",
-        value: "cloud",
-        description: "Use PushAI's managed AI — no API key required",
-      },
-      {
-        name: "use your own api key",
-        value: "byok",
-        description: "Connect an API key from a supported AI provider",
-      },
-      {
-        name: "run ai locally",
+        name: "local machine (Ollama)",
         value: "local",
-        description: "Run AI on your machine using Ollama",
+        description: "Run models locally on your machine",
       },
       {
-        name: "cancel",
+        name: "pushai cloud",
+        value: "cloud",
+        description: "Zero setup — managed AI with no API key required",
+        disabled: "(coming soon)",
+      },
+      {
+        name: "custom api key (BYOK)",
+        value: "byok",
+        description: "Bring your own API key (OpenAI, Anthropic, Gemini, etc.)",
+      },
+
+      new Separator(),
+      {
+        name: "leave setup unchanged",
         value: "cancel",
-        description: "Leave your configuration unchanged",
+        description: "Exit wizard without adding or updating provider settings",
       },
     ],
   });
@@ -193,7 +198,7 @@ async function runWizard(): Promise<ProviderConfig | undefined> {
 
   if (mode === "cancel") {
     showHeader({
-      title: "setup cancelled.",
+      title: "setup exited. no changes were applied.",
       color: chalk.dim,
       symbol: "info",
       type: "outro",

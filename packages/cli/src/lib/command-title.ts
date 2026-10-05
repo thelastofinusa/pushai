@@ -47,7 +47,7 @@ export function getCommandTitle(command?: Command): CommandContext {
   const fullCommand = [baseCommand, ...flags].filter(Boolean).join(" ");
 
   return {
-    commandTitle: `running ${fullCommand} ${headerIcons.bullet} v${pkgConfig.version}`,
+    commandTitle: `running ${fullCommand} ${headerIcons.chevron} v${pkgConfig.version}`,
     baseCommand: baseCommand,
     fullCommand: fullCommand,
   };

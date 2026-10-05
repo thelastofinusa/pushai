@@ -1,5 +1,5 @@
 import { confirm, Separator, select } from "@inquirer/prompts";
-import { showHeader } from "@pushai/utils";
+import { headerIcons, showHeader } from "@pushai/utils";
 import chalk from "chalk";
 import type { Command } from "commander";
 import { configStore } from "../config/store.config";
@@ -9,24 +9,19 @@ import { formatProvider } from "../lib/format";
 
 async function resetAll() {
   const proceed = await confirm({
-    message: "are you sure you want to delete all?",
+    message: "are you sure you want to delete all configuration?",
     default: false,
   });
 
   if (!proceed) {
-    showHeader({
-      title: "reset cancelled.",
-      color: chalk.dim,
-      symbol: "arrow",
-      type: "outro",
-    });
+    cancelReset();
     return;
   }
 
   const deleted = await configStore.resetStoredConfig();
 
   showHeader({
-    title: deleted ? "pushai configuration deleted." : "nothing to delete.",
+    title: deleted ? "all configurations deleted." : "nothing to delete.",
     color: deleted ? chalk.green : chalk.yellow,
     symbol: deleted ? "success" : "warning",
     type: "outro",
@@ -35,9 +30,9 @@ async function resetAll() {
 
 function cancelReset() {
   showHeader({
-    title: "reset cancelled.",
+    title: "reset cancelled. configuration untouched.",
     color: chalk.dim,
-    symbol: "arrow",
+    symbol: "info",
     type: "outro",
   });
 }
@@ -48,10 +43,14 @@ export async function resetAction(
 ) {
   const { commandTitle } = getCommandTitle(command);
 
+  // Intro Header: Red for destructive operations
   showHeader({
     title: commandTitle,
     color: chalk.redBright,
   });
+
+  const config = await handleEnsureConfig("red");
+  if (typeof config === "boolean") return config;
 
   // --all skips the configuration check and selection menu.
   if (options.all) {
@@ -59,33 +58,31 @@ export async function resetAction(
     return;
   }
 
-  const config = await handleEnsureConfig("red");
-  if (typeof config === "boolean") return config;
-
   const choice = await select({
-    message: "what would you like to reset?",
+    message: "what would you like to remove?",
     choices: [
-      new Separator(),
-
       ...config.providers.map((p) => {
         const isActive = p.id === config.activeId;
+        const tag = isActive
+          ? chalk.yellowBright(` ${headerIcons.chevron} active`)
+          : "";
 
         return {
-          name: `${formatProvider(p)}${isActive ? chalk.dim(" (active)") : ""}`,
+          name: `${formatProvider(p, true)}${tag}`,
           value: `provider:${p.id}`,
+          description: `Remove ${formatProvider(p)} from configured providers`,
         };
       }),
-
       new Separator(),
-
       {
-        name: "delete all providers",
+        name: chalk.redBright("delete all providers"),
         value: "all",
-        description: "Delete every provider and stored API key",
+        description: "Purge every provider configuration and API key",
       },
       {
-        name: "keep configuration",
+        name: "preserve current configuration",
         value: "cancel",
+        description: "Exit reset menu without removing any providers or keys",
       },
     ],
   });
@@ -106,7 +103,7 @@ export async function resetAction(
   if (!provider) return;
 
   const proceed = await confirm({
-    message: `remove ${chalk.redBright(provider.mode)} provider?`,
+    message: `remove ${chalk.redBright(formatProvider(provider))}?`,
     default: false,
   });
 
@@ -118,7 +115,9 @@ export async function resetAction(
   const deleted = await configStore.removeProvider(id);
 
   showHeader({
-    title: deleted ? `"${id}" provider removed.` : "failed to remove provider.",
+    title: deleted
+      ? `"${formatProvider(provider)}" provider removed.`
+      : "failed to remove provider.",
     color: deleted ? chalk.green : chalk.red,
     symbol: deleted ? "success" : "error",
     type: "outro",

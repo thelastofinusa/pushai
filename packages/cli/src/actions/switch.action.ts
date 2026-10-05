@@ -12,23 +12,20 @@ export async function switchAction(command?: Command) {
 
   showHeader({
     title: commandTitle,
-    color: chalk.green,
+    color: chalk.yellow,
   });
 
-  const config = await handleEnsureConfig("green");
+  const config = await handleEnsureConfig("yellow");
   if (typeof config === "boolean") return config;
 
   const nextId = await select({
-    message: "which provider should become active?",
+    message: "choose active provider:",
     choices: [
-      new Separator(),
       ...config.providers.map((p) => {
         const isActive = p.id === config.activeId;
 
-        const tag = isActive ? chalk.dim(` ${headerIcons.dot} active`) : "";
-
         return {
-          name: `${formatProvider(p, true)}${tag}`,
+          name: `${formatProvider(p, true)}${isActive ? chalk.yellowBright(` ${headerIcons.chevron} active`) : ""}`,
           value: p.id,
           description: isActive
             ? "Currently selected"
@@ -37,17 +34,18 @@ export async function switchAction(command?: Command) {
       }),
       new Separator(),
       {
-        name: "keep configuration",
+        name: "keep active provider",
         value: "cancel",
+        description: "Exit menu without switching your current provider mode",
       },
     ],
   });
 
   if (nextId === "cancel") {
     showHeader({
-      title: "switch cancelled.",
+      title: "switch cancelled. active provider unchanged.",
       color: chalk.dim,
-      symbol: "arrow",
+      symbol: "info",
       type: "outro",
     });
     return;

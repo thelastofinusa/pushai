@@ -1,7 +1,7 @@
 import { execSync } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { confirm, select } from "@inquirer/prompts";
+import { confirm, Separator, select } from "@inquirer/prompts";
 import { createGitService, generateCommitMessage } from "@pushai/core";
 import type { CommitFlowOptions, SetupConfig } from "@pushai/types";
 import { showHeader, spinner } from "@pushai/utils";
@@ -53,7 +53,6 @@ export async function commitAction(
 
     isLocalProvider = active.mode === "local";
 
-    spinner.succeed(`selected mode ${chalk.cyan(active.mode)}`);
     spinner.succeed(`provider ${chalk.cyan(formatProvider(active, true))}`);
   }
 
@@ -183,7 +182,7 @@ Powered by [${pkgConfig.name}](${pkgConfig.homepage}).`;
   }
 
   console.log();
-  showCommitMessage(message);
+  showCommitMessage(message, chalk.green);
 
   if (options.dryRun) {
     showHeader({
@@ -210,27 +209,28 @@ Powered by [${pkgConfig.name}](${pkgConfig.homepage}).`;
           ...(isLocalProvider
             ? [
                 {
-                  name: "commit offline",
+                  name: "save locally",
                   value: "commit",
-                  description:
-                    "Create the commit locally without connecting to the remote",
+                  description: "Create the commit without pushing to origin",
                 },
               ]
             : []),
           {
-            name: "commit & push",
+            name: "publish to remote",
             value: "push",
-            description: "Create the commit and push it to the remote",
+            description: "Create the commit and push directly to origin",
           },
           {
             name: "regenerate",
             value: "regenerate",
             description: "Generate a new AI commit message",
           },
+          new Separator(),
           {
-            name: "abort process",
+            name: "keep working tree",
             value: "cancel",
-            description: "Abort without creating the commit",
+            description:
+              "Discard proposed message and leave staged files uncommitted",
           },
         ],
       });
@@ -260,10 +260,10 @@ Powered by [${pkgConfig.name}](${pkgConfig.homepage}).`;
 
         try {
           message = await generateCommitMessage(config, diff, true);
-          spinner.succeed("new commit message generated");
+          spinner.succeed("message regenerated");
 
           console.log();
-          showCommitMessage(message);
+          showCommitMessage(message, chalk.yellow);
           console.log();
         } catch (error) {
           spinner.fail(
@@ -287,7 +287,7 @@ Powered by [${pkgConfig.name}](${pkgConfig.homepage}).`;
         await git.unstageAll();
 
         showHeader({
-          title: "commit cancelled.",
+          title: "commit cancelled. changes remain staged.",
           color: chalk.dim,
           symbol: "info",
           type: "outro",
