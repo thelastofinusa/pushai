@@ -1,5 +1,15 @@
 # pushai
 
+## 3.1.22
+
+### Patch Changes
+
+- 3d920cf: Refine prompt options, descriptions, and console output styling across CLI actions for a clearer user experience
+- Updated dependencies [3d920cf]
+  - @pushai/types@0.2.4
+  - @pushai/core@0.2.8
+  - @pushai/utils@0.2.7
+
 ## 3.1.21
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @pushai/types
 
+## 0.2.4
+
+### Patch Changes
+
+- 3d920cf: Refine prompt options, descriptions, and console output styling across CLI actions for a clearer user experience
+
 ## 0.2.3
 
 ### Patch Changes
