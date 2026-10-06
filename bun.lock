@@ -59,7 +59,7 @@
     },
     "packages/cli": {
       "name": "pushai",
-      "version": "3.1.22",
+      "version": "3.1.23",
       "bin": {
         "pai": "./dist/index.mjs",
       },
@@ -82,7 +82,7 @@
     },
     "packages/core": {
       "name": "@pushai/core",
-      "version": "0.2.8",
+      "version": "0.2.9",
       "dependencies": {
         "@anthropic-ai/sdk": "^0.127.0",
         "@google/generative-ai": "^0.24.1",
