@@ -1,5 +1,12 @@
 # pushai
 
+## 3.1.23
+
+### Patch Changes
+
+- Updated dependencies [96b4ce0]
+  - @pushai/core@0.2.9
+
 ## 3.1.22
 
 ### Patch Changes

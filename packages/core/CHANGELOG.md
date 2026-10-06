@@ -1,5 +1,11 @@
 # @pushai/core
 
+## 0.2.9
+
+### Patch Changes
+
+- 96b4ce0: Improve the github initialization and remote connection workflow with better validation
+
 ## 0.2.8
 
 ### Patch Changes
