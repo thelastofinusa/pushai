@@ -1,14 +1,14 @@
-import { execSync } from "node:child_process";
-import fs from "node:fs/promises";
-import path from "node:path";
-import { confirm, Separator, select } from "@inquirer/prompts";
+import { Separator, select } from "@inquirer/prompts";
 import { createGitService, generateCommitMessage } from "@pushai/core";
 import type { CommitFlowOptions, SetupConfig } from "@pushai/types";
 import { showHeader, spinner } from "@pushai/utils";
 import chalk from "chalk";
 import type { Command } from "commander";
-import { pkgConfig } from "../config/config.config";
 import { handleEnsureConfig } from "../handlers/config.helper";
+import {
+  handleCheckConflicts,
+  handleEnsureRepo,
+} from "../handlers/git-setup.handler";
 import { getCommandTitle } from "../lib/command-title";
 import { formatProvider } from "../lib/format";
 import { showCommitMessage } from "../lib/show";
@@ -36,7 +36,7 @@ export async function commitAction(
   let config: SetupConfig | undefined;
   let isLocalProvider = false;
 
-  // A custom message skips provider configuration entirely.
+  // Custom message skips provider configuration
   if (!message) {
     const configResult = await handleEnsureConfig("cyan");
     if (typeof configResult === "boolean") return configResult;
@@ -56,80 +56,18 @@ export async function commitAction(
     spinner.succeed(`provider ${chalk.cyan(formatProvider(active, true))}`);
   }
 
+  // 1. Ensure Repository Exists via Handler
+  const repoState = await handleEnsureRepo(baseCommand);
+  if (!repoState.isRepo) return;
+
   const git = createGitService();
-
-  // Check if current directory is a git repository
-  if (!(await git.isRepo())) {
-    spinner.fail("no git repository found in this directory.");
-
-    const shouldInit = await confirm({
-      message: "would you like to initialize a new git repository?",
-      default: true,
-    });
-
-    if (!shouldInit) {
-      return;
-    }
-
-    spinner.start("initializing git repository..");
-    try {
-      await git.init();
-      spinner.succeed("initialized empty git repository");
-    } catch (error) {
-      spinner.fail(
-        error instanceof Error
-          ? error.message
-          : "failed to initialize git repository.",
-      );
-      return;
-    }
-
-    // Check if current working directory is empty (excluding .git folder)
-    const files = await fs.readdir(process.cwd());
-    const visibleFiles = files.filter((file) => file !== ".git");
-
-    if (visibleFiles.length === 0) {
-      const shouldCreateReadme = await confirm({
-        message:
-          "directory is empty. would you like to create a standard README file?",
-        default: true,
-      });
-
-      if (shouldCreateReadme) {
-        const folderName = path.basename(process.cwd());
-        const readmeContent = `# ${folderName}
-
-Project initialized with ${baseCommand}.
-
-Powered by [${pkgConfig.name}](${pkgConfig.homepage}).`;
-
-        spinner.start("creating README.md..");
-        try {
-          execSync(`echo ${JSON.stringify(readmeContent)} > README.md`);
-          spinner.succeed("created README.md");
-        } catch (_error) {
-          await fs.writeFile("README.md", readmeContent, "utf-8");
-          spinner.succeed("created README.md");
-        }
-      }
-    }
-  }
-
-  const branch = await git.getCurrentBranch();
-
   await git.stageAll();
 
+  // 2. Conflict Check via Handler
+  const hasConflicts = await handleCheckConflicts();
+  if (hasConflicts) return;
+
   const status = await git.getStatus();
-
-  if (status.conflicted.length > 0) {
-    spinner.fail(`${status.conflicted.length} file(s) have merge conflicts.`);
-
-    for (const file of status.conflicted) {
-      console.log(`  ${chalk.red("✖")} ${file}`);
-    }
-
-    return;
-  }
 
   if (status.changed === 0) {
     showHeader({
@@ -151,8 +89,8 @@ Powered by [${pkgConfig.name}](${pkgConfig.homepage}).`;
     )}`,
   );
 
-  if (branch) {
-    spinner.succeed(`committing to ${chalk.cyan(branch)}`);
+  if (repoState.branch) {
+    spinner.succeed(`committing to ${chalk.cyan(repoState.branch)}`);
   }
 
   if (!message) {
@@ -186,7 +124,7 @@ Powered by [${pkgConfig.name}](${pkgConfig.homepage}).`;
 
   if (options.dryRun) {
     showHeader({
-      title: `dry run completed on ${branch}.`,
+      title: `dry run completed on ${repoState.branch}.`,
       color: chalk.blue,
       symbol: "flag",
       type: "outro",
@@ -199,7 +137,6 @@ Powered by [${pkgConfig.name}](${pkgConfig.homepage}).`;
 
   let shouldPush = Boolean(options.autoPush);
 
-  // When --push flag is NOT passed, prompt user based on provider mode
   if (!options.autoPush) {
     while (true) {
       const selectedAction = await select({
@@ -247,15 +184,6 @@ Powered by [${pkgConfig.name}](${pkgConfig.homepage}).`;
           config = configResult;
         }
 
-        const active = config.providers.find(
-          (provider) => provider.id === config?.activeId,
-        );
-
-        if (!active) {
-          spinner.fail("no active provider configured. run `pai setup`.");
-          return;
-        }
-
         spinner.start("regenerating..");
 
         try {
@@ -299,12 +227,11 @@ Powered by [${pkgConfig.name}](${pkgConfig.homepage}).`;
   }
 
   const hash = await git.commit(message);
-
   spinner.succeed(`committed ${chalk.green(hash)}`);
 
   if (!shouldPush) {
     showHeader({
-      title: `commit created on ${branch}. push when ready with \`pai push\`.`,
+      title: `commit created on ${repoState.branch}. push when ready with \`pai push\`.`,
       color: chalk.green,
       symbol: "success",
       type: "outro",
@@ -315,7 +242,7 @@ Powered by [${pkgConfig.name}](${pkgConfig.homepage}).`;
 
   if (!(await git.hasRemote())) {
     showHeader({
-      title: `commit created on ${branch}, but no remote named 'origin' was found.`,
+      title: `commit created on ${repoState.branch}, but no remote named 'origin' was found.`,
       color: chalk.yellow,
       symbol: "warning",
       type: "outro",
@@ -327,7 +254,7 @@ Powered by [${pkgConfig.name}](${pkgConfig.homepage}).`;
   spinner.start("pushing changes..");
 
   try {
-    await git.push(branch);
+    await git.push(repoState.branch);
     spinner.succeed("successfully pushed changes");
   } catch (error) {
     spinner.fail(
@@ -335,7 +262,7 @@ Powered by [${pkgConfig.name}](${pkgConfig.homepage}).`;
     );
 
     showHeader({
-      title: `commit created on ${branch}, but push failed.`,
+      title: `commit created on ${repoState.branch}, but push failed.`,
       color: chalk.yellow,
       symbol: "warning",
       type: "outro",
@@ -345,7 +272,7 @@ Powered by [${pkgConfig.name}](${pkgConfig.homepage}).`;
   }
 
   showHeader({
-    title: `commit created and pushed to ${branch}.`,
+    title: `commit created and pushed to ${repoState.branch}.`,
     color: chalk.green,
     symbol: "success",
     type: "outro",

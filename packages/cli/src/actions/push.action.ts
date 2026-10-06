@@ -2,10 +2,14 @@ import { createGitService } from "@pushai/core";
 import { showHeader, spinner } from "@pushai/utils";
 import chalk from "chalk";
 import type { Command } from "commander";
+import {
+  handleCheckConflicts,
+  handleEnsureRepo,
+} from "../handlers/git-setup.handler";
 import { getCommandTitle } from "../lib/command-title";
 
 export async function pushAction(command?: Command) {
-  const { commandTitle } = getCommandTitle(command);
+  const { commandTitle, baseCommand } = getCommandTitle(command);
 
   showHeader({
     title: commandTitle,
@@ -14,12 +18,15 @@ export async function pushAction(command?: Command) {
     type: "intro",
   });
 
-  const git = createGitService();
+  // 1. Ensure Repository Exists
+  const repoState = await handleEnsureRepo(baseCommand);
+  if (!repoState.isRepo) return;
 
-  if (!(await git.isRepo())) {
-    spinner.fail("no git repository found in this directory.");
-    return;
-  }
+  // 2. Check Conflicts
+  const hasConflicts = await handleCheckConflicts();
+  if (hasConflicts) return;
+
+  const git = createGitService();
 
   // Check for uncommitted local changes
   const status = await git.getStatus();
@@ -31,7 +38,7 @@ export async function pushAction(command?: Command) {
     );
   }
 
-  const branch = await git.getCurrentBranch();
+  const branch = repoState.branch;
   const unpushed = await git.getUnpushedCount(branch);
 
   if (unpushed === 0) {
@@ -40,8 +47,7 @@ export async function pushAction(command?: Command) {
       color: chalk.green,
       symbol: "success",
       type: "outro",
-      // biome-ignore lint/complexity/noUselessTernary: ignore this ternary for clarity
-      margin: { top: status.changed > 0 ? true : false },
+      margin: { top: status.changed > 0 },
     });
 
     return;
