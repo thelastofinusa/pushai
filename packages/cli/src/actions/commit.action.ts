@@ -1,5 +1,9 @@
 import { Separator, select } from "@inquirer/prompts";
-import { createGitService, generateCommitMessage } from "@pushai/core";
+import {
+  createGitService,
+  generateCommitMessage,
+  getWorkingTreeSnapshot,
+} from "@pushai/core";
 import type { CommitFlowOptions, SetupConfig } from "@pushai/types";
 import { showHeader, spinner } from "@pushai/utils";
 import chalk from "chalk";
@@ -25,6 +29,12 @@ export async function commitAction(
     symbol: "sparkle",
     type: "intro",
   });
+
+  // 1. Ensure Repository Exists via Handler
+  const repoState = await handleEnsureRepo(baseCommand, {
+    dryRun: options.dryRun,
+  });
+  if (!repoState.isRepo) return;
 
   let message = options.customMessage?.trim();
 
@@ -56,20 +66,29 @@ export async function commitAction(
     spinner.succeed(`provider ${chalk.cyan(formatProvider(active, true))}`);
   }
 
-  // 1. Ensure Repository Exists via Handler
-  const repoState = await handleEnsureRepo(baseCommand);
-  if (!repoState.isRepo) return;
-
   const git = createGitService();
-  await git.stageAll();
+
+  if (!options.dryRun) {
+    await git.stageAll();
+  }
 
   // 2. Conflict Check via Handler
   const hasConflicts = await handleCheckConflicts();
   if (hasConflicts) return;
 
-  const status = await git.getStatus();
+  let changed: number;
+  let diff: string;
 
-  if (status.changed === 0) {
+  if (options.dryRun) {
+    const snapshot = await getWorkingTreeSnapshot();
+    changed = snapshot.files.length;
+    diff = snapshot.diff;
+  } else {
+    changed = (await git.getStatus()).changed;
+    diff = changed === 0 ? "" : await git.getDiff();
+  }
+
+  if (changed === 0) {
     showHeader({
       title: "no changes to commit.",
       color: chalk.blue,
@@ -81,12 +100,8 @@ export async function commitAction(
     return;
   }
 
-  const diff = await git.getDiff();
-
   spinner.succeed(
-    `staged diff read ${chalk.cyan(
-      `${status.changed} file${status.changed === 1 ? "" : "s"}`,
-    )}`,
+    `staged diff read ${chalk.cyan(`${changed} file${changed === 1 ? "" : "s"}`)}`,
   );
 
   if (repoState.branch) {
