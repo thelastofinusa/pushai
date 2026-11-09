@@ -1,0 +1,46 @@
+# What is PushAI?
+
+PushAI is an AI Git assistant for your terminal. It looks at your staged
+changes, writes a commit message for you, and can push the result — all from
+one command.
+
+Once installed globally, the binary is called **`pai`**.
+
+## What it does
+
+`pai commit` runs the full commit flow:
+
+1. Ensures you're inside a git repository (offers to initialize one or connect
+   a remote if you aren't).
+2. Stages all changes (`git add .`) and reads the staged diff.
+3. Generates a [Conventional Commit](https://www.conventionalcommits.org/)
+   message with your active AI provider.
+4. Lets you accept, edit, regenerate, or cancel the proposed message.
+5. Creates the commit and shows the resulting short hash.
+6. Pushes automatically if you pass `-p`/`--push`.
+
+## Providers
+
+PushAI supports three ways to generate commit messages:
+
+| Mode | Description | API key required |
+|------|-------------|------------------|
+| **Local Models (Ollama)** | Run models on your own machine via [Ollama](https://ollama.com) | No |
+| **Bring Your Own Key (BYOK)** | Bring your own key for Anthropic, OpenAI, Gemini, or Hugging Face | Yes |
+| **Cloud Hosted** | Zero-setup managed AI (planned, not yet available) | No |
+
+## Quick start
+
+```bash
+npm install -g pushai
+# or
+bunx pushai setup
+
+pai setup     # choose a provider and (if needed) an API key or local model
+pai commit    # generate a commit, review it, optionally push
+```
+
+## License
+
+MIT. See
+[LICENSE](https://github.com/thelastofinusa/pushai/blob/main/LICENSE).

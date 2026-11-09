@@ -1,0 +1,58 @@
+# Bring Your Own Key (BYOK)
+
+BYOK mode lets you connect your own API key for one of four providers:
+
+| Provider | ID | Notes |
+|----------|-----|-------|
+| Anthropic | `anthropic` | `https://api.anthropic.com` |
+| OpenAI | `openai` | `https://api.openai.com` |
+| Google Gemini | `gemini` | `https://generativelanguage.googleapis.com` |
+| Hugging Face | `huggingface` | `https://router.huggingface.co` |
+
+## Setting up a BYOK provider
+
+Run `pai setup` and choose **Custom API key (BYOK)**. You'll:
+
+1. Select a provider from the list above.
+2. Paste your API key (input is masked with `•`).
+3. `pai` validates the key live against the provider by fetching available
+   models. If validation fails, you can try another key.
+4. Select a model from the models available to your key.
+
+## Key storage
+
+- Your API key is validated live before being saved.
+- Keys are stored in your OS keychain when available, falling back to a
+  permission-locked local file
+  (`~/.config/pushai/key-<provider-id>.json`, mode `0o600`).
+- The key is **not** written to `config.json` — only the provider, model, and
+  mode are stored there.
+
+## Revealing a stored key
+
+```bash
+pai peak --key
+```
+
+Pass `-k`/`--key` to show stored BYOK API keys in plaintext.
+
+## Removing a key
+
+```bash
+pai reset          # remove one provider interactively
+pai reset --all    # delete every provider and key
+```
+
+Removing a BYOK provider also deletes its API key from the keychain or fallback
+file.
+
+## Model selection
+
+When multiple models are available, you can search and select the one you want
+to use for generating commit messages. The selected model is stored with your
+provider configuration.
+
+:::tip
+Supported providers: Anthropic, OpenAI, Google Gemini, and Hugging Face. Your
+key is validated live against the provider before being saved.
+:::

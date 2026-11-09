@@ -1,0 +1,88 @@
+# Generate commit
+
+`pai commit` runs the full AI commit flow: stage changes, generate a commit
+message, review it, and create the commit.
+
+```bash
+pai commit
+```
+
+## Options
+
+| Flag | Description |
+|------|-------------|
+| `-p, --push` | Automatically push the commit after creating it. |
+| `-m, --message <text>` | Use a custom message instead of generating one with AI. |
+| `--dry-run` | Generate and display the message, but don't create a commit. |
+
+## Examples
+
+:::code-group
+
+```bash
+pai commit                       # interactive commit flow
+pai commit -m "fix: null branch" # skip AI generation, use custom message
+pai commit --push                # commit and push automatically
+pai commit --dry-run             # preview the generated message only
+```
+
+:::
+
+## How the flow works
+
+### 1. Repository check
+
+`pai` checks whether the current directory is a git repository. If not, it
+prompts you to initialize one or connect to a remote repository. If the
+directory is empty, it can automatically create a standard `README.md`.
+
+### 2. Stage changes
+
+All changes are staged (`git add .`) and the staged diff is read. If there are
+unresolved merge conflicts, `pai` fails and lists the conflicting files.
+
+### 3. Provider check
+
+If you didn't pass `-m`, `pai` loads your stored configuration and finds the
+active provider. If none is configured, it prompts you to run `pai setup`.
+
+### 4. Generate the message
+
+The staged diff is sent to your active provider, which returns a
+[Conventional Commit](https://www.conventionalcommits.org/) message:
+
+```
+feat(auth): add wallet connection modal
+Add a modal that allows users to connect their wallet from the authentication flow.
+```
+
+Diffs larger than ~12,000 characters are truncated before being sent.
+
+### 5. Review and proceed
+
+You're shown the proposed message and can:
+
+- **Publish to remote** — create the commit and push directly to origin.
+- **Save locally** (local Ollama only) — create the commit without pushing.
+- **Regenerate** — ask the AI for a different message for the same diff.
+- **Keep working tree** — cancel and leave staged files uncommitted.
+
+### 6. Create the commit
+
+The commit is created and you're shown the short hash (e.g. `a91f2c4`). Unless
+you passed `--push`, you're reminded to push when ready with `pai push`.
+
+## Custom message (`-m`)
+
+When you pass `-m`, AI generation is skipped entirely and your message is used
+as-is. The message must not be empty.
+
+## Dry-run (`--dry-run`)
+
+`--dry-run` stages nothing and commits nothing. It computes what the diff
+*would* be, generates a message, displays it, and exits. Useful for previewing
+what `pai` would do without touching git.
+
+:::warning
+`--dry-run` still reads your working tree but never creates a commit or pushes.
+:::

@@ -1,0 +1,67 @@
+# Getting Started
+
+Install PushAI globally, then run the setup wizard.
+
+## Requirements
+
+- **Node.js** >= 18
+- **git** installed and on your `PATH`
+
+## Install globally
+
+:::code-group
+
+```bash [npm]
+npm install -g pushai
+```
+
+```bash [bun]
+bunx pushai setup
+```
+
+```bash [pnpm]
+pnpm dlx pushai setup
+```
+
+```bash [yarn]
+yarn dlx pushai setup
+```
+
+:::
+
+Once installed globally, the binary is called **`pai`**.
+
+## Verify the install
+
+```bash
+pai --version
+```
+
+You should see:
+
+```
+v3.1.23
+» node v22.x.x (from PATH)
+```
+
+## Run setup for the first time
+
+After installing, run the interactive setup wizard:
+
+```bash
+pai setup
+```
+
+This walks you through picking a commit-generation mode (local Ollama or BYOK API key), validating it, and saving your configuration. See the [Setup Wizard](/introduction/setup-wizard) guide.
+
+:::tip
+You can also run `pai setup` without installing globally using `npx pushai setup`, `bunx pushai setup`, etc.
+:::
+
+## Uninstall
+
+```bash
+npm uninstall -g pushai
+```
+
+This does **not** delete `~/.config/pushai`. Run `pai reset` first if you want your stored configuration and API keys removed too.

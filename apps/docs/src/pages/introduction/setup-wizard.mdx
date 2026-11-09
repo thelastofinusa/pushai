@@ -1,0 +1,72 @@
+# Setup Wizard
+
+`pai setup` runs the interactive setup wizard. On the first run it walks you
+through choosing a commit-generation mode and saving your configuration. On
+subsequent runs it lets you add another provider or replace the active one.
+
+## First run
+
+```bash
+pai setup
+```
+
+You'll choose one of these modes:
+
+### Local Models (Ollama)
+
+Runs models locally on your machine via [Ollama](https://ollama.com). `pai`
+detects whether Ollama is installed and running, starts it automatically if
+needed, and lets you pick from your installed models. No API key is required.
+
+### Bring Your Own Key (BYOK)
+
+Bring your own API key for one of:
+
+- Anthropic
+- OpenAI
+- Google Gemini
+- Hugging Face
+
+Your key is validated live against the provider before being saved. After
+validation, you select a model from the models available to that key.
+
+### Cloud Hosted
+
+Zero-setup managed AI with no API key required. **Coming soon — not available yet.**
+
+## Configuration storage
+
+- Configuration is written to `~/.config/pushai/config.json`. This file holds
+  the active provider and every saved provider's mode/model (no secrets).
+- API keys are stored in your OS keychain when available, falling back to a
+  permission-locked local file per provider
+  (`~/.config/pushai/key-<provider-id>.json`, mode `0o600`).
+
+## If you already have a configuration
+
+Running `pai setup` again shows your configured providers and lets you:
+
+1. **Add provider** — keep your existing setup and configure an additional
+   provider. You'll be asked whether to set the new one as active.
+2. **Replace active** — replace the currently active provider with a new one.
+3. **Leave setup unchanged** — exit without changes.
+
+You can have multiple providers configured and switch between them with
+`pai switch`.
+
+### Verify your configuration
+
+```bash
+pai peak
+```
+
+Lists all saved providers and marks the active one. Pass `-k`/`--key` to also
+reveal stored BYOK API keys in plaintext.
+
+### Generate your first commit
+
+```bash
+pai commit
+```
+
+See [Generate commit](/guides/commands/commit).

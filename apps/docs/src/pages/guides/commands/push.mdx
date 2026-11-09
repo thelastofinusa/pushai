@@ -1,0 +1,37 @@
+# Push changes
+
+`pai push` pushes any local, unpushed commits on your current branch to the
+remote `origin`.
+
+```bash
+pai push
+```
+
+## How it works
+
+1. Checks that you're inside a git repository.
+2. Checks for unresolved merge conflicts and fails if any are found.
+3. Warns if you have uncommitted local changes.
+4. Counts commits on your branch that haven't been pushed to `origin` yet.
+5. If there's nothing to push, reports that the branch is up to date.
+6. Otherwise pushes the branch to `origin` (setting upstream on first push).
+
+## Output
+
+```bash
+» pushing 2 commits to origin/main..
+✔ pushed 2 commits
+» main is up to date with origin.
+```
+
+If no remote named `origin` exists, `pai` reports that instead of failing.
+
+## No options
+
+`pai push` takes no flags. Use `pai commit --push` if you want to commit and
+push in one step.
+
+:::tip
+`pai push` is useful after `pai commit` without `--push`, or after any manual
+`git commit`.
+:::

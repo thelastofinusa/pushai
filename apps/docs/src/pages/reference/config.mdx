@@ -1,0 +1,77 @@
+# Configuration options
+
+## Where config lives
+
+| Path | Contents |
+|------|----------|
+| `~/.config/pushai/config.json` | Active provider and every saved provider's mode/model (no secrets) |
+| `~/.config/pushai/key-<provider-id>.json` | Per-provider fallback API key store, used only if your OS keychain is unavailable |
+
+## Key storage
+
+PushAI prefers your OS keychain for API keys:
+
+- **macOS** — Keychain via `@napi-rs/keyring`
+- **Linux** — Secret Service / keyring via `@napi-rs/keyring`
+- **Windows** — Windows Credential Manager via `@napi-rs/keyring`
+
+If the system keychain isn't available on your platform, PushAI falls back to a
+local JSON file per provider:
+
+```
+~/.config/pushai/key-<provider-id>.json
+```
+
+This fallback file is written with permission `0o600` (owner read/write only)
+on non-Windows platforms.
+
+## Config structure
+
+The stored configuration looks like this:
+
+```json
+{
+  "activeId": "openai",
+  "providers": [
+    {
+      "id": "openai",
+      "mode": "byok",
+      "provider": "openai",
+      "model": "gpt-4o"
+    },
+    {
+      "id": "local",
+      "mode": "local",
+      "model": "llama3.2"
+    }
+  ]
+}
+```
+
+BYOK provider entries store `id`, `mode`, `provider`, and `model` — but **not**
+the API key (that goes in the keychain or the separate `key-*.json` file).
+
+Local provider entries store `id`, `mode`, and `model`.
+
+## Provider modes
+
+| Mode | Meaning |
+|------|---------|
+| `byok` | Bring your own API key (Anthropic, OpenAI, Gemini, Hugging Face) |
+| `local` | Run models locally via Ollama |
+| `cloud` | Zero-setup managed AI (planned, not yet available) |
+
+## Managing configuration
+
+All configuration is managed through the CLI — you generally don't need to edit
+these files by hand:
+
+- `pai setup` — add or replace providers
+- `pai switch` — change the active provider
+- `pai peak` — view saved providers (and keys with `--key`)
+- `pai reset` — remove a provider or delete everything
+
+:::tip
+Configuration is written to `~/.config/pushai/config.json`. API keys go
+through the OS keychain when available.
+:::

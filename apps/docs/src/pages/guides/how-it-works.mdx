@@ -1,0 +1,89 @@
+# How It Works
+
+## The commit flow
+
+When you run `pai commit`, here's what happens step by step:
+
+### 1. Repository check
+
+`pai` verifies the current directory is a git repository. If it isn't, it
+offers to initialize one or connect to a remote. If the directory is empty, it
+can create a standard `README.md` automatically.
+
+### 2. Stage changes
+
+All changes are staged with `git add .`, and the staged diff is read. If there
+are unresolved merge conflicts, `pai` fails and lists the conflicting files.
+
+### 3. Load configuration
+
+`pai` loads your stored configuration from `~/.config/pushai/config.json` and
+resolves the active provider. If none is configured, you're prompted to run
+`pai setup`. Passing `-m` skips this step entirely.
+
+### 4. Generate the message
+
+The staged diff is sent to your active provider, which uses a strict system
+prompt to generate a single Conventional Commit message:
+
+```
+feat(auth): add wallet connection modal
+Add a modal that allows users to connect their wallet from the authentication flow.
+```
+
+Diffs larger than ~12,000 characters are truncated before being sent.
+
+### 5. Review and proceed
+
+You're shown the proposed message and can publish, save locally (Ollama only),
+regenerate, or cancel.
+
+### 6. Commit and optionally push
+
+The commit is created and you're shown the short hash. Unless you passed
+`--push`, you're reminded to push when ready with `pai push`.
+
+## Git service
+
+Git operations are handled by `@pushai/core`, a thin wrapper over
+[simple-git](https://www.npmjs.com/package/simple-git):
+
+- `isRepo()` / `init()` — check or initialize a repository
+- `getStatus()` — changed, conflicted, and file lists
+- `getDiff()` — staged diff
+- `stageAll()` / `unstageAll()` — `git add .` / `git reset`
+- `commit(message)` — returns the short hash
+- `push(branch)` — pushes to `origin`, setting upstream on first push
+
+Remote operations (inspect, fetch, adopt branch, restore missing files) use
+`git` directly via a low-level runner that never prompts for credentials and
+forces English error output.
+
+## Commit message generation
+
+Every provider uses the same system prompt, which instructs the model to:
+
+- Output exactly one Conventional Commit message
+- Use a type (`feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`,
+  `build`, `ci`, `chore`, `revert`)
+- Keep the subject under 100 characters, lowercase, imperative mood
+- Add a concise description on the second line
+- Never include markdown, code blocks, or explanations
+
+## Dry-run
+
+`pai commit --dry-run` uses a throwaway git index (via `GIT_INDEX_FILE`) to
+compute what `git add -A && git diff --staged` would produce, without touching
+your real index or anything you already staged. It generates and displays a
+message, then exits without committing.
+
+## Regenerate
+
+Choosing "regenerate" sends the same diff back to the provider with an extra
+instruction to produce a *different* message — different wording or emphasis,
+still exactly two lines, still a valid Conventional Commit.
+
+:::tip
+Diffs larger than ~12,000 characters are truncated before being sent to the AI
+provider.
+:::

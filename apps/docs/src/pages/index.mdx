@@ -1,0 +1,33 @@
+---
+layout: blank
+description: PushAI — AI commit messages & automated push right from your terminal.
+showAskAi: false
+showBanner: false
+showLogo: false
+---
+
+import { Landing } from '../components/landing'
+
+<Landing
+  agentPrompt="Read https://pushai.vercel.app and set up PushAI for my project."
+  description="Stage your changes and let PushAI do the rest. It inspects your diffs, drafts a Conventional Commit message, and pushes your code automatically."
+  docsHref="/introduction/what-is-pushai"
+  logoSuffix={
+    <span className="vocs:text-[13px] vocs:font-medium vocs:text-muted">
+      by{' '}
+      <a
+        href="https://thelastofinusa.vercel.app"
+        className="vocs:text-muted vocs:no-underline vocs:transition-colors vocs:duration-100 vocs:hover:text-heading"
+      >
+        Osilama
+      </a>
+    </span>
+  }
+  title={
+    <>
+      AI Commit Messages from Your Terminal
+    </>
+  }
+  packageName="pushai"
+  packageType="install"
+/>
