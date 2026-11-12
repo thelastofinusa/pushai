@@ -1,0 +1,62 @@
+# pai switch [Change the active AI provider]
+
+`pai switch` lists every provider you have configured, marks the active one,
+and lets you pick a different one. It is how you move between, say, a local
+Ollama model at home and an Anthropic key at work.
+
+## Synopsis
+
+```bash
+pai switch [options]
+```
+
+## Flags
+
+`pai switch` takes no flags.
+
+## What it does
+
+### 1. Load configuration
+
+PushAI reads `~/.config/pushai/config.json`. If none exists, it reports
+`no configuration found` and asks `would you like to configure pushai now?`:
+
+- **Yes** → the [`pai setup`](/introduction/setup-wizard) wizard runs inline.
+  When it finishes, `pai switch` exits — run the command again to switch.
+- **No** → `setup wizard skipped.` and the command exits.
+
+### 2. Choose a provider
+
+```text
+? choose active provider:
+  anthropic [claude-sonnet-4-5] » active   Currently selected
+  local [llama3.2]                         Switch to local
+  openai [gpt-5]                           Switch to openai
+  ─────────────────────────────────────────────
+  keep active provider                     Exit menu without switching your current provider mode
+```
+
+Providers are shown as `provider [model]` for BYOK entries and `local [model]`
+for Ollama. The active one carries the `» active` marker.
+
+### 3. Confirm
+
+Choosing a provider writes `activeId` to your config and ends with:
+
+```text
+✔ switched to "local · llama3.2".
+```
+
+Choosing **keep active provider** exits with `switch cancelled. active provider
+unchanged.` and leaves `activeId` alone.
+
+:::info
+Switching only changes which provider the next `pai commit` uses. Nothing about
+your providers or keys is deleted or re-validated, and every configured provider
+stays in place until you remove it with [`pai reset`](/commands/reset).
+:::
+
+## See also
+
+- [`pai peak`](/commands/peak) — inspect what is configured before switching.
+- [`pai setup`](/introduction/setup-wizard) — add a provider to switch to.

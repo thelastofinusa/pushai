@@ -1,0 +1,77 @@
+# pai push [Push local commits to origin]
+
+`pai push` sends the commits you have already made on your current branch to
+the remote named `origin`.
+
+## Synopsis
+
+```bash
+pai push [options]
+```
+
+## Flags
+
+`pai push` takes no flags.
+
+## What it does
+
+### 1. Repository and conflict checks
+
+PushAI confirms you are inside a Git repository (offering the same init /
+connect-remote / skip choices as [`pai commit`](/commands/commit) if you are
+not), then checks for unresolved merge conflicts. Conflicts stop the push and
+are listed one per line.
+
+### 2. Uncommitted changes warning
+
+```text
+⚠ you have 2 uncommitted changes.
+```
+
+Local, uncommitted work does **not** block a push — Git would not send it
+anyway — but PushAI tells you about it so you do not push a branch and forget
+what is still sitting in your working tree.
+
+### 3. Count what is unpushed
+
+PushAI compares your branch against its upstream:
+
+| Situation | What you see |
+| --- | --- |
+| Nothing to send | `nothing to push. main is already up to date with origin.` and the command ends successfully. |
+| No upstream yet (first push) | `publishing main to origin..` |
+| `n` commits ahead | `pushing n commits to origin/main..` |
+
+The count comes from `git rev-list --count <branch>@{upstream}..<branch>`, so
+it is exactly the number of commits your remote is missing.
+
+### 4. Push
+
+```text
+✔ pushed 3 commits
+✔ main is up to date with origin.
+```
+
+On the first push to a branch there is no upstream to compare against yet, so
+PushAI publishes the branch and sets the upstream in the same step
+(`git push -u origin <branch>`). Every later `pai push` on that branch can then
+report a real commit count.
+
+If there is no remote named `origin`, PushAI stops with
+`no remote named 'origin' was found.` and changes nothing.
+
+## Errors
+
+A failed push prints the underlying Git error, then:
+
+```text
+✖ push failed.
+```
+
+with a non-zero exit code. Common causes: rejected (non-fast-forward) updates
+from a remote you have not pulled, missing credentials, or an unreachable host.
+
+## See also
+
+- [`pai commit -p`](/commands/commit) — create the commit and push in one step.
+- [`pai switch`](/commands/switch) — change the provider that writes messages.

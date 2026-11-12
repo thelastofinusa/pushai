@@ -1,0 +1,97 @@
+# pai reset [Remove providers and configuration]
+
+`pai reset` deletes saved providers — one at a time, or everything at once.
+It is the command that cleans up before you switch machines, share a laptop, or
+uninstall PushAI.
+
+## Synopsis
+
+```bash
+pai reset [options]
+```
+
+## Flags
+
+| Flag | Description |
+| --- | --- |
+| `-a, --all` | Skip the selection menu and go straight to the delete-all confirmation. |
+
+## Interactive reset
+
+```bash
+pai reset
+```
+
+PushAI loads your configuration (offering [`pai setup`](/introduction/setup-wizard)
+first if none exists) and shows a menu:
+
+```text
+? what would you like to remove?
+  anthropic [claude-sonnet-4-5] » active   Remove anthropic from configured providers
+  local [llama3.2]                         Remove local from configured providers
+  ─────────────────────────────────────────────
+  delete all providers                     Purge every provider configuration and API key
+  preserve current configuration           Exit reset menu without removing any providers or keys
+```
+
+- **A single provider** → confirmation prompt `remove anthropic?` (default:
+  no). Confirming removes just that entry.
+- **delete all providers** → the same confirmation as `--all`, below.
+- **preserve current configuration** → exits with
+  `reset cancelled. configuration untouched.`
+
+## Deleting everything
+
+```bash
+pai reset --all
+pai reset          # then choose "delete all providers"
+```
+
+Both paths ask for confirmation first:
+
+```text
+? are you sure you want to delete all configuration? (y/N)
+```
+
+The default is **no**. Confirming removes the entire `~/.config/pushai`
+directory — `config.json`, every `key-<provider-id>.json` fallback file, and the
+update-check cache — and then deletes each BYOK provider's key from your OS
+keychain. You end with `all configurations deleted.`, or
+`nothing to delete.` if there was nothing there.
+
+:::warning
+This is destructive and not undoable. `config.json` holds only your provider
+setup (no secrets), but deleting it means running [`pai setup`](/introduction/setup-wizard)
+again from scratch. Keys removed from the keychain cannot be recovered — you
+would need to paste them again.
+:::
+
+## What removing a provider does
+
+- **BYOK providers** — the stored API key is deleted from your OS keychain
+  *and* from the fallback `key-<provider-id>.json` file (PushAI clears both, so
+  no orphaned secret is left behind).
+- **Local providers** — only the config entry goes; Ollama and your models are
+  untouched.
+- **Removing the active provider** — if others remain, the first one left
+  becomes active automatically.
+- **Removing the last provider** — PushAI resets everything, so you are back to
+  a clean slate with no configuration at all.
+
+## Uninstalling PushAI
+
+```bash
+pai reset              # do this first
+npm uninstall -g pushai
+```
+
+:::warning
+Uninstalling the npm package does **not** delete `~/.config/pushai`. If you
+want your configuration and stored keys gone too, run `pai reset` (or
+`pai reset --all`) before you uninstall.
+:::
+
+## See also
+
+- [`pai peak`](/commands/peak) — see what is stored before removing it.
+- [`pai setup`](/introduction/setup-wizard) — rebuild a configuration.

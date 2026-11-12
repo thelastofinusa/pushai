@@ -1,13 +1,23 @@
-# Getting Started
+# Getting Started [Install PushAI and make your first commit]
 
-Install PushAI globally, then run the setup wizard.
+This guide takes you from an empty terminal to a reviewed, AI-written commit.
+It takes a couple of minutes: install the CLI, run the setup wizard once, then
+commit.
 
 ## Requirements
 
-- **Node.js** >= 18
-- **git** installed and on your `PATH`
+- **Node.js 18 or newer** — PushAI is a Node CLI (`engines.node` is `>=18`).
+- **Git on your `PATH`** — PushAI drives Git directly, so `git` has to work in
+  the directory you run it from.
 
-## Install globally
+:::info
+No API key is strictly required. If you run AI locally with
+[Ollama](/providers/ollama), your code never leaves your machine.
+:::
+
+## Install
+
+PushAI installs globally and gives you a single binary: `pai`.
 
 :::code-group
 
@@ -15,21 +25,22 @@ Install PushAI globally, then run the setup wizard.
 npm install -g pushai
 ```
 
-```bash [bun]
-bunx pushai setup
-```
-
 ```bash [pnpm]
-pnpm dlx pushai setup
+pnpm add -g pushai
 ```
 
 ```bash [yarn]
-yarn dlx pushai setup
+yarn global add pushai
+```
+
+```bash [bun]
+bun add -g pushai
 ```
 
 :::
 
-Once installed globally, the binary is called **`pai`**.
+Prefer not to install anything yet? Every command also works through your
+package runner, for example `bunx pushai setup` or `npx pushai commit`.
 
 ## Verify the install
 
@@ -37,31 +48,85 @@ Once installed globally, the binary is called **`pai`**.
 pai --version
 ```
 
-You should see:
-
-```
-v3.1.23
-» node v22.x.x (from PATH)
+```text
+v3.1.24
+» node v22.11.0 (from PATH)
 ```
 
-## Run setup for the first time
+The first line is the PushAI version, the second is the Node version PushAI
+found on your `PATH`. Run `pai --help` to list every command.
 
-After installing, run the interactive setup wizard:
+## Run the setup wizard
 
 ```bash
 pai setup
 ```
 
-This walks you through picking a commit-generation mode (local Ollama or BYOK API key), validating it, and saving your configuration. See the [Setup Wizard](/introduction/setup-wizard) guide.
+The wizard asks how you want to generate commit messages, then walks you through
+exactly one path:
+
+- **local machine (Ollama)** — detects your Ollama install, starts the server if
+  it is not running, and lets you pick from your installed models.
+- **custom api key (BYOK)** — pick Anthropic, OpenAI, Google Gemini, or Hugging
+  Face, paste your key, and PushAI validates it against the provider *before*
+  saving it. Then you pick a model.
+- **pushai cloud** — managed AI with no API key. Coming soon, disabled for now.
+
+Your choice is written to `~/.config/pushai/config.json`, and API keys go to
+your OS keychain (or a permission-locked fallback file). See the full walkthrough
+in the [Setup Wizard](/introduction/setup-wizard) guide.
+
+## Make your first commit
+
+```bash
+pai commit
+```
+
+PushAI stages your changes, reads the diff, generates a message with your active
+provider, and shows it to you:
+
+```text
+╭─▶ proposed changes
+│
+├─▶ feat(ui): improve terminal output spacing
+╰─▶ Adjust spacing between terminal elements to make the output easier to read.
+```
+
+You choose what happens next: publish to remote, save locally (Ollama only),
+regenerate a different message, or keep the working tree and walk away. Once you
+accept, PushAI creates the commit and prints the short hash.
 
 :::tip
-You can also run `pai setup` without installing globally using `npx pushai setup`, `bunx pushai setup`, etc.
+If you ran `pai commit` before `pai setup` and let it launch the wizard, run
+`pai commit` again — the command exits as soon as setup finishes so you start
+the flow fresh.
 :::
+
+From there:
+
+```bash
+pai commit -p    # commit and push in one go
+pai commit -m "fix: null branch"   # skip generation entirely
+pai push         # push your local commits when you are ready
+```
 
 ## Uninstall
 
 ```bash
+pai reset              # remove saved providers, config, and keys first
 npm uninstall -g pushai
 ```
 
-This does **not** delete `~/.config/pushai`. Run `pai reset` first if you want your stored configuration and API keys removed too.
+:::warning
+Uninstalling the package does **not** delete `~/.config/pushai`. Run
+[`pai reset`](/commands/reset) first if you want your stored configuration and
+API keys removed too.
+:::
+
+## Next steps
+
+- Walk through the [Setup Wizard](/introduction/setup-wizard) in detail.
+- Read the [`pai commit`](/commands/commit) reference for every flag.
+- Compare the three generation modes under [AI Providers](/providers/byok).
+- Keep the [CLI reference](/reference/cli) open when you want everything on one
+  page.

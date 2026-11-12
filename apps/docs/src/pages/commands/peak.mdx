@@ -1,0 +1,86 @@
+# pai peak [Inspect your configuration]
+
+`pai peak` prints every provider you have saved, marks which one is active, and
+tells you the key status of each. It is the read-only "what is configured
+right now" command.
+
+## Synopsis
+
+```bash
+pai peak [options]
+```
+
+## Flags
+
+| Flag | Description |
+| --- | --- |
+| `-k, --key` | Show the configured API key in plaintext. |
+
+## What it does
+
+### 1. Load configuration
+
+If no configuration exists, PushAI reports `no configuration found` and offers
+to run [`pai setup`](/introduction/setup-wizard) on the spot. Declining exits
+with `setup wizard skipped.`
+
+### 2. List providers
+
+```text
+╭─▶ configured providers
+│
+├─▶ anthropic [claude-sonnet-4-5] » active
+│     api key configured
+├─▶ openai [gpt-5]
+│     api key configured
+╰─▶ local [llama3.2]
+      no key required
+```
+
+Each provider gets one status line:
+
+| Line | Meaning |
+| --- | --- |
+| `api key configured` | A BYOK key is stored (in your keychain or the fallback file) and was read back successfully. |
+| `✖ no api key set` | A BYOK provider entry exists but its key could not be found — that provider will be skipped until you re-run `pai setup`. |
+| `ℹ no key required` | A local (Ollama) or cloud provider. |
+
+If any BYOK provider is present and you did not pass `--key`, PushAI appends a
+hint:
+
+```text
+ℹ Use `pai peak --key` to show the configured API keys
+```
+
+### 3. Finish
+
+```text
+✔ configuration loaded successfully.
+```
+
+or, with `-k`:
+
+```text
+✔ configuration and api keys loaded.
+```
+
+## Reveal keys with `--key`
+
+```bash
+pai peak --key
+```
+
+replaces the `api key configured` lines with the stored plaintext keys.
+
+:::warning
+`pai peak -k` prints secrets to your terminal. That can end up in a screen
+share, a terminal recording, or your scrollback buffer. Prefer the default view
+unless you specifically need to confirm which key is saved, and never paste the
+output anywhere.
+:::
+
+## See also
+
+- [`pai switch`](/commands/switch) — change the active provider.
+- [`pai reset`](/commands/reset) — remove a provider and its key.
+- [Configuration](/reference/config) — the file `pai peak` reads.

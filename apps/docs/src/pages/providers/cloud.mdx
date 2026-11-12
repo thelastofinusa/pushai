@@ -1,0 +1,27 @@
+# Cloud Hosted [Coming soon]
+
+Cloud Hosted is PushAI's managed mode: an AI provider run by us, no API key, no
+Ollama, zero setup. You run `pai setup`, pick **pushai cloud**, and commit.
+
+**It is not available yet.** The option appears in the setup wizard marked
+*(coming soon)* and is disabled — selecting it ends with
+`cloud feature coming soon` and writes nothing. `generateCommitMessage` refuses
+cloud mode outright with `Cloud commit generation isn't available yet.`
+
+:::info
+Managed mode is planned, not shipped. Nothing in this page is a promise of a
+date or a feature set.
+:::
+
+## What to use meanwhile
+
+Both generation modes work today:
+
+- **[Bring Your Own Key](/providers/byok)** — Anthropic, OpenAI, Google Gemini,
+  or Hugging Face with a key you already have. Validated live before saving.
+- **[Local models (Ollama)](/providers/ollama)** — fully offline, no key, your
+  code never leaves your machine.
+
+You can configure both and hop between them with
+[`pai switch`](/commands/switch) — most people end up with a local model for
+everyday work and a hosted key for the harder diffs.

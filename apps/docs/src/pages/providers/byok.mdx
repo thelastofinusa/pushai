@@ -1,0 +1,97 @@
+# Bring Your Own Key [Anthropic, OpenAI, Gemini, Hugging Face]
+
+BYOK means you bring your own API key: PushAI talks directly to the provider
+you choose, with the key you already have. Your key never passes through a
+PushAI server, and it is validated live against the provider before it is ever
+saved.
+
+## The four providers
+
+`pai setup` lists them in this order under **custom api key (BYOK)**:
+
+| Name in `pai setup` | ID | Base host | Models endpoint |
+| --- | --- | --- | --- |
+| Google Gemini | `gemini` | `https://generativelanguage.googleapis.com` | `GET /v1beta/models?key=<key>` |
+| Anthropic | `anthropic` | `https://api.anthropic.com` | `GET /v1/models` with `x-api-key` and `anthropic-version: 2023-06-01` |
+| OpenAI | `openai` | `https://api.openai.com` | `GET /v1/models` via the OpenAI SDK |
+| Hugging Face | `huggingface` | `https://router.huggingface.co` | `GET /v1/models` with `Authorization: Bearer <key>` |
+
+The `id` is what ends up in your config file as the provider's `id` and
+`provider` field, and it is the account name your key is stored under.
+
+## How setup goes
+
+```bash
+pai setup
+```
+
+1. **Pick the provider** from the BYOK list.
+2. **Paste your key** at a masked prompt — it is never echoed back.
+3. **Live validation.** PushAI calls the provider's model-list endpoint with
+   your key. You see `validated successfully`, or the provider's own error
+   message followed by `would you like to try another api key?`. Declining
+   cancels setup — an invalid key is never written anywhere.
+4. **Pick a model.** If the provider returns several models you get a
+   searchable list (`? search and select a model`); if it returns exactly one,
+   it is used automatically. Gemini results are filtered to models that support
+   `generateContent`, so embedding-only models do not show up.
+
+That is the whole flow: provider, key, model.
+
+## Where your key is stored
+
+PushAI tries your **OS keychain first**, via `@napi-rs/keyring`:
+
+| OS | Backend |
+| --- | --- |
+| macOS | Keychain |
+| Linux | Secret Service |
+| Windows | Credential Manager |
+
+The keychain entry uses the service name `pushai` and the account
+`api-key-<provider-id>` — for example `api-key-anthropic`.
+
+If the keychain probe fails, PushAI warns you and falls back to a per-provider
+file:
+
+```text
+⚠️ System keychain unavailable. API keys will be stored in a local fallback file.
+```
+
+```text
+~/.config/pushai/key-anthropic.json
+```
+
+```json
+{
+  "apiKey": "sk-ant-..."
+}
+```
+
+The fallback file is chmod-locked to `0600` on macOS and Linux, so only your
+user can read it. Either way, **`config.json` never contains an API key** — it
+stores the provider id, mode, and model only.
+
+## Switching and removing
+
+```bash
+pai switch   # make a different saved provider active
+pai peak     # confirm which key is configured (add -k to reveal it)
+pai reset    # remove one provider — deletes its key too
+```
+
+Removing a BYOK provider with [`pai reset`](/commands/reset) deletes its key
+from the keychain *and* removes the fallback file, so no orphaned secret is
+left behind.
+
+:::warning
+`pai peak -k` prints your stored keys in plaintext to the terminal. Treat that
+output like the key itself.
+:::
+
+## Next steps
+
+- Prefer to keep everything on your machine? See
+  [Local models (Ollama)](/providers/ollama).
+- Managed, no-key PushAI hosting is on the way — see
+  [Cloud Hosted](/providers/cloud).

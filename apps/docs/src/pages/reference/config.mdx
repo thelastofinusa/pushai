@@ -1,43 +1,36 @@
-# Configuration options
+# Configuration [Where PushAI stores your setup]
 
-## Where config lives
+PushAI keeps everything in one directory under your home folder:
 
-| Path | Contents |
-|------|----------|
-| `~/.config/pushai/config.json` | Active provider and every saved provider's mode/model (no secrets) |
-| `~/.config/pushai/key-<provider-id>.json` | Per-provider fallback API key store, used only if your OS keychain is unavailable |
-
-## Key storage
-
-PushAI prefers your OS keychain for API keys:
-
-- **macOS** — Keychain via `@napi-rs/keyring`
-- **Linux** — Secret Service / keyring via `@napi-rs/keyring`
-- **Windows** — Windows Credential Manager via `@napi-rs/keyring`
-
-If the system keychain isn't available on your platform, PushAI falls back to a
-local JSON file per provider:
-
-```
-~/.config/pushai/key-<provider-id>.json
+```text
+~/.config/pushai/
+├── config.json                 # providers + active provider (no secrets)
+├── key-<provider-id>.json      # fallback API key files, keychain only
+└── .update-check.json          # 24h cache for the update notice
 ```
 
-This fallback file is written with permission `0o600` (owner read/write only)
-on non-Windows platforms.
+Everything is plain JSON. There is no project-level config file, nothing in
+your repository, and nothing to commit.
 
-## Config structure
+## `config.json`
 
-The stored configuration looks like this:
+The full shape:
 
 ```json
 {
-  "activeId": "openai",
+  "activeId": "anthropic",
   "providers": [
     {
-      "id": "openai",
+      "id": "anthropic",
       "mode": "byok",
-      "provider": "openai",
-      "model": "gpt-4o"
+      "provider": "anthropic",
+      "model": "claude-sonnet-4-5"
+    },
+    {
+      "id": "gemini",
+      "mode": "byok",
+      "provider": "gemini",
+      "model": "gemini-2.5-flash"
     },
     {
       "id": "local",
@@ -48,30 +41,173 @@ The stored configuration looks like this:
 }
 ```
 
-BYOK provider entries store `id`, `mode`, `provider`, and `model` — but **not**
-the API key (that goes in the keychain or the separate `key-*.json` file).
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `activeId` | `string` | The `id` of the provider the next `pai commit` uses. |
+| `providers` | `ProviderConfig[]` | Every provider you have saved, in the order they were added. |
 
-Local provider entries store `id`, `mode`, and `model`.
+Reading rules worth knowing:
 
-## Provider modes
+- A BYOK entry whose key can no longer be found (keychain wiped, fallback file
+  deleted) is **skipped** rather than crashing — the rest keep working. If
+  every key is gone, PushAI treats the config as missing and offers `pai setup`
+  again.
+- If `activeId` points at a provider that no longer exists, the first remaining
+  provider becomes active.
 
-| Mode | Meaning |
-|------|---------|
-| `byok` | Bring your own API key (Anthropic, OpenAI, Gemini, Hugging Face) |
-| `local` | Run models locally via Ollama |
-| `cloud` | Zero-setup managed AI (planned, not yet available) |
-
-## Managing configuration
-
-All configuration is managed through the CLI — you generally don't need to edit
-these files by hand:
-
-- `pai setup` — add or replace providers
-- `pai switch` — change the active provider
-- `pai peak` — view saved providers (and keys with `--key`)
-- `pai reset` — remove a provider or delete everything
-
-:::tip
-Configuration is written to `~/.config/pushai/config.json`. API keys go
-through the OS keychain when available.
+:::warning
+`config.json` **never contains API keys**. BYOK entries are written with the
+`apiKey` field stripped, every single time the file is saved. If you ever see a
+key in there, something outside PushAI wrote it — delete the field and re-run
+`pai setup`.
 :::
+
+## The `ProviderConfig` union
+
+`ProviderConfig` is a discriminated union on `mode`. The three variants and
+their exact fields:
+
+### `LocalProviderConfig`
+
+```ts
+interface LocalProviderConfig {
+  id: "local";
+  mode: "local";
+  model: string;
+}
+```
+
+| Field | Persisted? | Notes |
+| --- | --- | --- |
+| `id` | yes | Always the literal `"local"`. |
+| `mode` | yes | Always `"local"`. |
+| `model` | yes | The Ollama model tag, for example `llama3.2`. |
+
+No secret of any kind — Ollama needs no credentials.
+
+### `ByokProviderConfig`
+
+```ts
+interface ByokProviderConfig {
+  id: string;        // provider id, e.g. "openai"
+  mode: "byok";
+  provider: string;  // which service, e.g. "openai"
+  apiKey: string;
+  model: string;
+}
+```
+
+| Field | Persisted? | Notes |
+| --- | --- | --- |
+| `id` | yes | Same value as `provider`. Used as the keychain account suffix. |
+| `mode` | yes | Always `"byok"`. |
+| `provider` | yes | One of `gemini`, `anthropic`, `openai`, `huggingface`. |
+| `model` | yes | The model id you selected during setup. |
+| `apiKey` | **no — stripped** | Present only in memory. On save it goes to the keychain (or the fallback file) and is removed from the JSON before `config.json` is written. On load it is read back in from wherever it was stored. |
+
+This is why `config.json` on disk looks like
+`Omit<ByokProviderConfig, "apiKey">` — the in-memory type has the key, the
+persisted type does not.
+
+### `CloudProviderConfig`
+
+```ts
+interface CloudProviderConfig {
+  id: "cloud";
+  mode: "cloud";
+  model: string;
+}
+```
+
+| Field | Persisted? | Notes |
+| --- | --- | --- |
+| `id` | yes | Always `"cloud"`. |
+| `mode` | yes | Always `"cloud"`. |
+| `model` | yes | Reserved for the managed model. |
+
+Cloud mode is [not available yet](/providers/cloud) — this variant exists in
+the type system so config files written by a future version stay readable.
+
+### `SetupConfig`
+
+```ts
+interface SetupConfig {
+  activeId: string;
+  providers: ProviderConfig[];
+}
+```
+
+That is the entire top-level document. What `pai peak` prints is this object
+rendered as a tree; what `pai switch` edits is `activeId`.
+
+## API key storage
+
+### Preferred: the OS keychain
+
+PushAI uses [`@napi-rs/keyring`](https://github.com/napi-rs/keyring) with a
+per-OS backend:
+
+| OS | Backend |
+| --- | --- |
+| macOS | Keychain |
+| Linux | Secret Service (via D-Bus) |
+| Windows | Credential Manager |
+
+Entries are stored with:
+
+- **Service:** `pushai`
+- **Account:** `api-key-<provider-id>` (for example `api-key-anthropic`)
+
+PushAI probes the keychain once per run with a throwaway entry. If the probe
+succeeds, every read, write, and delete goes to the keychain.
+
+### Fallback: a locked file
+
+When the probe fails — headless containers, minimal Linux installs without a
+Secret Service, locked-down CI — PushAI warns you once:
+
+```text
+⚠️ System keychain unavailable. API keys will be stored in a local fallback file.
+```
+
+and writes one file per provider:
+
+```text
+~/.config/pushai/key-anthropic.json
+```
+
+```json
+{
+  "apiKey": "sk-ant-..."
+}
+```
+
+The file is created with `0600` permissions on macOS and Linux (owner read and
+write only; Windows relies on the user profile ACLs instead). The same file is
+also deleted when you remove that provider, so the fallback never outlives its
+key.
+
+:::info
+Whether keys live in the keychain or the fallback file, `config.json` stays
+clean. Both stores are read transparently when PushAI loads your configuration.
+:::
+
+## Managing your configuration
+
+| Goal | Command |
+| --- | --- |
+| Create or change your setup | [`pai setup`](/introduction/setup-wizard) |
+| See what is configured | [`pai peak`](/commands/peak) (`-k` to reveal keys) |
+| Change the active provider | [`pai switch`](/commands/switch) |
+| Remove one or all providers (and their keys) | [`pai reset`](/commands/reset) |
+| Read the files yourself | `cat ~/.config/pushai/config.json` |
+
+Editing `config.json` by hand is safe as long as you keep the shape above: no
+`apiKey` fields, a valid `mode` on every provider, and an `activeId` that
+matches one of your `providers`. If the file is malformed or empty, PushAI
+treats it as "no configuration" and offers to run setup.
+
+## See also
+
+- [CLI reference](/reference/cli) — every command that touches these files.
+- [Bring Your Own Key](/providers/byok) — how keys get validated and stored.

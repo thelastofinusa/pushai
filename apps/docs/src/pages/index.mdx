@@ -1,6 +1,6 @@
 ---
 layout: blank
-description: PushAI — AI commit messages & automated push right from your terminal.
+description: PushAI is an AI Git assistant for your terminal. Stage your changes, generate a Conventional Commit, and push — all from one command.
 showAskAi: false
 showBanner: false
 showLogo: false
@@ -9,9 +9,8 @@ showLogo: false
 import { Landing } from '../components/landing'
 
 <Landing
-  agentPrompt="Read https://pushai.vercel.app and set up PushAI for my project."
-  description="Stage your changes and let PushAI do the rest. It inspects your diffs, drafts a Conventional Commit message, and pushes your code automatically."
-  docsHref="/introduction/what-is-pushai"
+  description="The AI Git assistant for your terminal. Stage your changes, generate a Conventional Commit, and push — all from one command."
+  docsHref="/introduction/getting-started"
   logoSuffix={
     <span className="vocs:text-[13px] vocs:font-medium vocs:text-muted">
       by{' '}
@@ -25,9 +24,10 @@ import { Landing } from '../components/landing'
   }
   title={
     <>
-      AI Commit Messages from Your Terminal
+      Your Git workflow, <br />
+      quietly smarter.
     </>
   }
   packageName="pushai"
-  packageType="install"
+  packageType="run"
 />

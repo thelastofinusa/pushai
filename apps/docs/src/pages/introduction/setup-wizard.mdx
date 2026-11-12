@@ -1,72 +1,224 @@
-# Setup Wizard
+# Setup Wizard [Configure `pai setup`]
 
-`pai setup` runs the interactive setup wizard. On the first run it walks you
-through choosing a commit-generation mode and saving your configuration. On
-subsequent runs it lets you add another provider or replace the active one.
-
-## First run
+`pai setup` is the interactive wizard that picks your commit generation method
+and saves it. You run it once to get started, and again whenever you want to
+add a provider or replace the active one.
 
 ```bash
 pai setup
 ```
 
-You'll choose one of these modes:
+It takes no flags — every decision is a prompt.
 
-### Local Models (Ollama)
+## First run
 
-Runs models locally on your machine via [Ollama](https://ollama.com). `pai`
-detects whether Ollama is installed and running, starts it automatically if
-needed, and lets you pick from your installed models. No API key is required.
+If no configuration exists yet, PushAI checks for one, reports
+`no configuration found`, and drops you straight into the mode picker:
 
-### Bring Your Own Key (BYOK)
+```text
+? select a commit generation method:
+  local machine (Ollama)
+  pushai cloud                     (coming soon)
+  custom api key (BYOK)
+  ─────────────────────────────────────────────
+  leave setup unchanged
+```
 
-Bring your own API key for one of:
+| Choice | What happens |
+| --- | --- |
+| `local machine (Ollama)` | Detects Ollama, starts the server if needed, and lets you pick an installed model. |
+| `pushai cloud` | Disabled. Managed AI with no API key is planned but not available yet. |
+| `custom api key (BYOK)` | Pick a provider, paste a key, validate it live, pick a model. |
+| `leave setup unchanged` | Exits with `setup exited. no changes were applied.` |
 
-- Anthropic
-- OpenAI
-- Google Gemini
-- Hugging Face
+Whichever path you finish, PushAI writes the provider, marks it active, and
+prints `setup wizard completed successfully.`
 
-Your key is validated live against the provider before being saved. After
-validation, you select a model from the models available to that key.
+## BYOK path
 
-### Cloud Hosted
+Choosing **custom api key (BYOK)** walks you through four steps.
 
-Zero-setup managed AI with no API key required. **Coming soon — not available yet.**
+### 1. Pick a provider
 
-## Configuration storage
+```text
+? which provider would you like to use?
+  Google Gemini
+  Anthropic
+  OpenAI
+  Hugging Face
+```
 
-- Configuration is written to `~/.config/pushai/config.json`. This file holds
-  the active provider and every saved provider's mode/model (no secrets).
-- API keys are stored in your OS keychain when available, falling back to a
-  permission-locked local file per provider
-  (`~/.config/pushai/key-<provider-id>.json`, mode `0o600`).
+See [Bring Your Own Key](/providers/byok) for what each one is called and which
+host it talks to.
 
-## If you already have a configuration
+### 2. Enter your key
 
-Running `pai setup` again shows your configured providers and lets you:
+```text
+? your Anthropic key: ••••••••••••••••
+```
 
-1. **Add provider** — keep your existing setup and configure an additional
-   provider. You'll be asked whether to set the new one as active.
-2. **Replace active** — replace the currently active provider with a new one.
-3. **Leave setup unchanged** — exit without changes.
+The prompt is masked — the key is never echoed back or printed.
 
-You can have multiple providers configured and switch between them with
-`pai switch`.
+### 3. Live validation
 
-### Verify your configuration
+PushAI calls the provider's model-list endpoint with your key **before anything
+is saved**:
+
+```text
+✔ validated successfully
+```
+
+If validation fails, you see the provider's own error message and get asked
+`would you like to try another api key?` (default: yes). Declining cancels
+setup with `setup cancelled.` — a bad key is never written to disk.
+
+### 4. Pick a model
+
+When the provider returns more than one model you get a searchable list:
+
+```text
+? search and select a model
+```
+
+Type to filter, then select. If the provider returns exactly one model, PushAI
+uses it without asking.
+
+:::info
+The saved provider keeps its `provider` id (for example `anthropic`) and the
+model you selected. The key itself never lands in `config.json` — see
+[Configuration](/reference/config).
+:::
+
+## Local (Ollama) path
+
+Choosing **local machine (Ollama)** verifies your machine instead of a remote
+service.
+
+### 1. Detection
+
+PushAI runs `ollama -v` to detect the install:
+
+```text
+✔ ollama v0.5.7 detected
+```
+
+**If Ollama is not installed**, you get `ollama is not installed.` and a choice:
+
+| Option | What it does |
+| --- | --- |
+| `install ollama on macOS` / `on linux` / `on windows` | Prints the official installer to run yourself — `curl -fsSL https://ollama.com/install.sh \| sh` on macOS and Linux, `irm https://ollama.com/install.ps1 \| iex` on Windows — then tells you to restart your terminal and run `pai setup` again. |
+| `open download page` | Opens the [Ollama download page](https://ollama.com/download) in your browser. |
+| `exit setup` | Cancels. |
+
+PushAI never runs the installer for you.
+
+### 2. Server startup
+
+It pings the local Ollama server at `http://127.0.0.1:11434`. If the server is
+not running, PushAI starts it for you by spawning `ollama serve` detached, then
+polls for up to about five seconds until it answers. If it still cannot reach
+the server, setup fails with:
+
+```text
+Ollama is not running and could not be started automatically.
+Start it manually with: ollama serve
+```
+
+### 3. Model listing
+
+PushAI lists your installed models with `ollama list`:
+
+```text
+✔ you have 4 models installed
+```
+
+- **More than one model** → `? which model would you like to use?` with your
+  installed models as the choices.
+- **Exactly one model** → it is selected automatically:
+  `using Ollama's llama3.2 model`.
+- **No models installed** → `no local models found`, then a choice:
+
+| Option | What it does |
+| --- | --- |
+| `browse ollama models` | Opens the [Ollama model library](https://ollama.com/search). |
+| `install a model` | Prints `ollama pull <model>` (for example `ollama pull llama3.2`) and tells you to run `pai setup` again. |
+| `exit setup` | Cancels. |
+
+The finished provider is stored as `id: "local"`, `mode: "local"`, plus the
+model name.
+
+## Where things are stored
+
+| Path | Contents |
+| --- | --- |
+| `~/.config/pushai/config.json` | The active provider id and every saved provider's mode and model. **No API keys, ever.** |
+| `~/.config/pushai/key-<provider-id>.json` | Fallback key file, written only when your OS keychain is unavailable. Locked to `0600`. |
+| OS keychain | Where BYOK keys go by default. |
+
+PushAI probes your keychain once. On macOS it uses Keychain, on Linux Secret
+Service, on Windows Credential Manager (via `@napi-rs/keyring`). If the probe
+fails you will see:
+
+```text
+⚠️ System keychain unavailable. API keys will be stored in a local fallback file.
+```
+
+and keys are written to the fallback file instead. See
+[Configuration](/reference/config) for the exact schema.
+
+## Subsequent runs
+
+Once a configuration exists, `pai setup` no longer starts with the mode picker.
+It shows your current providers (the active one marked) and asks:
+
+```text
+? what would you like to do?
+  add provider          Keep existing setup and configure an additional provider
+  replace active        Replace gemini [gemini-2.5-flash] with a new configuration
+  ─────────────────────────────────────────────
+  leave setup unchanged Exit wizard without adding or updating provider settings
+```
+
+- **add provider** runs the normal wizard, then asks
+  `set "<provider>" as the active provider?` (default: yes). Answering no keeps
+  your current active provider and just stores the new one for later — swap to
+  it any time with [`pai switch`](/commands/switch).
+- **replace active** runs the wizard and makes the result active. If the new
+  provider has a different id (for example swapping `openai` for `gemini`), the
+  old entry is dropped so you do not accumulate stale duplicates. Replacing a
+  provider with itself overwrites its model or key in place.
+- **leave setup unchanged** exits without touching anything.
+
+## Verify your setup
 
 ```bash
 pai peak
 ```
 
-Lists all saved providers and marks the active one. Pass `-k`/`--key` to also
-reveal stored BYOK API keys in plaintext.
-
-### Generate your first commit
-
-```bash
-pai commit
+```text
+╭─▶ configured providers
+│
+├─▶ anthropic [claude-sonnet-4-5] » active
+│     api key configured
+╰─▶ local [llama3.2]
+      no key required
 ```
 
-See [Generate commit](/guides/commands/commit).
+`pai peak -k` reveals the stored keys in plaintext if you need to confirm which
+key is saved. Switch providers with [`pai switch`](/commands/switch), remove
+one with [`pai reset`](/commands/reset).
+
+:::warning
+`--type` and `--scope` are **not** setup options. They belong to
+[`pai commit -m`](/commands/commit) and let you skip the interactive
+prompts when you supply your own commit message. Running `pai setup --type feat`
+does nothing — the wizard accepts no flags.
+:::
+
+## Next steps
+
+- Read [`pai commit`](/commands/commit) for the flow that consumes this
+  configuration.
+- Compare [BYOK](/providers/byok) and [local Ollama](/providers/ollama) before
+  you commit to one.
+- Keep the [CLI reference](/reference/cli) handy for the other commands.

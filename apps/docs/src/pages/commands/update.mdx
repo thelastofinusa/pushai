@@ -1,0 +1,104 @@
+# pai update [Update PushAI in place]
+
+`pai update` checks the npm registry for a newer version of `pushai` and
+installs it globally for you if there is one.
+
+## Synopsis
+
+```bash
+pai update [options]
+```
+
+## Flags
+
+`pai update` takes no flags.
+
+## What it does
+
+### 1. Check npm
+
+```text
+⟳ checking npm registry..
+```
+
+PushAI queries `https://registry.npmjs.org/pushai/latest` directly, bypassing
+the update cache so you always see the real latest version. The result is
+written back to the cache (`~/.config/pushai/.update-check.json`, valid for 24
+hours).
+
+### 2. Compare versions
+
+Already current:
+
+```text
+✔ already up to date
+
+╭─▶ version status
+│
+╰─▶ latest:     v3.1.24
+     installed:  v3.1.24
+
+✔ you're on the latest version (v3.1.24).
+```
+
+A newer version exists:
+
+```text
+✔ new version found » v3.1.25
+
+╭─▶ version status
+│
+╰─▶ latest:     v3.1.25
+     installed:  v3.1.24
+
+? upgrade to the latest version (v3.1.25)? (Y/n)
+```
+
+### 3. Install
+
+Confirming installs the package globally with **the package manager PushAI
+detected you are using**:
+
+```bash
+npm install -g pushai@3.1.25
+pnpm add -g pushai@3.1.25
+yarn add -g pushai@3.1.25
+bun add -g pushai@3.1.25
+```
+
+On success you get `updated pushai to v3.1.25` and
+`successfully updated.` Declining ends with `update skipped.`
+
+## The passive update check
+
+Most PushAI commands quietly check for a newer version in the background before
+they run:
+
+- It runs on every command **except** `pai update`, `-h`, and `--help`.
+- It is raced against a **1.5 second timeout** — if the registry is slow, the
+  command continues immediately and nothing is printed.
+- The result is cached for **24 hours** in
+  `~/.config/pushai/.update-check.json`, so the check is effectively free
+  between daily runs. The cache is invalidated early if you upgrade, since it
+  is keyed to the version that recorded it.
+- When a newer version is found, you see a short notice:
+
+```text
+update available
+│
+╰─▶ v3.1.25 is now available (current: v3.1.24)
+     Run `pai update` to upgrade to the latest version.
+```
+
+The notice is informational only — nothing is ever installed without you asking
+for it.
+
+:::info
+`pai update` upgrades the globally installed CLI only. PushAI has no project
+dependencies and no per-repo install to keep in sync.
+:::
+
+## See also
+
+- [`pai --version`](/reference/cli) — check the installed version without
+  touching the network.

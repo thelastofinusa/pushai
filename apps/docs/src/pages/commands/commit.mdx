@@ -1,0 +1,285 @@
+# pai commit [Generate a message, review it, commit]
+
+`pai commit` is the command you live in. It stages your changes, reads the
+diff, has your active AI provider write a Conventional Commit message, shows it
+to you, and creates the commit once you accept it.
+
+## Synopsis
+
+```bash
+pai commit [options]
+```
+
+## Flags
+
+| Flag | Description |
+| --- | --- |
+| `-p, --push` | Automatically push the commit after creating it. |
+| `-m, --message <text>` | Use a custom commit message instead of generating one. |
+| `--type <type>` | Conventional Commit type for `-m`. Skips the type prompt. |
+| `--scope <scope>` | Conventional Commit scope for `-m`. Skips the scope prompt. |
+| `--dry-run` | Generate and display the message, but never commit. |
+
+`--type` accepts exactly these 11 values:
+
+```text
+feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert
+```
+
+## Examples
+
+```bash
+pai commit                          # interactive: generate, review, commit
+pai commit -p                       # commit and push in one go
+pai commit -m "fix: null branch"    # skip generation entirely
+pai commit -m "add search" --type feat --scope ui   # skip both prompts
+pai commit --dry-run                # preview the message, change nothing
+```
+
+## How it works
+
+### 1. Repository check
+
+PushAI checks whether the current directory is a Git repository.
+
+- **It is a repository** — it records the current branch (`committing to main`)
+  and moves on.
+- **It is not** — you get `no git repository found in this directory.` and a
+  choice:
+
+| Option | What it does |
+| --- | --- |
+| `initialize a new repository` | Runs `git init`. If the directory is empty, it offers to create a standard `README.md` for you. |
+| `connect to remote repository` | Prompts for a remote (`username/repo`, a URL, or SSH), verifies it, initializes Git with the remote's default branch, sets `origin`, fetches the remote history, and adopts it while keeping your local files. |
+| `skip git setup` | Exits with `repository setup skipped.` |
+
+The remote path verifies the repository read-only *before* touching anything
+locally, and rolls back the `.git` directory if a later step fails or you hit
+Ctrl+C — you are never left with half a repository.
+
+:::info
+With `--dry-run`, PushAI never initializes anything. It prints
+`dry run makes no changes. run without --dry-run to set up git.` and stops.
+:::
+
+### 2. Stage and read the diff
+
+Unless you passed `--dry-run`, PushAI stages everything:
+
+```bash
+git add .
+```
+
+then reads the staged diff. This is why `pai commit` picks up every change in
+the directory — there is no separate staging step to remember.
+
+### 3. Conflict check
+
+Before generating anything, PushAI checks for unresolved merge conflicts. If it
+finds any, it stops and lists them:
+
+```text
+✖ 2 file(s) have merge conflicts.
+  ✖ src/auth.ts
+  ✖ src/login.ts
+```
+
+Resolve them first, then run `pai commit` again.
+
+### 4. Generate the message
+
+Your **active provider** turns the diff into a Conventional Commit message — a
+subject line under 100 characters and a short body explaining what changed and
+why. PushAI shows it to you as a tree:
+
+```text
+╭─▶ proposed changes
+│
+├─▶ feat(ui): improve terminal output spacing
+╰─▶ Adjust spacing between terminal elements to make the output easier to read.
+```
+
+This step is **skipped entirely** when you pass `-m, --message` — see
+[Custom messages](#custom-messages-with-m).
+
+:::tip
+The diff sent to the provider is truncated at **12,000 characters**. Very large
+changesets are cut off with a `...(diff truncated)` marker, so the model sees
+the beginning of the diff rather than an unbounded payload. Split huge changes
+into smaller commits if you want the message to account for all of it.
+:::
+
+### 5. Review loop
+
+Without `-p`, PushAI asks how you would like to proceed:
+
+```text
+? how would you like to proceed?
+  publish to remote     Create the commit and push directly to origin
+  regenerate            Generate a new AI commit message
+  ─────────────────────────────────────────────
+  keep working tree     Discard proposed message and leave staged files uncommitted
+```
+
+| Choice | What happens |
+| --- | --- |
+| `publish to remote` | Creates the commit and pushes it to `origin`. This is the default when your active provider is BYOK. |
+| `save locally` | Creates the commit without pushing. **Only shown when your active provider is local (Ollama)**, and it is the default in that mode. |
+| `regenerate` | Asks the provider for a different message for the same diff and returns you to this menu. |
+| `keep working tree` | Discards the proposed message, runs `git reset` so nothing stays staged, and exits without committing. |
+
+Choosing **publish to remote** or **save locally** ends the loop; **regenerate**
+loops until you pick one of those or walk away.
+
+:::info
+When you pass `-p, --push`, the review menu is skipped entirely — PushAI
+creates the commit and pushes immediately.
+:::
+
+### 6. Commit
+
+PushAI creates the commit with the message (plus the
+[trailer](#the-generated-with-trailer)) and prints the short hash:
+
+```text
+✔ committed a91f2c4
+```
+
+If you chose not to push:
+
+```text
+✔ commit created on main. push when ready with `pai push`.
+```
+
+### 7. Push (optional)
+
+When a push is requested, PushAI checks for a remote named `origin` first:
+
+- **No `origin`** → `commit created on <branch>, but no remote named 'origin' was found.`
+  The commit itself still succeeds.
+- **Push fails** → `commit created on <branch>, but push failed.` with the Git
+  error above it. Again, the commit is kept.
+- **Push succeeds** → `commit created and pushed to <branch>.`
+
+On the very first push to a branch, PushAI sets the upstream automatically
+(`git push -u origin <branch>`), so the next `pai push` knows what to compare
+against.
+
+## Custom messages with `-m`
+
+Passing `-m` bypasses the AI entirely — no provider is read, so it works even
+before you have run `pai setup`.
+
+```bash
+pai commit -m "fix: null branch"
+```
+
+What happens next depends on the message:
+
+1. **Empty message** → `commit message cannot be empty.` and the command exits.
+2. **Already a Conventional Commit** → used exactly as you typed it. If your
+   message matches `type: subject` or `type(scope): subject`, no prompts appear
+   at all.
+3. **Anything else** → PushAI upgrades it to a Conventional Commit. It resolves
+   the type, asks for an optional scope, and prefixes your text:
+
+```text
+? select a commit type for "add search"
+  feat       a new feature
+  fix        a bug fix
+  docs       documentation only changes
+  ...
+? enter a scope (optional, press enter to skip): ui
+```
+
+```text
+feat(ui): add search
+```
+
+### Skipping the prompts with `--type` and `--scope`
+
+```bash
+pai commit -m "add search" --type feat --scope ui
+# → feat(ui): add search
+```
+
+- `--type` is validated against the 11 allowed values. An invalid type fails
+  immediately with the full list of valid types and exit code 1.
+- `--scope` is lowercased and validated against `^[a-z0-9._-]+$` — lowercase
+  letters, digits, dots, dashes, or underscores only.
+- `--type` and `--scope` only apply to `-m`. They do nothing on an AI-generated
+  commit.
+
+:::warning
+`--scope` requires `--type`. Passing `--scope` alone prints
+`--scope requires --type, falling back to interactive prompt.` and drops the
+scope — you will be asked for a type interactively anyway.
+:::
+
+## The `Generated-with` trailer
+
+Every commit created by `pai commit` gets a trailer appended to the message
+body:
+
+```text
+Generated-with: PushAI (https://pushai.vercel.app)
+```
+
+- It shows up in `git log` and `git show` — it is part of the commit body.
+- It is **not** shown in the CLI preview. PushAI strips it before rendering the
+  proposed message, so what you review is what you typed.
+- It is **not** `Co-authored-by`, so GitHub does not attach an avatar badge —
+  the commit author stays you.
+- It is never duplicated if the message already ends with it.
+
+## `--dry-run`
+
+```bash
+pai commit --dry-run
+```
+
+`--dry-run` computes what `git add -A && git diff --staged` would produce
+**using a throwaway index file** in your temp directory, then deletes it.
+
+- Your real index is never touched — anything you already staged by hand stays
+  staged, and nothing gets staged for you.
+- No commit is created, and the review menu never appears. You just see the
+  proposed message and `dry run completed on <branch>.`
+- The repository check, conflict check, provider configuration, and message
+  generation all still run, so it is a true preview of the real thing.
+
+:::warning
+A dry run does not modify the index, but it does not commit either — if you
+liked the message, run `pai commit` again to actually create it.
+:::
+
+## Troubleshooting
+
+:::warning
+**"no changes to commit."**
+
+PushAI found zero changed files. This is the most common surprise, and it
+almost always means one of these:
+
+- You are in the wrong directory (or a directory with nothing modified).
+- Everything is already committed — check with `git status`.
+- You are in a brand-new repository with no files yet. Initialize with files
+  first, or use `pai commit` after adding some.
+
+The command exits with a non-zero status and stages nothing.
+:::
+
+:::info
+**"no active provider configured. run `pai setup`."**
+
+You ran `pai commit` without `-m` and no provider is active. Run
+[`pai setup`](/introduction/setup-wizard) — if you let PushAI launch the wizard
+from inside the commit flow, run `pai commit` again afterwards, because the
+command exits as soon as setup finishes.
+:::
+
+## See also
+
+- [`pai push`](/commands/push) — push what you already committed.
+- [`pai switch`](/commands/switch) — change which provider generates messages.
+- [Configuration](/reference/config) — where the active provider lives.

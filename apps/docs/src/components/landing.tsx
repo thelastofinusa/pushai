@@ -6,10 +6,10 @@ import { FaGithub } from "react-icons/fa6";
 import { IoCheckmark, IoCopyOutline } from "react-icons/io5";
 import { LuArrowUpRight } from "react-icons/lu";
 import { SiBun, SiNpm, SiPnpm, SiYarn } from "react-icons/si";
-import { Link, Prompt, useConfig } from "vocs";
+import { Link, useConfig } from "vocs";
 
 type PackageManager = "npm" | "pnpm" | "bun" | "yarn";
-type PackageType = "commit" | "install";
+type PackageType = "init" | "install" | "run";
 type ThemeValue<value> = { dark: value; light: value };
 
 const packageManagers = ["npm", "pnpm", "bun", "yarn"] as const;
@@ -26,13 +26,21 @@ function getPackageCommand(
   name: string,
   type: PackageType,
 ) {
-  if (type === "commit") {
+  if (type === "init") {
+    if (packageManager === "npm") return `npx ${name} init`;
+    if (packageManager === "yarn") return `yarn dlx ${name} init`;
+    if (packageManager === "pnpm") return `pnpm dlx ${name} init`;
+    return `bunx ${name} init`;
+  }
+
+  if (type === "run") {
     if (packageManager === "npm") return `npx ${name} commit`;
     if (packageManager === "yarn") return `yarn dlx ${name} commit`;
     if (packageManager === "pnpm") return `pnpm dlx ${name} commit`;
     return `bunx ${name} commit`;
   }
 
+  // Global install — PushAI ships a `pai` binary, so it must be global.
   if (packageManager === "npm") return `npm install -g ${name}`;
   if (packageManager === "pnpm") return `pnpm add -g ${name}`;
   if (packageManager === "yarn") return `yarn global add ${name}`;

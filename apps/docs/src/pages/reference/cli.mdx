@@ -1,257 +1,182 @@
-# CLI
+# CLI reference [Every command on one page]
 
-The PushAI CLI is the `pushai` package, invoked as **`pai`**. It's a single
-binary built on [commander](https://www.npmjs.com/package/commander) and
-[@inquirer/prompts](https://www.npmjs.com/package/@inquirer/prompts). It turns
-your staged git changes into [Conventional Commits](https://www.conventionalcommits.org/)
-using AI, then optionally pushes them.
-
-## Install
-
-Published on npm as [`pushai`](https://www.npmjs.com/package/pushai):
-
-:::code-group
-
-```bash [npm]
-npm install -g pushai
+```bash
+pai <command> [options]
 ```
 
-```bash [bun]
-bunx pushai setup
+PushAI installs one binary, `pai`. Everything it does lives in seven commands.
+This page is the whole surface — grep-friendly, no clicking required.
+
+## Help output
+
+`pai --help` prints Commander's standard layout:
+
+```text
+Usage: pushai [options] [command]
+
+An AI Git assistant for your terminal
+
+Options:
+  -v, --version        show version
+  -h, --help           display help for command
+
+Commands:
+  commit               create an ai-generated git commit
+  push                 push local commits to the remote
+  peak                 peek at current pushai configuration
+  reset                delete local configuration
+  switch               switch the active ai provider
+  setup                run pushai setup wizard
+  update               check for a newer version of pushai
+  help [command]       display help for command
 ```
 
-```bash [pnpm]
-pnpm dlx pushai setup
-```
+Per-command help works the same way — `pai commit --help`, `pai reset --help`,
+and so on — listing that command's flags with their descriptions.
 
-```bash [yarn]
-yarn dlx pushai setup
-```
-
+:::info
+The program name in the usage line is the npm package name (`pushai`), while
+the binary you type is `pai`. They are the same tool; only the label differs.
 :::
-
-Once installed globally, the binary is called **`pai`**. You can also invoke it
-through any package-manager runner:
-
-```bash
-npx pushai
-bunx pushai
-pnpm dlx pushai
-yarn dlx pushai
-```
-
-## Commands
-
-| Command | Description |
-|---------|-------------|
-| [`pai setup`](#pai-setup) | Run the interactive setup wizard |
-| [`pai commit`](#pai-commit) | Generate and create an AI-powered commit |
-| [`pai push`](#pai-push) | Push local commits to the remote |
-| [`pai switch`](#pai-switch) | Switch the active AI provider |
-| [`pai peak`](#pai-peak) | List saved providers (and keys with `--key`) |
-| [`pai reset`](#pai-reset) | Remove a provider or delete all configuration |
-| [`pai update`](#pai-update) | Check for and install a newer version |
-
-## `pai setup`
-
-Run the interactive setup wizard.
-
-```bash
-pai setup
-```
-
-On the first run it walks you through choosing a commit-generation mode and
-saving your configuration. On subsequent runs it lets you add another provider
-or replace the active one.
-
-**Modes:**
-
-- **Local Models (Ollama)** — Run models locally on your machine via
-  [Ollama](https://ollama.com). No API key required.
-- **Bring Your Own Key (BYOK)** — Connect your own key for Anthropic, OpenAI,
-  Google Gemini, or Hugging Face. Keys are validated live before being saved.
-- **Cloud Hosted** — Zero-setup managed AI (planned, not yet available).
-
-Configuration is written to `~/.config/pushai/config.json`. API keys go through
-your OS keychain when available, falling back to a permission-locked local file
-per provider (`~/.config/pushai/key-<provider-id>.json`, mode `0o600`).
-
-## `pai commit`
-
-Generate and create an AI-powered commit. This is the core command.
-
-```bash
-pai commit [--dry-run] [-p|--push] [-m|--message <text>]
-```
-
-### Flags
-
-| Flag | Description |
-|------|-------------|
-| `--dry-run` | Generate and display the message, but don't create a commit |
-| `-p, --push` | Automatically push the commit after creating it |
-| `-m, --message <text>` | Use a custom message instead of generating one with AI |
-
-### How the flow works
-
-:::steps
-
-### 1. Repository check
-
-Verifies the current directory is a git repo. If not, it offers to initialize
-one or connect to a remote. If the directory is empty, it can create a
-standard `README.md`.
-
-### 2. Stage changes
-
-Runs `git add .` and reads the staged diff. Fails if there are unresolved
-merge conflicts.
-
-### 3. Provider check
-
-Loads your stored configuration and finds the active provider. If none is
-configured, prompts you to run `pai setup`. Skipped entirely when `-m` is
-passed.
-
-### 4. Generate the message
-
-Sends the staged diff to your active provider, which returns a Conventional
-Commit message. Diffs larger than ~12,000 characters are truncated before being
-sent.
-
-### 5. Review and proceed
-
-You're shown the proposed message and can publish, save locally (Ollama only),
-regenerate, or cancel.
-
-### 6. Commit and optionally push
-
-Creates the commit and shows the short hash. Unless `--push` was passed,
-reminds you to push with `pai push`.
-
-:::
-
-### Examples
-
-:::code-group
-
-```bash
-pai commit                       # interactive commit flow
-pai commit -m "fix: null branch" # skip AI generation, use custom message
-pai commit --push                # commit and push automatically
-pai commit --dry-run             # preview the generated message only
-```
-
-:::
-
-### Custom message (`-m`)
-
-When you pass `-m`, AI generation is skipped entirely and your message is used
-as-is. The message must not be empty.
-
-### Dry-run (`--dry-run`)
-
-Stages nothing and commits nothing. Computes what the diff *would* be,
-generates a message, displays it, and exits.
-
-:::warning
-`--dry-run` still reads your working tree but never creates a commit or pushes.
-:::
-
-## `pai push`
-
-Push any local, unpushed commits on your current branch to the remote `origin`.
-
-```bash
-pai push
-```
-
-Takes no flags. Checks for a repo, unresolved merge conflicts, and uncommitted
-changes, then counts unpushed commits and pushes to `origin` (setting upstream
-on first push).
-
-## `pai switch`
-
-List every provider you've configured (marking the active one) and pick a new
-active provider.
-
-```bash
-pai switch
-```
-
-If no configuration exists yet, it offers to run `pai setup` instead. Takes no
-flags.
-
-## `pai peak`
-
-List all of your saved providers, marking which one is active.
-
-```bash
-pai peak
-pai peak --key
-```
-
-### Flags
-
-| Flag | Description |
-|------|-------------|
-| `-k, --key` | Also reveal stored BYOK API keys in plaintext |
-
-## `pai reset`
-
-Remove a single saved provider interactively, or delete all saved providers and
-your entire configuration at once.
-
-```bash
-pai reset
-pai reset --all
-```
-
-### Flags
-
-| Flag | Description |
-|------|-------------|
-| `-a, --all` | Delete all configuration, including API keys. Skips the interactive menu. |
-
-:::warning
-`--all` deletes every provider and every stored API key. This cannot be undone.
-:::
-
-## `pai update`
-
-Check npm for a newer version of `pushai` and install it in place if one is
-available.
-
-```bash
-pai update
-```
-
-Takes no flags. A passive update check also runs automatically on most `pai`
-invocations (unless you pass `-h`, `--help`, or run `pai update`).
 
 ## Version
 
 ```bash
 pai --version
-# or
 pai -v
 ```
 
-Shows the installed version and the Node.js version from PATH.
+```text
+v3.1.24
+» node v22.11.0 (from PATH)
+```
 
-## Configuration files
+The first line is the installed PushAI version. The second is the Node version
+found on your `PATH`, which is useful when a version check misbehaves on a
+machine with several Node installs.
 
-| Path | Contents |
-|------|----------|
-| `~/.config/pushai/config.json` | Active provider and every saved provider's mode/model (no secrets) |
-| `~/.config/pushai/key-<provider-id>.json` | Fallback API key store, used only if your OS keychain is unavailable |
+## Commands
 
-## Environment
+| Command | Synopsis | Flags |
+| --- | --- | --- |
+| [`commit`](/commands/commit) | `pai commit [options]` | `-p, --push` · `-m, --message <text>` · `--type <type>` · `--scope <scope>` · `--dry-run` |
+| [`push`](/commands/push) | `pai push` | — |
+| [`switch`](/commands/switch) | `pai switch` | — |
+| [`peak`](/commands/peak) | `pai peak [options]` | `-k, --key` |
+| [`reset`](/commands/reset) | `pai reset [options]` | `-a, --all` |
+| [`setup`](/introduction/setup-wizard) | `pai setup` | — |
+| [`update`](/commands/update) | `pai update` | — |
 
-- `DEBUG` — Set to enable debug warnings from config/keychain operations.
-- `GIT_TERMINAL_PROMPT=0` — Set internally so git never hangs on a credential
-  prompt.
+### `pai commit`
 
-## Repository
+```bash
+pai commit [options]
+```
 
-[github.com/thelastofinusa/pushai — packages/cli](https://github.com/thelastofinusa/pushai/tree/main/packages/cli)
+Create an AI-generated Git commit: stage everything, read the diff, check for
+conflicts, generate a Conventional Commit message, let you review it, then
+commit — and optionally push.
+
+| Flag | Description |
+| --- | --- |
+| `--dry-run` | Preview the message without creating a commit (uses a throwaway index; your real index is untouched). |
+| `-p, --push` | Automatically push the commit. Skips the review menu. |
+| `-m, --message <text>` | Use a custom commit message instead of generating one. |
+| `--type <type>` | Conventional Commit type for `-m` — `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`. |
+| `--scope <scope>` | Conventional Commit scope for `-m`. Requires `--type`. |
+
+Full walkthrough: [pai commit](/commands/commit).
+
+### `pai push`
+
+```bash
+pai push
+```
+
+Push local commits on the current branch to `origin`. Warns about uncommitted
+changes, reports how many commits are unpushed, and sets the upstream on the
+first push. No flags.
+
+Full walkthrough: [pai push](/commands/push).
+
+### `pai switch`
+
+```bash
+pai switch
+```
+
+List your configured providers (active one marked) and choose a new active
+one. Offers to run `pai setup` if you have no configuration yet. No flags.
+
+Full walkthrough: [pai switch](/commands/switch).
+
+### `pai peak`
+
+```bash
+pai peak [options]
+```
+
+List saved providers, mark the active one, and show each key's status.
+
+| Flag | Description |
+| --- | --- |
+| `-k, --key` | Reveal stored BYOK API keys in plaintext. |
+
+Full walkthrough: [pai peak](/commands/peak).
+
+### `pai reset`
+
+```bash
+pai reset [options]
+```
+
+Interactively remove one provider, delete all providers, or preserve your
+configuration. Removing a BYOK provider also deletes its stored key.
+
+| Flag | Description |
+| --- | --- |
+| `-a, --all` | Skip the selection menu and go straight to the delete-all confirmation. |
+
+Full walkthrough: [pai reset](/commands/reset).
+
+### `pai setup`
+
+```bash
+pai setup
+```
+
+Run the setup wizard: choose local (Ollama), BYOK, or — disabled for now —
+cloud; validate your key live; pick a model. On later runs it offers to add a
+provider, replace the active one, or leave setup unchanged. No flags.
+
+Full walkthrough: [Setup Wizard](/introduction/setup-wizard).
+
+### `pai update`
+
+```bash
+pai update
+```
+
+Check npm for a newer version of `pushai` and, if you confirm, install it
+globally with your detected package manager. No flags.
+
+Full walkthrough: [pai update](/commands/update).
+
+## Global behaviour
+
+- **Version notice.** Before most commands PushAI checks npm for a newer
+  version, raced against a 1.5 second timeout and cached for 24 hours. It is
+  skipped for `update`, `-h`, and `--help`.
+- **Cancellation.** Ctrl+C at any prompt exits cleanly with
+  `operation cancelled.` and exit code 130 — nothing is half-applied.
+- **Prompt-aware command names.** PushAI adapts the command it shows you to how
+  you invoked it: `pai commit` when installed globally, `npx pushai commit` or
+  `bunx pushai commit` when run through a package runner.
+- **Exit codes.** `0` on success, `1` on failure (including invalid `--type` or
+  `--scope` values), `130` on cancellation.
+
+## See also
+
+- [Configuration](/reference/config) — the files these commands read and write.
+- [What is PushAI?](/introduction/what-is-pushai) — the flow behind
+  `pai commit`.

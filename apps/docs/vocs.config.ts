@@ -1,3 +1,5 @@
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import {
   Changelog,
   defineConfig,
@@ -5,21 +7,128 @@ import {
   Feedback,
   McpSource,
   Retriever,
-  Twoslash,
 } from "vocs/config";
-import pkg from "../../packages/cli/package.json";
+import pkg from "../../packages/cli/package.json" with { type: "json" };
 
-const { version } = pkg;
+// ---------------------------------------------------------------------------
+// npm stats: version + downloads, cached for 1 hour
+// ---------------------------------------------------------------------------
+
+type NpmStats = {
+  version: string;
+  weeklyDownloads: number | null;
+  monthlyDownloads: number | null;
+};
+
+type CacheEntry = { fetchedAt: number; data: NpmStats };
+
+const CACHE_TTL_MS = 60 * 60 * 1000;
+const CACHE_FILE = join(
+  import.meta.dirname,
+  "node_modules/.cache/npm-stats-pushai.json",
+);
+
+async function fetchNpmStats(packageName: string): Promise<NpmStats> {
+  const [versionRes, weeklyRes, monthlyRes] = await Promise.all([
+    fetch(`https://registry.npmjs.org/${packageName}/latest`),
+    fetch(`https://api.npmjs.org/downloads/point/last-week/${packageName}`),
+    fetch(`https://api.npmjs.org/downloads/point/last-month/${packageName}`),
+  ]);
+
+  if (!versionRes.ok || !weeklyRes.ok || !monthlyRes.ok) {
+    throw new Error(
+      `npm API returned ${versionRes.status}/${weeklyRes.status}/${monthlyRes.status}`,
+    );
+  }
+
+  const [versionData, weeklyData, monthlyData] = await Promise.all([
+    versionRes.json(),
+    weeklyRes.json(),
+    monthlyRes.json(),
+  ]);
+
+  return {
+    version: versionData.version,
+    weeklyDownloads: weeklyData.downloads ?? null,
+    monthlyDownloads: monthlyData.downloads ?? null,
+  };
+}
+
+async function getNpmStats(packageName: string): Promise<NpmStats> {
+  // 1. Fresh cache
+  if (existsSync(CACHE_FILE)) {
+    try {
+      const cached: CacheEntry = JSON.parse(readFileSync(CACHE_FILE, "utf8"));
+      if (Date.now() - cached.fetchedAt < CACHE_TTL_MS) return cached.data;
+    } catch {
+      // corrupt cache — fall through
+    }
+  }
+
+  // 2. Fetch and re-write cache
+  try {
+    const data = await fetchNpmStats(packageName);
+    mkdirSync(dirname(CACHE_FILE), { recursive: true });
+    writeFileSync(
+      CACHE_FILE,
+      JSON.stringify({ fetchedAt: Date.now(), data } satisfies CacheEntry),
+    );
+    return data;
+  } catch (error) {
+    console.warn("[vocs.config] Failed to fetch npm stats:", error);
+
+    // 3. Stale cache as last resort
+    if (existsSync(CACHE_FILE)) {
+      try {
+        const cached: CacheEntry = JSON.parse(readFileSync(CACHE_FILE, "utf8"));
+        console.warn("[vocs.config] Using stale cache.");
+        return cached.data;
+      } catch {
+        // ignore
+      }
+    }
+
+    // 4. Hard fallback: local package.json, no download count
+    return {
+      version: pkg.version,
+      weeklyDownloads: null,
+      monthlyDownloads: null,
+    };
+  }
+}
+
+function formatCount(n: number | null): string | null {
+  if (n == null) return null;
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}k`;
+  return n.toLocaleString("en-US");
+}
+
+const stats = await getNpmStats("pushai");
+const monthlyLabel = formatCount(stats.monthlyDownloads);
+// Swap the line below in if you'd rather show weekly:
+// const monthlyLabel = formatCount(stats.weeklyDownloads);
+
+const versionLabel = `v${stats.version}${
+  monthlyLabel ? ` • ${monthlyLabel}/mo` : ""
+}`;
+
+// ---------------------------------------------------------------------------
+// Config
+// ---------------------------------------------------------------------------
 
 export default defineConfig({
-  title: "PushAI",
+  title: "PushAI – Your Git workflow, quietly smarter.",
   titleTemplate: "%s – PushAI",
-  description:
-    "An AI Git assistant for your terminal. Staged diffs → Conventional Commits → push, from one command.",
 
   iconUrl: {
     light: "/icon-light.svg",
     dark: "/icon-dark.svg",
+  },
+
+  logoUrl: {
+    light: "/logo-tight-light.svg",
+    dark: "/logo-tight-dark.svg",
   },
 
   socials: [
@@ -28,7 +137,6 @@ export default defineConfig({
       link: "https://github.com/thelastofinusa/pushai",
     },
   ],
-
   sidebar: [
     {
       text: "Introduction",
@@ -40,83 +148,60 @@ export default defineConfig({
       ],
     },
     {
-      text: "Guides",
+      text: "Commands",
       collapsed: false,
       items: [
-        { text: "How It Works", link: "/guides/how-it-works" },
-        { text: "CLI", link: "/reference/cli" },
-        {
-          text: "Commands",
-          collapsed: false,
-          items: [
-            { text: "Generate commit", link: "/guides/commands/commit" },
-            { text: "Push changes", link: "/guides/commands/push" },
-            { text: "Switch provider", link: "/guides/commands/switch" },
-            { text: "View configuration", link: "/guides/commands/peek" },
-            { text: "Reset configuration", link: "/guides/commands/reset" },
-            { text: "Check updates", link: "/guides/commands/update" },
-          ],
-        },
-        {
-          text: "AI Providers",
-          collapsed: false,
-          items: [
-            {
-              text: "Bring Your Own Key (BYOK)",
-              link: "/guides/providers/byok",
-            },
-            { text: "Local Models (Ollama)", link: "/guides/providers/ollama" },
-            { text: "Cloud Hosted", link: "/guides/providers/cloud" },
-          ],
-        },
+        { text: "Generate commit", link: "/commands/commit" },
+        { text: "Push changes", link: "/commands/push" },
+        { text: "Switch provider", link: "/commands/switch" },
+        { text: "View configuration", link: "/commands/peak" },
+        { text: "Reset configuration", link: "/commands/reset" },
+        { text: "Check updates", link: "/commands/update" },
+      ],
+    },
+    {
+      text: "AI Providers",
+      collapsed: false,
+      items: [
+        { text: "Bring Your Own Key", link: "/providers/byok" },
+        { text: "Local models (Ollama)", link: "/providers/ollama" },
+        { text: "Cloud Hosted", link: "/providers/cloud" },
       ],
     },
     {
       text: "Reference",
       collapsed: false,
-      items: [{ text: "Configuration options", link: "/reference/config" }],
+      items: [
+        { text: "CLI reference", link: "/reference/cli" },
+        { text: "Configuration", link: "/reference/config" },
+      ],
     },
   ],
-
   mcp: {
     enabled: true,
     sources: [
       McpSource.github({
         name: "pushai",
         repo: "thelastofinusa/pushai",
-        paths: ["packages", "apps"],
+        paths: ["packages"],
       }),
     ],
   },
-
   ogImageUrl: (path, { baseUrl }) => `${baseUrl ?? ""}/og-image.webp`,
-
-  twoslash: {
-    transformers: [
-      Twoslash.experimental_rust({
-        cargoToml: "./Cargo.toml",
-        cacheOnly: true,
-      }),
-    ],
-  },
-
   ai: {
     retriever: process.env.CLOUDFLARE_API_TOKEN
       ? Retriever.local({ embedding: Embedding.cloudflare() })
       : undefined,
   },
-
   baseUrl:
     process.env.VERCEL_ENV === "production"
       ? "https://pushai.vercel.app"
       : process.env.VERCEL_URL
         ? `https://${process.env.VERCEL_URL}`
         : "https://pushai.vercel.app",
-
   cacheDir: ".vocs/cache",
   changelog: Changelog.github({ repo: "thelastofinusa/pushai" }),
   checkDeadlinks: true,
-
   feedback: Feedback.from({
     type: "custom",
     async submit(data) {
@@ -179,26 +264,26 @@ export default defineConfig({
     },
   }),
 
+  description:
+    "An AI Git assistant for your terminal. Stage your changes, generate a Conventional Commit, and push — all from one command.",
+
   editLink: {
     link: "https://github.com/thelastofinusa/pushai/edit/main/apps/docs/src/pages/:path",
   },
-
   topNav: [
     {
-      text: "Guides & API",
+      text: "Documentation",
       link: "/introduction/getting-started",
       match: (path) =>
         Boolean(
           path?.startsWith("/introduction") ||
-            path?.startsWith("/guides") ||
-            path?.startsWith("/reference") ||
-            path === "/configuration" ||
-            path === "/how-it-works" ||
-            path === "/cli-reference",
+            path?.startsWith("/commands") ||
+            path?.startsWith("/providers") ||
+            path?.startsWith("/reference"),
         ),
     },
     {
-      text: `v${version}`,
+      text: versionLabel,
       items: [
         {
           text: "NPM",

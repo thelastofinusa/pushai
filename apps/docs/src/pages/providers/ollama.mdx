@@ -1,0 +1,108 @@
+# Local models (Ollama) [Your code never leaves your machine]
+
+Local mode runs your commit generation through [Ollama](https://ollama.com) on
+your own machine. There is no API key, no account, and no network call to an AI
+provider — the diff stays where you wrote it.
+
+:::tip
+This is the fully offline path. Choose local mode with Ollama and an installed
+model and PushAI can generate commit messages with your machine disconnected
+from any AI service.
+:::
+
+## Install Ollama
+
+If you do not have it yet:
+
+:::code-group
+
+```bash [macOS / Linux]
+curl -fsSL https://ollama.com/install.sh | sh
+```
+
+```bash [Windows]
+irm https://ollama.com/install.ps1 | iex
+```
+
+:::
+
+Or download it from [ollama.com/download](https://ollama.com/download). `pai setup` will offer you
+these same instructions if it detects that `ollama` is missing from your
+`PATH`.
+
+## Pull a model
+
+```bash
+ollama pull llama3.2
+```
+
+Anything you already have installed shows up in PushAI. Smaller models (around
+1–8B) are plenty for writing two lines about a diff; run `ollama list` to see
+what is on your machine.
+
+## How PushAI uses Ollama
+
+When you choose **local machine (Ollama)** in [`pai setup`](/introduction/setup-wizard):
+
+1. **Detection** — PushAI runs `ollama -v` and reports the version:
+   `ollama v0.5.7 detected`. If it is not installed you get the install
+   instructions above instead.
+2. **Server startup** — it pings `http://127.0.0.1:11434/api/tags`. If the
+   server is not up, PushAI spawns `ollama serve` detached (so it outlives the
+   CLI) and polls for up to about five seconds. If that fails, setup stops with
+   `Ollama is not running and could not be started automatically. Start it
+   manually with: ollama serve`.
+3. **Model listing** — it reads your installed models with `ollama list`. With
+   several installed you pick one interactively; with exactly one it is used
+   automatically; with none you are offered `ollama pull <model>` instructions
+   or the model library at [ollama.com/search](https://ollama.com/search).
+4. **Selection** — the choice is saved as your active provider:
+   `{"id": "local", "mode": "local", "model": "llama3.2"}`.
+
+At commit time, [`pai commit`](/commands/commit) restarts the server if needed,
+sends the system prompt plus the diff to the model at temperature `0.3`, and
+reads back the two-line message.
+
+## What local mode looks like in the terminal
+
+```text
+✔ ollama v0.5.7 detected
+✔ you have 4 models installed
+? which model would you like to use?
+  llama3.2
+  qwen2.5-coder:7b
+  ...
+```
+
+Your commits then render as `local [llama3.2]` everywhere PushAI shows a
+provider — in `pai peak`, `pai switch`, and the `provider` line of
+`pai commit`.
+
+## Things worth knowing
+
+:::info
+**First request latency.** The first generation after boot loads the model into
+memory, so it can take noticeably longer than the ones after it. Subsequent
+commits in the same session are much quicker.
+:::
+
+:::warning
+**Reasoning models can return nothing.** Some reasoning-heavy models spend their
+entire output budget thinking and reply with an empty message. PushAI fails
+with `No commit message was generated. Try switching to a non-reasoning model.`
+— pick a standard instruct model (for example `llama3.2` or
+`qwen2.5-coder:7b`) and try again.
+:::
+
+- **No key, no config secrets.** Local providers are stored as just a mode and
+  a model name, so `~/.config/pushai/config.json` holds nothing sensitive even
+  if you never set up a keychain.
+- **Regenerate works the same way.** The review loop's *regenerate* option asks
+  the model for a different message for the same diff.
+- **Ollama itself is untouched by `pai reset`.** Removing the local provider
+  only removes PushAI's config entry; your models stay installed.
+
+## See also
+
+- [Bring Your Own Key](/providers/byok) — when you want a bigger hosted model.
+- [Cloud Hosted](/providers/cloud) — managed PushAI AI, coming soon.
