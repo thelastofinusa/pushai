@@ -118,17 +118,12 @@ const versionLabel = `v${stats.version}${
 // ---------------------------------------------------------------------------
 
 export default defineConfig({
-  title: "PushAI – Your Git workflow, quietly smarter.",
+  title: "PushAI",
   titleTemplate: "%s – PushAI",
 
   iconUrl: {
     light: "/icon-light.svg",
     dark: "/icon-dark.svg",
-  },
-
-  logoUrl: {
-    light: "/logo-tight-light.svg",
-    dark: "/logo-tight-dark.svg",
   },
 
   socials: [
