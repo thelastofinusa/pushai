@@ -1,5 +1,15 @@
 # pushai
 
+## 3.1.24
+
+### Patch Changes
+
+- 58dcf4c: I did something
+- Updated dependencies [58dcf4c]
+  - @pushai/types@0.2.5
+  - @pushai/core@0.2.10
+  - @pushai/utils@0.2.8
+
 ## 3.1.23
 
 ### Patch Changes

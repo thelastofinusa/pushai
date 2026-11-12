@@ -1,5 +1,11 @@
 # @pushai/types
 
+## 0.2.5
+
+### Patch Changes
+
+- 58dcf4c: I did something
+
 ## 0.2.4
 
 ### Patch Changes

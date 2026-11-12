@@ -1,5 +1,12 @@
 # @pushai/utils
 
+## 0.2.8
+
+### Patch Changes
+
+- Updated dependencies [58dcf4c]
+  - @pushai/types@0.2.5
+
 ## 0.2.7
 
 ### Patch Changes
