@@ -82,7 +82,7 @@
     },
     "packages/cli": {
       "name": "pushai",
-      "version": "3.1.23",
+      "version": "3.1.24",
       "bin": {
         "pai": "./dist/index.mjs",
       },
@@ -105,7 +105,7 @@
     },
     "packages/core": {
       "name": "@pushai/core",
-      "version": "0.2.9",
+      "version": "0.2.10",
       "dependencies": {
         "@anthropic-ai/sdk": "^0.127.0",
         "@google/generative-ai": "^0.24.1",
@@ -129,7 +129,7 @@
     },
     "packages/types": {
       "name": "@pushai/types",
-      "version": "0.2.4",
+      "version": "0.2.5",
       "devDependencies": {
         "@pushai/tsconfig": "workspace:*",
         "@types/bun": "latest",
@@ -139,7 +139,7 @@
     },
     "packages/utils": {
       "name": "@pushai/utils",
-      "version": "0.2.7",
+      "version": "0.2.8",
       "dependencies": {
         "@pushai/types": "workspace:*",
         "@types/which-pm-runs": "^1.0.2",
