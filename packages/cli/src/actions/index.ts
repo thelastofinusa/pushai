@@ -17,6 +17,11 @@ export const actions = {
         .option("--dry-run", "preview without creating a commit")
         .option("-p, --push", "automatically push the commit")
         .option("-m, --message <message>", "use a custom commit message")
+        .option(
+          "--type <type>",
+          "Conventional Commit type for -m (feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert)",
+        )
+        .option("--scope <scope>", "Conventional Commit scope for -m")
         .action(
           cancellation((options, command: Command) =>
             commitAction(
@@ -24,6 +29,8 @@ export const actions = {
                 autoPush: options.push,
                 dryRun: options.dryRun,
                 customMessage: options.message,
+                conventionalType: options.type,
+                conventionalScope: options.scope,
               },
               command,
             ),

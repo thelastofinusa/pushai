@@ -1,3 +1,4 @@
+// ── imports ──────────────────────────────────────────────────────────────
 import { Separator, select } from "@inquirer/prompts";
 import {
   createGitService,
@@ -9,6 +10,7 @@ import { showHeader, spinner } from "@pushai/utils";
 import chalk from "chalk";
 import type { Command } from "commander";
 import { handleEnsureConfig } from "../handlers/config.helper";
+import { handleCustomMessage } from "../handlers/custom-message.handler";
 import {
   handleCheckConflicts,
   handleEnsureRepo,
@@ -16,6 +18,8 @@ import {
 import { getCommandTitle } from "../lib/command-title";
 import { formatProvider } from "../lib/format";
 import { showCommitMessage } from "../lib/show";
+import { stripPushAITrailer, withPushAITrailer } from "../lib/trailer";
+// ─────────────────────────────────────────────────────────────────────────
 
 export async function commitAction(
   options: CommitFlowOptions = {},
@@ -36,17 +40,26 @@ export async function commitAction(
   });
   if (!repoState.isRepo) return;
 
+  // ── Custom message: validate, then upgrade to a Conventional Commit ──
   let message = options.customMessage?.trim();
 
-  if (options.customMessage !== undefined && !message) {
-    spinner.fail("commit message cannot be empty.");
-    return;
+  if (options.customMessage !== undefined) {
+    if (!message) {
+      spinner.fail("commit message cannot be empty.");
+      return;
+    }
+
+    message = await handleCustomMessage(message, {
+      type: options.conventionalType,
+      scope: options.conventionalScope,
+    });
   }
+  // ─────────────────────────────────────────────────────────────────────
 
   let config: SetupConfig | undefined;
   let isLocalProvider = false;
 
-  // Custom message skips provider configuration
+  // AI generation only runs when no custom message was provided
   if (!message) {
     const configResult = await handleEnsureConfig("cyan");
     if (typeof configResult === "boolean") return configResult;
@@ -113,7 +126,6 @@ export async function commitAction(
 
     try {
       message = await generateCommitMessage(config as SetupConfig, diff);
-
       spinner.succeed("message generated");
     } catch (error) {
       spinner.fail(
@@ -135,7 +147,7 @@ export async function commitAction(
   }
 
   console.log();
-  showCommitMessage(message, chalk.green);
+  showCommitMessage(stripPushAITrailer(message), chalk.green);
 
   if (options.dryRun) {
     showHeader({
@@ -206,7 +218,7 @@ export async function commitAction(
           spinner.succeed("message regenerated");
 
           console.log();
-          showCommitMessage(message, chalk.yellow);
+          showCommitMessage(stripPushAITrailer(message), chalk.yellow);
           console.log();
         } catch (error) {
           spinner.fail(
@@ -241,8 +253,10 @@ export async function commitAction(
     }
   }
 
-  const hash = await git.commit(message);
+  // ── Commit with the PushAI trailer ──────────────────────────────────
+  const hash = await git.commit(withPushAITrailer(message));
   spinner.succeed(`committed ${chalk.green(hash)}`);
+  // ─────────────────────────────────────────────────────────────────────
 
   if (!shouldPush) {
     showHeader({

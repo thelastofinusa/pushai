@@ -59,6 +59,8 @@ export interface CommitFlowOptions {
   autoPush?: boolean;
   dryRun?: boolean;
   customMessage?: string;
+  conventionalType?: string;
+  conventionalScope?: string;
 }
 
 export interface GitChangeSummary {
