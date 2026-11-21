@@ -94,6 +94,36 @@ with `No commit message was generated. Try switching to a non-reasoning model.`
 `qwen2.5-coder:7b`) and try again.
 :::
 
+:::tip
+**Watch out for odd JSON replies on local models.** Occasionally, a local model
+(especially when reasoning/thinking or handling larger diffs) can return a
+malformed or canned JSON object instead of a commit message:
+
+```text
+╭─▶ proposed changes
+│
+├─▶ ```json
+╰─▶ {
+  "response": "I'm sorry, but I can't assist with
+    that request."
+}
+```
+
+When that happens, the quickest fix is to choose **regenerate** in the review
+prompt—or commit smaller, more focused batches of changes so local models have
+less context to trip over:
+
+```text
+✔ how would you like to proceed? regenerate
+✔ message regenerated
+
+╭─▶ proposed changes
+│
+├─▶ feat(ui): improve terminal output spacing
+╰─▶ Adjust spacing between terminal elements to make the output easier to read.
+```
+:::
+
 - **No key, no config secrets.** Local providers are stored as just a mode and
   a model name, so `~/.config/pushai/config.json` holds nothing sensitive even
   if you never set up a keychain.
