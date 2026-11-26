@@ -1,5 +1,7 @@
 // ── imports ──────────────────────────────────────────────────────────────
 import { Separator, select } from "@inquirer/prompts";
+import chalk from "chalk";
+import type { Command } from "commander";
 import {
   createGitService,
   generateCommitMessage,
@@ -7,8 +9,6 @@ import {
 } from "@/core";
 import type { CommitFlowOptions, SetupConfig } from "@/types";
 import { showHeader, spinner } from "@/utils";
-import chalk from "chalk";
-import type { Command } from "commander";
 import { handleEnsureConfig } from "../handlers/config.helper";
 import { handleCustomMessage } from "../handlers/custom-message.handler";
 import {
@@ -174,15 +174,6 @@ export async function commitAction(
         message: "how would you like to proceed?",
         default: isLocalProvider ? "commit" : "push",
         choices: [
-          ...(isLocalProvider
-            ? [
-                {
-                  name: "save locally",
-                  value: "commit",
-                  description: "Create the commit without pushing to origin",
-                },
-              ]
-            : []),
           {
             name: "publish to remote",
             value: "push",
@@ -194,6 +185,15 @@ export async function commitAction(
             description: "Generate a new AI commit message",
           },
           new Separator(),
+          ...(isLocalProvider
+            ? [
+                {
+                  name: "save locally",
+                  value: "commit",
+                  description: "Create the commit without pushing to origin",
+                },
+              ]
+            : []),
           {
             name: "keep working tree",
             value: "cancel",
