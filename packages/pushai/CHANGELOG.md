@@ -1,5 +1,11 @@
 # pushai
 
+## 3.2.2
+
+### Patch Changes
+
+- e621aa0: Change default select to push instead of the local provider
+
 ## 3.2.1
 
 ### Patch Changes
