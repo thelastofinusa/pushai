@@ -1,5 +1,11 @@
 # pushai
 
+## 3.2.0
+
+### Minor Changes
+
+- fd6aac1: chore: update package versions for compatibility
+
 ## 3.1.25
 
 ### Patch Changes
