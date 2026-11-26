@@ -51,7 +51,7 @@ When you choose **local machine (Ollama)** in [`pai setup`](/introduction/setup-
    server is not up, PushAI spawns `ollama serve` detached (so it outlives the
    CLI) and polls for up to about five seconds. If that fails, setup stops with
    `Ollama is not running and could not be started automatically. Start it
-   manually with: ollama serve`.
+manually with: ollama serve`.
 3. **Model listing** — it reads your installed models with `ollama list`. With
    several installed you pick one interactively; with exactly one it is used
    automatically; with none you are offered `ollama pull <model>` instructions
@@ -81,56 +81,64 @@ provider — in `pai peak`, `pai switch`, and the `provider` line of
 ## Things worth knowing
 
 :::info
-**First request latency.** The first generation after boot loads the model into
-memory, so it can take noticeably longer than the ones after it. Subsequent
-commits in the same session are much quicker.
+**First-request warm-up latency**
+
+The first commit generation after a system boot or model switch loads the model weights into memory, which can take noticeably longer. Subsequent commits within the same session run against the loaded model and respond much faster.
 :::
 
-:::warning
-**Reasoning models can return nothing.** Some reasoning-heavy models spend their
-entire output budget thinking and reply with an empty message. PushAI fails
-with `No commit message was generated. Try switching to a non-reasoning model.`
-— pick a standard instruct model (for example `llama3.2` or
-`qwen2.5-coder:7b`) and try again.
-:::
+:::steps
 
-:::tip
-**Watch out for odd JSON replies on local models.** Occasionally, a local model
-(especially when reasoning/thinking or handling larger diffs) can return a
-malformed or canned JSON object instead of a commit message:
+#### Malformed or JSON responses are retried automatically
 
-```text
+Local models — especially reasoning models or models processing large diffs — occasionally return raw JSON objects, code fences, or XML-style tags instead of plain commit text:
+
+````text
 ╭─▶ proposed changes
 │
 ├─▶ ```json
 ╰─▶ {
   "response": "I'm sorry, but I can't assist with
-    that request."
+  that request."
 }
-```
+````
 
-When that happens, the quickest fix is to choose **regenerate** in the review
-prompt—or commit smaller, more focused batches of changes so local models have
-less context to trip over:
+PushAI automatically detects outputs wrapped in code fences, raw JSON objects, or `<commit>`, `<message>`, and `<response>` tags and requests a clean generation. While retrying, the terminal spinner updates to show progress:
 
 ```text
-✔ how would you like to proceed? regenerate
-✔ message regenerated
-
-╭─▶ proposed changes
-│
-├─▶ feat(ui): improve terminal output spacing
-╰─▶ Adjust spacing between terminal elements to make the output easier to read.
+⠸ response looked like JSON — regenerating (2/4)..
 ```
+
+PushAI retries up to **4 times**. If all four attempts return non-message output, the command exits with:
+
+```text
+The provider returned non-message output 4 times in a row.
+Try a different model, or pass a message with `-m`.
+```
+
+To resolve this, switch to a standard instruct model (such as `llama3.2` or `qwen2.5-coder:7b`) or stage smaller, more focused batches of changes to reduce the context load.
+
+#### No API keys or keychain secrets
+
+Because local mode runs on your machine without authentication, PushAI stores only the mode and model name in `~/.config/pushai/config.json`. Nothing sensitive is written to disk or required in your system keychain.
+
+#### Interactive regeneration works identically
+
+Choosing _regenerate_ during the commit review loop sends the same staged diff back to your local Ollama model to produce an alternative commit message.
+
+#### `pai reset` leaves Ollama intact
+
+Running `pai reset` only clears PushAI's local provider configuration. Your Ollama installation and downloaded models remain untouched on your machine.
 :::
 
-- **No key, no config secrets.** Local providers are stored as just a mode and
-  a model name, so `~/.config/pushai/config.json` holds nothing sensitive even
-  if you never set up a keychain.
-- **Regenerate works the same way.** The review loop's *regenerate* option asks
-  the model for a different message for the same diff.
-- **Ollama itself is untouched by `pai reset`.** Removing the local provider
-  only removes PushAI's config entry; your models stay installed.
+:::warning
+**Avoid reasoning-heavy models**
+
+Reasoning-focused models often spend their entire token budget on internal thought blocks and return an empty final output. When this happens, PushAI stops with:
+
+`No commit message was generated. Try switching to a non-reasoning model.`
+
+Stick to standard instruct or coding models such as `llama3.2` or `qwen2.5-coder:7b` for reliable results.
+:::
 
 ## See also
 
