@@ -125,7 +125,11 @@ export async function commitAction(
     spinner.start("generating commit..");
 
     try {
-      message = await generateCommitMessage(config as SetupConfig, diff);
+      message = await generateCommitMessage(config as SetupConfig, diff, {
+        onRetry: ({ attempt, maxAttempts }) => {
+          spinner.text = `response looked like JSON — regenerating (${attempt}/${maxAttempts})..`;
+        },
+      });
       spinner.succeed("message generated");
     } catch (error) {
       spinner.fail(
@@ -214,7 +218,12 @@ export async function commitAction(
         spinner.start("regenerating..");
 
         try {
-          message = await generateCommitMessage(config, diff, true);
+          message = await generateCommitMessage(config, diff, {
+            regenerate: true,
+            onRetry: ({ attempt, maxAttempts }) => {
+              spinner.text = `response looked like JSON — regenerating (${attempt}/${maxAttempts})..`;
+            },
+          });
           spinner.succeed("message regenerated");
 
           console.log();
