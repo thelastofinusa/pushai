@@ -1,5 +1,11 @@
 # pushai
 
+## 3.2.1
+
+### Patch Changes
+
+- 9fbdc84: Swapped save locally position
+
 ## 3.2.0
 
 ### Minor Changes
