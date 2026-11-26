@@ -4,9 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite dev --port 3000",
-    "build": "vite build",
-    "preview": "vite preview",
+    "dev": "vocs dev --port 3000",
+    "build": "vocs build",
+    "preview": "vocs preview",
     "clean": "rm -rf .turbo dist node_modules"
   },
   "dependencies": {
@@ -18,7 +18,7 @@
     "react-dom": "~19.3.0",
     "react-icons": "^5.7.0",
     "shiki": "^4.5.0",
-    "vocs": "latest",
+    "vocs": "2.12.0",
     "waku": "1.0.0-rc.2"
   },
   "devDependencies": {
