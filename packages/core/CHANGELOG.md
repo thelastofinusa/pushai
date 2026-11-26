@@ -1,5 +1,11 @@
 # @pushai/core
 
+## 0.2.11
+
+### Patch Changes
+
+- 996ee9a: refactor(cli): add retry logic for commit message generation when the provider returns invalid output, improving the reliability of the commit message generation process
+
 ## 0.2.10
 
 ### Patch Changes

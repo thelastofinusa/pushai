@@ -1,5 +1,13 @@
 # pushai
 
+## 3.1.25
+
+### Patch Changes
+
+- 996ee9a: refactor(cli): add retry logic for commit message generation when the provider returns invalid output, improving the reliability of the commit message generation process
+- Updated dependencies [996ee9a]
+  - @pushai/core@0.2.11
+
 ## 3.1.24
 
 ### Patch Changes
