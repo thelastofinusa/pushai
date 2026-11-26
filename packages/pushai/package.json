@@ -1,0 +1,65 @@
+{
+  "name": "pushai",
+  "version": "3.1.25",
+  "description": "An AI Git assistant for your terminal",
+  "type": "module",
+  "license": "MIT",
+  "author": "Osilama",
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs"
+    }
+  },
+  "bin": {
+    "pai": "./dist/index.mjs"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thelastofinusa/pushai.git",
+    "directory": "packages/cli"
+  },
+  "homepage": "https://pushai.vercel.app",
+  "keywords": [
+    "git",
+    "cli",
+    "ai",
+    "commit",
+    "conventional-commits"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "start": "bun run ./src/cli/index.ts",
+    "lint": "biome check .",
+    "clean": "rm -rf .turbo dist node_modules",
+    "pack:dry": "bun run build && bun pm pack --dry-run",
+    "prepublishOnly": "bun run build"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.127.0",
+    "@google/generative-ai": "^0.24.1",
+    "@huggingface/inference": "^4.13.30",
+    "@inquirer/prompts": "^8.7.2",
+    "@napi-rs/keyring": "^2.1.0",
+    "chalk": "^6.0.0",
+    "commander": "^15.0.0",
+    "ollama": "^0.6.3",
+    "openai": "^7.21.0",
+    "ora": "^9.4.1",
+    "simple-git": "^3.36.0"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/node": "^22.20.2",
+    "tsdown": "0.22.14"
+  }
+}

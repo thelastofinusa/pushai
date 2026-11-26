@@ -8,7 +8,7 @@ import {
   McpSource,
   Retriever,
 } from "vocs/config";
-import pkg from "../../packages/cli/package.json" with { type: "json" };
+import pkg from "../../packages/pushai/package.json" with { type: "json" };
 
 // ---------------------------------------------------------------------------
 // npm stats: version + downloads, cached for 1 hour
