@@ -172,7 +172,7 @@ export async function commitAction(
     while (true) {
       const selectedAction = await select({
         message: "how would you like to proceed?",
-        default: isLocalProvider ? "commit" : "push",
+        default: "push",
         choices: [
           {
             name: "publish to remote",
